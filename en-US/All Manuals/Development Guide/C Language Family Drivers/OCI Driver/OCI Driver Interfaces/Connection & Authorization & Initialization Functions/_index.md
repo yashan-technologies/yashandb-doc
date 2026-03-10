@@ -1,0 +1,3 @@
+initno:1
+
+filename:OCIEnvCreate,OCIServerAttach,OCIServerDetach,OCISessionBegin,OCISessionEnd,OCIEnvNlsCreate,OCIServerVersion,OCIServerRelease2,OCINlsNumericInfoGet,OCILogoff,OCILogon2,OCISessionGet,OCISessionRelease,OCISessionPoolCreate,OCISessionPoolDestroy,OCIEnvInit,OCIInitialize,OCILogon

@@ -1,0 +1,123 @@
+通用描述
+----
+
+GRANT用于对某一用户授予权限，可授予的内容包括[系统特权SYSTEM PRIVILEGE](../../../产品安全/数据访问控制/特权管理（mysql模式）/系统特权)、[模式特权SCHEMA PRIVILEGE](../../../产品安全/数据访问控制/特权管理（mysql模式）/模式特权)和[对象特权OBJECT PRIVILEGE](../../../产品安全/数据访问控制/特权管理（mysql模式）/对象特权)。
+
+授予给用户的权限立即生效。
+
+语句定义
+----
+
+**grant::=**
+
+```ebnf+diagram
+syntax::= grant_system_privilege|grant_schema_privilege|grant_object_privilege
+```
+
+**[grant\_system\_privilege](#grant_system_privilege)::=**
+
+```ebnf+diagram
+syntax::= GRANT ((system_privilege)) {"," (system_privilege)} ON "*.*" TO user_name [WITH GRANT OPTION]
+```
+
+**[grant\_schema\_privileg](#grant_schema_privilege)e::=**
+
+```ebnf+diagram
+syntax::= GRANT ((schema_privilege)) {"," (schema_privilege)} ON [schema "."]"*"  TO user_name [WITH GRANT OPTION]
+```
+
+**[grant\_object\_privilege](#grant_object_privilege)::=**
+
+```ebnf+diagram
+syntax::= GRANT ((object_privilege)) {"," (object_privilege)} ON [TABLE] [schema "."] table_name TO user_name [WITH GRANT OPTION]
+```
+
+<span id="grant_system_privilege" name="grant_system_privilege" class="yaslink"></span>
+
+### 1. grant\_system\_privilege
+
+该语句用于对用户授予系统特权。
+
+#### 1.1. system\_privilege
+
+将授予的系统特权的名称，多个名称间用逗号分隔，系统特权清单请查阅[系统特权](../../../产品安全/数据访问控制/特权管理（mysql模式）/系统特权)。
+
+#### 1.2. user\_name
+
+被授权者用户名称。
+
+#### 1.3. WITH GRANT OPTION
+
+将系统特权授予某一个用户时，指定本语句表示该用户具备了对此权限的管理权限，即可以将该系统特权再转授给其他用户。
+
+示例（单机HEAP表）
+
+```sql
+-- 在用户SALES下将CREATE USER权限授予SALES1用户，并指定WITH GRANT OPTION
+GRANT CREATE USER ON *.* TO SALES1 WITH GRANT OPTION;
+ 
+-- 此时SALES1可以将上述权限授予其他用户
+conn SALES1/********
+GRANT CREATE USER ON *.* TO SALES2;
+```
+
+<span id="grant_schema_privilege" name="grant_schema_privilege" class="yaslink"></span>
+
+### 2. grant\_schema\_privilege
+
+该语句用于对用户授予模式特权。
+
+模式特权对于sys schema不生效。
+
+#### 2.1. schema\_privilege
+
+将授予的系统特权的名称，多个名称间用逗号分隔，系统特权清单请查阅[模式特权](../../../产品安全/数据访问控制/特权管理（mysql模式）/模式特权)。
+
+#### 2.2. [schema.]*
+
+模式的名称，需指定为已创建的模式。
+
+#### 2.3. user\_name
+
+被授权者用户名称。
+
+#### 2.4. WITH GRANT OPTION
+
+将系统特权授予某一个用户时，指定本语句表示该用户具备了对此权限的管理权限，即可以将该系统特权再转授给其他用户。
+
+示例（单机HEAP表）
+
+```sql
+-- 在用户SALES下将指定模式下的所有权限授予SALES1用户
+conn SALES/********
+GRANT ALL ON sales.* TO SALES1 WITH GRANT OPTION;
+```
+
+<span id="grant_object_privilege" name="grant_object_privilege" class="yaslink"></span>
+
+### 3. grant\_object\_privilege
+
+该语句用于对用户授予对象特权。
+
+#### 3.1. object\_privilege
+
+将授予的对象特权的名称，多个名称间用逗号分隔，对象特权清单请查阅[OBJECT PRIVILEGE](../../../产品安全/数据访问控制/特权管理（mysql模式）/对象特权)。
+
+#### 3.2. [schema.]table\_name
+
+表的名称，需指定为已创建的表。
+
+#### 3.3. user\_name
+
+被授权者，即用户名称。
+
+#### 3.4. WITH GRANT OPTION
+
+将对象特权授予某一个用户时，指定本语句表示该用户可以将该对象特权再转授给其他的用户。
+
+示例（单机HEAP表）
+
+```sql
+-- 在用户SALES1下将指定表的所有权限授予SALES2用户
+GRANT ALL ON TABLE sales.sales_info TO SALES2;
+```

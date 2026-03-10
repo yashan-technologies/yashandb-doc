@@ -1,0 +1,3 @@
+initno:1
+
+filename:OCIStmtExecute,OCIStmtFetch,OCIStmtPrepare,OCIStmtFetch2,OCIStmtPrepare2,OCIStmtRelease

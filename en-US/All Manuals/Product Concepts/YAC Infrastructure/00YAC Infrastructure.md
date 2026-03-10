@@ -1,0 +1,1 @@
+YashanDB YAC relies on shared storage at the hardware level, while YashanDB Distributed Cluster Deployment requires distributed storage infrastructure. Both them introduces new infrastructure in software, including the Yashan Cluster Service (YCS) and Yashan File System (YFS), which provide cluster management and parallel file services, respectively.

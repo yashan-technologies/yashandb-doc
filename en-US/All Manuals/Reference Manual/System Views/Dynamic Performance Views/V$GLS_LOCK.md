@@ -1,0 +1,11 @@
+This view shows the global lock status in YAC.
+
+|Field |Type |Description |
+| --- | --- | --- |
+| ID             | BIGINT     | Global lock ID                                                                                               |
+| TYPE           | VARCHAR(32)| Global lock TYPE<br>\*   OBJECT_LOCK: Object lock<br>\*   SEGMENT_LOCK: Segment lock<br>\*   SEGMENT_EXTEND_LOCK: Extended segment lock<br>\*   INTERVAL_EXTEND_LOCK: Interval partition extended lock<br>\*   USER_LOCK: User lock<br>\*   SYSTEM_LOCK: System lock<br>\*   SPC_EXTENT_LOCK: Tablespace extent lock<br>\*   ROLE_LOCK: Role lock<br>\*   UNKNOWN: Unknown lock type |
+| RESOURCE_NAME  | VARCHAR(128)| Resource name                                                                                               |
+| GLOBAL_STATUS  | TINYINT    | Lock status of the MASTER RESOURCE of the Buffer. The MODE will not be cleared after the lock is released locally<br>\*   0: NONE, unregistered<br>\*   1: SHARE, registered as shared lock status<br>\*   2: EXCLUSIVE, registered as exclusive lock status |
+| LOCAL_STATUS   | TINYINT    | Local lock status<br>\*   0: IDLE, the lock is not currently used<br>\*   1: SHARE, currently using the lock as a shared lock<br>\*   2: INTENTIONAL EXCLUSIVE, intentional exclusive lock<br>\*   3: EXCLUSIVE, currently using the lock as an exclusive lock |
+| SHARE_COUNT    | SMALLINT   | Number of shared lock holders                                                                                 |
+| XID            | BIGINT     | XRM XID holding the exclusive lock. This field is used to display the transaction corresponding to the exclusive lock. It is only meaningful when LOCAL_STATUS=EXCLUSIVE; otherwise, it is NULL.           |

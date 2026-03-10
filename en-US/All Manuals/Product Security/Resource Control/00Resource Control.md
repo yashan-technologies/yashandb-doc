@@ -1,0 +1,5 @@
+Resource control mainly includes session resource control and connection resource control.
+
+- [Session Resource Control](Session Resource Control): Session resource controls, such as limiting the number of parallel connections and session idle time, can effectively reduce the security risks posed by idle connections, prevent malicious attacks and potential data leaks, avoid resource abuse, and improve the performance and stability of the database.
+
+- [Connection Resource Control](Connection Resource Control): YashanDB prevents the database from being unresponsive to legitimate requests due to exhaustion of connection resources during heavy load, DoS attacks, or connection floods by always maintaining a certain number of available connections. This significantly enhances the security, stability, and reliability of the system.

@@ -1,0 +1,1 @@
+The interfaces/methods implemented by the YashanDB JDBC driver are fully compatible with the standard JDBC. For the meanings and usage instructions of the related methods, please refer to the [official JDBC documentation](https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html).
