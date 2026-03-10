@@ -1,0 +1,1 @@
+This chapter mainly introduces the data types that YashanDB (mysql mode) can use, as well as their conversions and operation rules.

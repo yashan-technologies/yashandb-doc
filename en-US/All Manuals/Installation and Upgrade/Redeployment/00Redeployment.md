@@ -1,0 +1,5 @@
+Redeployment refers to the re-deployment of the current database server. Depending on different applicable scenarios, it can be divided into:
+
+- In scenarios such as data center relocation or network segment reallocation, when the physical information of the server hosting the database changes, the runtime environment on which the database relies also changes. Administrators should take timely measures to perform [online redeployment](Changing Server IP Address) of the database to quickly restore services.
+
+- In certain specific scenarios, for example, when it is necessary to periodically clean up the test environment database and reinstall it, or repeatedly learn how to install the database from scratch, such operations usually do not involve changes to the initial environment of the database installation, related configurations, or database version changes. It is sufficient to [uninstall and then reinstall in the original environment](Uninstalling and Reinstalling in the Original Configuration).

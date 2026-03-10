@@ -1,3 +1,0 @@
-FastLoader是YashanDB提供的表数据快速导入接口，采用JAVA实现。
-
-客户端软件可以集成FastLoader API的jar包，调用API接口实现表数据的快速导入。

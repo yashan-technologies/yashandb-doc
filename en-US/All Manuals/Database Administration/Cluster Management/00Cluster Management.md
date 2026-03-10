@@ -1,0 +1,1 @@
+When installing YashanDB using YAC/Distributed Cluster deployment, a single-database multi-instance cluster will be set up for users. This chapter will provide guidance and reference for some common cluster management operations.

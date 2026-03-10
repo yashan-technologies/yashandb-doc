@@ -1,1 +1,0 @@
-INFORMATION_SCHEMA视图为系统提供的以INFORMATION_SCHEMA.开头的视图，用于记录mysql模式下的元数据信息。

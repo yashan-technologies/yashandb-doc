@@ -1,0 +1,51 @@
+```ebnf+diagram
+cast::= CAST "(" expr " AS type_name)"
+```
+
+CAST函数将expr的值转换为type_name指定数据类型的值。
+
+**expr**
+
+[通用表达式](../通用SQL语法/expr)。
+
+当expr为NULL时，函数返回NULL。
+
+当expr为数值型常量且目标类型为字符型时，无论cast是否嵌套使用，一旦expr经过cast转换后的数据长度超过字符型的定义长度，函数均会返回报错data size exceeds limit n。
+
+**type_name**
+
+指定转换到的类型，当前type_name支持以下类型：
+
+|  type_name类型| 相关类型表现|
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| BINARY[(N)]        | 生成具有VARBINARY数据类型的字符串，但当表达式expr为空串（零长度）时，结果类型为VARBINARY(0)。<br />如果给出了可选长度N，BINARY(N)会导致转换使用不超过N个字节的参数。短于N个字节的值将用0x00字节填充至长度N。<br />如果没有给出可选长度N，函数将从表达式中计算最大长度。如果提供或计算的长度大于内部阈值，则结果类型为BLOB。 |
+| CHAR[(N)]          | 生成具有VARCHAR数据类型的字符串，除非表达式expr为空串（零长度），在这种情况下结果类型为VARCHAR(0)。<br />如果给出了可选长度N，CHAR(N) 会导致转换使用不超过N个参数字符。对于短于N个字符的值，不会发生填充。<br />如果没有给出可选长度N，函数会根据表达式计算最大长度。如果提供或计算的长度大于内部阈值，则结果类型为LONGTEXT。   |
+| DATETIME[(M)]      | 生成DATETIME值。如果给出了可选的M值，则指定秒的小数部分精度。<br />默认精度为0。<br />当指定精度时，入参精度超过M不报错，返回trim精度后的结果。                                                                                                       |
+| DECIMAL[(M[,D])]   | 生成DECIMAL值。如果给出了可选的M和D值，则它们指定最大位数（精度）和小数点后的位数（小数位数）。<br />如果省略D，则假定为0。如果省略M，则假定为10。<br />                                                                                                   |
+| NCHAR[(N)]         | 当前表现与CHAR相同。                                                                                                                                                                                |
+| SIGNED [INTEGER]   | 产生一个有符号的BIGINT值。                                                                                                                                                                            |
+| UNSIGNED [INTEGER] | 产生一个无符号的BIGINT UNSIGNED值。                                                                                                                                                                   |
+| TIME[(M)]          | 生成一个TIME值。如果给出了可选的M值，则指定秒的小数部分精度。<br />默认精度为0。<br />当指定精度时，入参精度超过M不报错，返回trim精度后的结果。                                                                                                         |
+
+示例（HEAP表）
+
+```sql
+SELECT CAST(12345.12345 AS CHAR) cast FROM dual;
+cast
+----------------------------------------------------------------
+12345.12345
+
+SELECT CAST(12345.12345 AS CHAR(11)) cast FROM dual;
+cast
+---------------------------------------------
+12345.12345
+
+SELECT CAST(12345.12345 AS CHAR(10)) cast FROM dual;
+YAS-04425 data size exceeds limit 10
+
+SELECT CAST(321.1234567 AS VARCHAR(8)) FROM DUAL;
+[1:28]YAS-04114 need to specify the datatype
+
+SELECT CAST(CAST(321.1234567 AS NUMBER) AS VARCHAR(8)) FROM DUAL;
+[1:44]YAS-04114 need to specify the datatype
+```

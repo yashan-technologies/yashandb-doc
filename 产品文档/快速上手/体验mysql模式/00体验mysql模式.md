@@ -1,5 +1,0 @@
-YashanDB从v23.4版本开始支持yashan和mysql两种SQL语法模式，已完成对MySQL5.7语法兼容，对于熟悉MySQL数据库产品的用户，可通过本章节快速体验YashanDB在mysql模式场景下的数据库功能。
-
-在mysql兼容模式下，我们主要实现了如下产品功能：
-1. 100%兼容全套MySQL5.7协议常用命令字、数据类型、information_schema/MySQL schema/performance_schema系统视图，兼容MySQL5.7语法；
-2. 支持MySQL原生工具及客户端mysql-jdbc5.1.40、mysqldump10.13、mysql14.14、mysql_client5.7.42、mydumperv0.16.9-1直接连接YashanDB。

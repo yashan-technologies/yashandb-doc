@@ -1,0 +1,1 @@
+Fault handling mainly provides emergency response methods for timely recovery and data loss reduction when failures such as instance startup failure, database file corruption, or cluster operation anomalies occur.  

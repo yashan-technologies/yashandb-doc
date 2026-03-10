@@ -1,0 +1,1 @@
+For some clauses that may appear in the syntax definitions of multiple SQL statements, this chapter provides a general explanation and definition. The corresponding SQL statements will not explain these clauses again but will directly reference the name of the clause.

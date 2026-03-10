@@ -1,1 +1,0 @@
-YashanDB支持异构数据库链接，即YashanDB - 非YashanDB或非YashanDB - YashanDB。当YashanDB作为异构数据库链接中的目的端时，源端可通过配置ODBC数据源连接至YashanDB。

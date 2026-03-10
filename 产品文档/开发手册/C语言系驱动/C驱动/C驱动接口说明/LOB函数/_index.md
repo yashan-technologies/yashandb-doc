@@ -1,5 +1,0 @@
-initno:1
-
-filename:yacLobAppend,yacLobCreateTemporary2,yacLobDescAlloc2,yacLobDescFree2,yacLobFreeTemporary,yacLobGetChunkSize,yacLobGetLength,yacLobIsTemporary,yacLobRead2,yacLobTrim,yacLobWrite2,yacLobWriteAppend
-
-enName:yacLobAppend,yacLobCreateTemporary2,yacLobDescAlloc2,yacLobDescFree2,yacLobFreeTemporary,yacLobGetChunkSize,yacLobGetLength,yacLobIsTemporary,yacLobRead2,yacLobTrim,yacLobWrite2,yacLobWriteAppend

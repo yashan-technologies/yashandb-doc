@@ -1,9 +1,0 @@
-本视图显示当前系统提供的所有动态视图名称。
-
-| 字段  | 类型  | 说明  |
-| --- | --- | --- |
-| GROUP_ID | NUMBER | 组ID |
-| GROUP_NODE_ID | NUMBER | 组内节点ID |
-| INST_ID | NUMBER  | 实例ID |
-| ID | INTEGER | 动态视图序号 |
-| NAME | VARCHAR(64) | 动态视图名称 |
