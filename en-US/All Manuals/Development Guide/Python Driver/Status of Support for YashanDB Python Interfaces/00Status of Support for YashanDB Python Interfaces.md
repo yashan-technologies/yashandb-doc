@@ -1,0 +1,1 @@
+The Python DB API interface implemented by python-yasdb is fully compatible with the standard Python DB API. For the meaning and usage instructions of the relevant interfaces/methods, please refer to the [Python DB API specification](https://peps.python.org/pep-0249/). 

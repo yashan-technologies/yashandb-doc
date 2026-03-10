@@ -1,0 +1,1 @@
+YashanDB supports heterogeneous database connections, that is, YashanDB - non-YashanDB or non-YashanDB - YashanDB. When YashanDB is the destination end of the heterogeneous database link, the source end can connect to YashanDB by configuring an ODBC data source.

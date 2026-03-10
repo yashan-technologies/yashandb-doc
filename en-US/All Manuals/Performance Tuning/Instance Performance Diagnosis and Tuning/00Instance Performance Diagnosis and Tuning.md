@@ -1,0 +1,3 @@
+Instance-level tuning focuses on achieving overall performance diagnosis of the database through various methods, analyzing the diagnostic results, and taking specific optimization measures.
+
+Diagnostic methods include using tools to obtain performance-related information on a scheduled or manual basis, or querying the series of performance metric data provided by YashanDB through views, conducting empirical analysis on the obtained results or comparing them with quantifiable baselines to evaluate, diagnosing the root causes of existing performance issues, and predicting potential performance problems.

@@ -1,0 +1,1 @@
+This section explains and defines the most basic and simple elements used in SQL syntax.

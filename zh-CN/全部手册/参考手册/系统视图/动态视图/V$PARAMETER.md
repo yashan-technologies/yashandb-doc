@@ -1,0 +1,8 @@
+本视图显示所有配置参数汇总信息。
+
+|  字段| 类型| 说明|
+| --- | --- | --- |
+| NAME | VARCHAR(64) | 参数的名称 |
+| VALUE | VARCHAR(4096) | 当前内存中参数的值 |
+| DEFAULT_VALUE | VARCHAR(4096) | 参数的默认值 |
+| IS_DEPRECATED | VARCHAR(8) | 参数是否过时 |

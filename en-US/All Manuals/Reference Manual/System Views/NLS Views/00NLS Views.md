@@ -1,0 +1,1 @@
+NLS views are views provided by the system that start with NLS_, used to display the corresponding configuration information of the database. Users can manage and optimize the database by querying these views.

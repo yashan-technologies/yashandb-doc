@@ -1,0 +1,3 @@
+initno:1
+
+filename:yacLobAppend,yacLobCreateTemporary2,yacLobDescAlloc2,yacLobDescFree2,yacLobFreeTemporary,yacLobGetChunkSize,yacLobGetLength,yacLobIsTemporary,yacLobRead2,yacLobRead2WithCharset,yacLobTrim,yacLobWrite2,yacLobWrite2WithCharset,yacLobWriteAppend,yacLobWriteAppendWithCharset

@@ -1,0 +1,1 @@
+The interfaces/methods implemented by the YashanDB ADO.NET driver are fully compliant with standard ADO.NET. For the meanings and usage descriptions of related methods, please refer to the [System.Data.Common namespace](https://learn.microsoft.com/zh-cn/dotnet/api/system.data.common?view=net-5.0).

@@ -1,0 +1,51 @@
+## yasboot init
+
+本命令提供交互式的快速部署数据库的方式。
+
+|  选项| 含义|
+| ------------------- | ------------------------------------------------------------ |
+| *-h,--help*        | 查看当前命令的帮助信息  |
+| --mode              | 安装模式，可选[local-host, multi-host]                       |
+| --ip                | 用于部署数据库的服务器IP地址清单，仅支持IPv4地址，支持如`192.168.1.2,192.168.1.3`或者`192.168.1.[2-4]`两种格式 |
+| -u, --username      | 服务器SSH用户名                                              |
+| -p, --password      | 服务器SSH登录密码                                            |
+| -N,--no-password    | SSH免密登录                                                  |
+| --ssh-port          | 服务器SSH连接端口                                            |
+| -c, --cluster       | 数据库集群的名称                                                     |
+| --node              | 数据库的节点规模                                         |
+| --plugins           | 需要安装的插件包，可选[all,s3,gis,dblink,udf,listagg,none]，默认为all，支持选择多个，使用逗号分隔 |
+| --install-path      | 数据库安装路径，生成的YASDB_HOME为\<install-path\>/\<version\>     |
+| --data-path         | 数据路径，生成的YASDB_DATA为\<data-path\>/db-\<nodeid\>      |
+| --log-path          | 运行日志目录，存放数据库的run.log和slow.log、yasom和yasagent的日志               |
+| --listen-on         | yasdb进程监听的地址，可选值[mange-ip, 0.0.0.0]               |
+| -sp, --sys-password | 设置数据库超级管理员sys用户的密码，配置要求如下：<br/>* 密码长度为8 - 64位<br/>* 密码中不能包含对应的数据库用户名称<br/>* 密码必须同时包含数字、字母和特殊字符<br/>* OS命令相关的特殊字符（例如`@`、`/`、`.`、`!`、`$`、`'`等）需进行转义                                                |
+| --begin-port        | 起始端口                                                     |
+| --memory-limit      | 服务器的可使用内存百分比上限，0表示不设限                    |
+| --config-mode       | 配置模式，可选值[config-only,install-now]                  |
+| --fail-opt          | 失败后的操作，可选值[save,clean]                            |
+| --env-opt           | 部署成功后环境变量的添加方式，可选值[automatic,manual]         |
+| --monit-opt         | 部署成功后monit的打开方式，可选值[automatic,manual]           |
+| -y, --yes           | 所有询问[y/n]的地方都选择yes                                 |
+| -t, --yas-type      | 数据库部署的部署形态：可选值[SE, CE]            |
+| --ce-data           | 共享集群数据盘，支持输入多个，使用逗号分隔        |
+| --disk-found-path   | 共享集群磁盘发现路径，支持输入多个，使用逗号分隔                                  |
+| --system-data       | 共享集群系统数据盘，支持输入多个，使用逗号分隔                                   |
+| *--public-network*  | 共享集群对外提供服务的公网，格式为子网/子网掩码[/网卡名]，网卡名可以省略，例如：192.168.1.0/24    |
+| *--vips*              | 共享集群的VIP配置信息，格式为IP地址/子网掩码[/网卡名]，例如：192.168.1.62/255.255.255.0/ens192，如果无法确保同一集群中所有服务器访问公网的网卡名一致，则必须省略网卡名。需配合--public-network参数使用，且IP地址应属于公网网段。VIP个数与节点个数一致，多个VIP配置之间用逗号`,`隔开    |
+| *--scanname*              | 共享集群的SCAN域名，需配合--public-network参数使用   |
+| --group             | 共享集群组的个数                                |
+| --standby-node      | 共享集群类型备集群节点的部署规模                 |
+| -fg,--failgroup     | 共享集群磁盘组的故障组数量                       |
+| --yfs-force-create  | YFS强制创建diskgroup（仅适用共享集群）           |
+| --ignore-hostname   | 忽略服务器名（隐藏参数）<br/>仅当同一环境中的多台服务器存在同名且不允许修改名称时，需指定该选项<br/>指定该选项时，yasboot将忽略服务器名称直接生成默认字符串（yas1，yas2……）作为集群节点名进行部署，非必要**不推荐使用**，以服务器名称作为集群节点名更便于管理                |
+| --deps             | 依赖包文件本地路径（隐藏参数）                 |
+
+示例
+
+```shell
+# 推荐：执行如下命令进入交互式部署
+$ ./bin/yasboot init 
+
+# 命令行，忽略检查失败项可能会造成部署失败
+$ ./bin/yasboot init --mode single-host --ip 127.0.0.1 -u yashan -p password --ssh-port 22 -c yashandb --node 1 --plugins all --install-path /data/yashan/yasdb_home --data-path /data/yashan/yasdb_data --log-path /data/yashan/log --listen-on manage-ip --sys-password password --begin-port 1688 --memory-limit 80 -y --yas-type SE
+```
