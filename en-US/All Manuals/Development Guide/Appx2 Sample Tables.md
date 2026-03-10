@@ -1,0 +1,1440 @@
+## Standalone Deployment HEAP Sample Table
+
+```sql
+DROP TABLE IF EXISTS finance_info;
+DROP TABLE IF EXISTS sales_info;
+DROP TABLE IF EXISTS sales_info_range;
+DROP TABLE IF EXISTS sales_info_list;
+DROP TABLE IF EXISTS sales_info_hash;
+DROP TABLE IF EXISTS orders_info;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS area; 
+DROP TABLE IF EXISTS numbers;
+DROP TABLE IF EXISTS numbers_nobit;
+DROP TABLE IF EXISTS area1;
+DROP TABLE IF EXISTS branches1;
+DROP TABLE IF EXISTS employee_data;
+
+-- Area Information Table
+CREATE TABLE area
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL);
+INSERT INTO area VALUES ('01','EastChina','Shanghai');
+INSERT INTO area VALUES ('02','WestChina','Chengdu');
+INSERT INTO area VALUES ('03','SouthChina','Guangzhou');
+INSERT INTO area VALUES ('04','NorthChina','Beijing');
+INSERT INTO area VALUES ('05','CentralChina','Wuhan');
+  
+-- Branches Information Table
+CREATE TABLE branches
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2)  CONSTRAINT c_branches_1 REFERENCES area(area_no) ON DELETE SET NULL,
+ address VARCHAR2(200));
+INSERT INTO branches VALUES ('0001','Shenzhen','','');
+INSERT INTO branches VALUES ('0101','Shanghai','01','Jingan District, Shanghai');
+INSERT INTO branches VALUES ('0102','Nanjing','01','City of Nanjing');
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0104','Xiamen','01','Xiamen');
+INSERT INTO branches VALUES ('0401','Beijing','04','');
+INSERT INTO branches VALUES ('0402','Tianjin','04','');
+INSERT INTO branches VALUES ('0403','Dalian','04','Dalian City');
+INSERT INTO branches VALUES ('0404','Shenyang','04','');
+INSERT INTO branches VALUES ('0201','Chengdu','02','');
+INSERT INTO branches VALUES ('0501','Wuhan','','');
+INSERT INTO branches VALUES ('0502','Changsha','05','');
+  
+-- Department Information Table
+CREATE TABLE department
+(deparment_no CHAR(3) PRIMARY KEY,
+ department_name VARCHAR2(20));
+INSERT INTO department VALUES('000','Public Dep');
+INSERT INTO department VALUES('010','Sales Dep');
+INSERT INTO department VALUES('008','Purchasing Dep');
+INSERT INTO department VALUES('002','Finance Dep');
+  
+-- Employees Information Table
+CREATE TABLE employees
+(branch CHAR(4)   CONSTRAINT c_employees_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+ department CHAR(3)   CONSTRAINT c_employees_2 REFERENCES department(deparment_no) ON DELETE SET NULL,
+ employee_no CHAR(10) NOT NULL PRIMARY KEY,
+ employee_name VARCHAR2(10),
+ sex CHAR(1),
+ entry_date DATE
+ );
+INSERT INTO employees VALUES ('0101','000','0101000001','Mask','1',SYSDATE-1000);
+INSERT INTO employees VALUES ('0101','000','0101000002','John','1',SYSDATE-2000);
+INSERT INTO employees VALUES ('0201','010','0201010011','Anna','0',SYSDATE-300);
+INSERT INTO employees VALUES ('0201','008','0201008003','Jack','1',SYSDATE-700);
+INSERT INTO employees VALUES ('0101','008','0201008004','Jim','1',SYSDATE-200);
+  
+-- Product Information Table
+CREATE TABLE product
+(product_no CHAR(5) PRIMARY KEY,
+ product_name VARCHAR2(30),
+ cost NUMBER,
+ price NUMBER
+);
+INSERT INTO product VALUES ('11001','product001',8,10);
+INSERT INTO product VALUES ('11002','product002',13,16);
+INSERT INTO product VALUES ('10001','product001',99,100);
+INSERT INTO product VALUES ('10002','product002',199,200);
+  
+-- Orders Information Table
+CREATE TABLE orders_info (order_no CHAR(14) NOT NULL,
+             product_no CHAR(5) CONSTRAINT c_orders_info_3 REFERENCES product(product_no) ON DELETE SET NULL,
+             area CHAR(2) CONSTRAINT c_orders_info_2 REFERENCES area(area_no) ON DELETE SET NULL,
+             branch CHAR(4) CONSTRAINT c_orders_info_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+             order_date DATE DEFAULT SYSDATE NOT NULL,
+             salesperson CHAR(10) CONSTRAINT c_orders_info_4 REFERENCES employees(employee_no) ON DELETE SET NULL,
+             id NUMBER)
+    PARTITION BY RANGE (id )
+    INTERVAL (1000)
+    (PARTITION p_orders_info_1 VALUES LESS THAN (800));
+INSERT INTO orders_info VALUES ('20010102020001','11001','01','0101',SYSDATE-400,'0201010011',300);
+INSERT INTO orders_info VALUES ('20010102020001','11002','02','0201',SYSDATE-400,'0201008003',1300);
+INSERT INTO orders_info VALUES ('20010102020001','10001','04','0402',SYSDATE-400,'0201010011',2300);
+INSERT INTO orders_info VALUES ('20210102020002','11001','04','0401',SYSDATE-400,'0201008003',400);
+INSERT INTO orders_info VALUES ('20210102020002','11002','05','0501',SYSDATE-400,'0201010011',200);
+INSERT INTO orders_info VALUES ('20210102020002','10001','01','0102',SYSDATE-400,'0201008003',100);
+  
+-- Sales Information Table
+CREATE TABLE sales_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4) CONSTRAINT c_sales_info_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+ product CHAR(5) CONSTRAINT c_sales_info_2 REFERENCES product(product_no) ON DELETE SET NULL,
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10) CONSTRAINT c_sales_info_3 REFERENCES employees(employee_no) ON DELETE SET NULL)
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION template (SUBPARTITION sp_sales_info_1 VALUES ('2001','2002','2010'),
+ SUBPARTITION sp_sales_info_2 VALUES ('2021','2020','2019'),
+ SUBPARTITION sp_sales_info_3 VALUES (DEFAULT))
+(PARTITION p_sales_info_1,PARTITION p_sales_info_2,PARTITION p_sales_info_3);
+
+CREATE INDEX idx_sales_info_1 ON sales_info (year,month,branch,product) LOCAL
+(PARTITION ip_sales_info_1 (SUBPARTITION isp_sales_info_11,SUBPARTITION isp_sales_info_12,SUBPARTITION isp_sales_info_13),
+PARTITION ip_sales_info_2 (SUBPARTITION isp_sales_info_21,SUBPARTITION isp_sales_info_22,SUBPARTITION isp_sales_info_23),
+PARTITION ip_sales_info_3 (SUBPARTITION isp_sales_info_31,SUBPARTITION isp_sales_info_32,SUBPARTITION isp_sales_info_33));
+
+INSERT INTO sales_info VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','10','0402','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','05','0101','11001',40,600,'');
+  
+-- Sales Information Table with Range Partitioning
+CREATE TABLE sales_info_range
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY RANGE(year)
+(PARTITION p_sales_info_range_1 VALUES LESS THAN('2011'),
+ PARTITION p_sales_info_range_2 VALUES LESS THAN('2021'),
+ PARTITION p_sales_info_range_3 VALUES LESS THAN('2031'));
+INSERT INTO sales_info_range VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info_range VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','10','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','05','0101','11001',40,600,'');
+  
+-- Sales Information Table with List Partitioning
+CREATE TABLE sales_info_list
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY LIST(year)
+(PARTITION p_sales_info_list_1 VALUES('2018','2019'),
+ PARTITION p_sales_info_list_2 VALUES('2021'));
+INSERT INTO sales_info_list VALUES ('2018','10','0101','11001',20,300,'');
+INSERT INTO sales_info_list VALUES ('2021','05','0101','11001',40,600,'');
+  
+-- Sales Information Table with Hash Partitioning
+CREATE TABLE sales_info_hash
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(year)
+(PARTITION p_sales_info_hash_1,
+ PARTITION p_sales_info_hash_2);
+  
+-- Finance Information Table
+CREATE TABLE finance_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4) CONSTRAINT c_finance_info_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+ revenue_total NUMBER(10,2),
+ cost_total NUMBER(10,2),
+ fee_total NUMBER(10,2)
+);
+CREATE INDEX idx_finance_info_1 ON finance_info (year,month,branch);
+INSERT INTO finance_info VALUES ('2001','01','0201',2888,2000,300);
+INSERT INTO finance_info VALUES ('2021','01','0201',28888,24000,3000);
+INSERT INTO finance_info VALUES ('2021','01','0101',38888,34000,4000);
+INSERT INTO finance_info VALUES ('2021','02','0101',37778,33000,6000);
+  
+-- Numbers table often used in mathematical function descriptions, contains TINYINT, SMALLINT, INT, BIGINT, FLOAT, DOUBLE, NUMBER, BIT fields
+CREATE TABLE numbers(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER,numberh BIT);
+INSERT INTO numbers VALUES(-5,55,5555,5555555555555555555,5.555,-5.55555555,555,1);
+  
+-- Numbers table without BIT field, often used in mathematical function descriptions, contains INT, TINYINT, SMALLINT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers_nobit VALUES(-5,55,5555,5555555555555555555,5.555,5.55555555555,555);
+  
+-- Area1 table often used in aggregation function descriptions
+CREATE TABLE area1
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL,
+ employee_count INT);
+INSERT INTO area1 VALUES ('01','EastChina','Shanghai','');
+INSERT INTO area1 VALUES ('02','WestChina','Chengdu',300);
+INSERT INTO area1 VALUES ('03','SouthChina','Guangzhou',400);
+INSERT INTO area1 VALUES ('04','NorthChina','Beijing',300);
+INSERT INTO area1 VALUES ('05','CentralChina','Wuhan','');
+  
+-- Branches1 table often used in aggregation function descriptions
+CREATE TABLE branches1
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200),
+ employee_count INT);
+INSERT INTO branches1 VALUES ('0001','Shenzhen','','',40);
+INSERT INTO branches1 VALUES ('0101','Shanghai','01','Jingan District, Shanghai','');
+INSERT INTO branches1 VALUES ('0102','Nanjing','01','City of Nanjing',70);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0104','Xiamen','01','Xiamen','');
+INSERT INTO branches1 VALUES ('0401','Beijing','04','','');
+INSERT INTO branches1 VALUES ('0402','Tianjin','04','',10);
+INSERT INTO branches1 VALUES ('0403','Dalian','04','Dalian City',30);
+INSERT INTO branches1 VALUES ('0404','Shenyang','04','','');
+INSERT INTO branches1 VALUES ('0201','Chengdu','02','','');
+INSERT INTO branches1 VALUES ('0501','Wuhan','','',30);
+INSERT INTO branches1 VALUES ('0502','Changsha','05','',40);
+  
+COMMIT;
+```
+
+## Standalone Deployment TAC Sample Tables
+
+```sql
+DROP TABLE IF EXISTS finance_info;
+DROP TABLE IF EXISTS sales_info;
+DROP TABLE IF EXISTS sales_info_range;
+DROP TABLE IF EXISTS sales_info_list;
+DROP TABLE IF EXISTS sales_info_hash;
+DROP TABLE IF EXISTS orders_info;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS area;   
+DROP TABLE IF EXISTS numbers;
+DROP TABLE IF EXISTS numbers_nobit;
+DROP TABLE IF EXISTS area1;
+DROP TABLE IF EXISTS branches1;
+   
+-- Area Information Table
+CREATE TABLE area
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL);
+INSERT INTO area VALUES ('01','EastChina','Shanghai');
+INSERT INTO area VALUES ('02','WestChina','Chengdu');
+INSERT INTO area VALUES ('03','SouthChina','Guangzhou');
+INSERT INTO area VALUES ('04','NorthChina','Beijing');
+INSERT INTO area VALUES ('05','CentralChina','Wuhan');
+   
+-- Branches Information Table
+CREATE TABLE branches
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200));
+INSERT INTO branches VALUES ('0001','Shenzhen','','');
+INSERT INTO branches VALUES ('0101','Shanghai','01','Jingan District, Shanghai');
+INSERT INTO branches VALUES ('0102','Nanjing','01','City of Nanjing');
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0104','Xiamen','01','Xiamen');
+INSERT INTO branches VALUES ('0401','Beijing','04','');
+INSERT INTO branches VALUES ('0402','Tianjin','04','');
+INSERT INTO branches VALUES ('0403','Dalian','04','Dalian City');
+INSERT INTO branches VALUES ('0404','Shenyang','04','');
+INSERT INTO branches VALUES ('0201','Chengdu','02','');
+INSERT INTO branches VALUES ('0501','Wuhan','','');
+INSERT INTO branches VALUES ('0502','Changsha','05','');
+   
+-- Department Information Table
+CREATE TABLE department
+(deparment_no CHAR(3) PRIMARY KEY,
+ department_name VARCHAR2(20));
+INSERT INTO department VALUES('000','Public Dep');
+INSERT INTO department VALUES('010','Sales Dep');
+INSERT INTO department VALUES('008','Purchasing Dep');
+INSERT INTO department VALUES('002','Finance Dep');
+   
+-- Employees Information Table
+CREATE TABLE employees
+(branch CHAR(4),
+ department CHAR(3),
+ employee_no CHAR(10) NOT NULL PRIMARY KEY,
+ employee_name VARCHAR2(10),
+ sex CHAR(1),
+ entry_date DATE
+ );
+INSERT INTO employees VALUES ('0101','000','0101000001','Mask','1',SYSDATE-1000);
+INSERT INTO employees VALUES ('0101','000','0101000002','John','1',SYSDATE-2000);
+INSERT INTO employees VALUES ('0201','010','0201010011','Anna','0',SYSDATE-300);
+INSERT INTO employees VALUES ('0201','008','0201008003','Jack','1',SYSDATE-700);
+INSERT INTO employees VALUES ('0101','008','0201008004','Jim','1',SYSDATE-200);
+   
+-- Product Information Table
+CREATE TABLE product
+(product_no CHAR(5) PRIMARY KEY,
+ product_name VARCHAR2(30),
+ cost NUMBER,
+ price NUMBER
+);
+INSERT INTO product VALUES ('11001','product001',8,10);
+INSERT INTO product VALUES ('11002','product002',13,16);
+INSERT INTO product VALUES ('10001','product001',99,100);
+INSERT INTO product VALUES ('10002','product002',199,200);
+   
+-- Orders Information Table
+CREATE TABLE orders_info (order_no CHAR(14) NOT NULL,
+             product_no CHAR(5),
+             area CHAR(2),
+             branch CHAR(4),
+             order_date DATE DEFAULT SYSDATE NOT NULL,
+             salesperson CHAR(10),
+             id NUMBER)
+    PARTITION BY RANGE (id )
+    INTERVAL (1000)
+    (PARTITION p_orders_info_1 VALUES LESS THAN (800));
+INSERT INTO orders_info VALUES ('20010102020001','11001','01','0101',SYSDATE-400,'0201010011',300);
+INSERT INTO orders_info VALUES ('20010102020001','11002','02','0201',SYSDATE-400,'0201008003',1300);
+INSERT INTO orders_info VALUES ('20010102020001','10001','04','0402',SYSDATE-400,'0201010011',2300);
+INSERT INTO orders_info VALUES ('20210102020002','11001','04','0401',SYSDATE-400,'0201008003',400);
+INSERT INTO orders_info VALUES ('20210102020002','11002','05','0501',SYSDATE-400,'0201010011',200);
+INSERT INTO orders_info VALUES ('20210102020002','10001','01','0102',SYSDATE-400,'0201008003',100);
+   
+-- Sales Information Table
+CREATE TABLE sales_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION template (SUBPARTITION sp_sales_info_1 VALUES ('2001','2002','2010'),
+ SUBPARTITION sp_sales_info_2 VALUES ('2021','2020','2019'),
+ SUBPARTITION sp_sales_info_3 VALUES (DEFAULT))
+(PARTITION p_sales_info_1,PARTITION p_sales_info_2,PARTITION p_sales_info_3);
+
+CREATE INDEX idx_sales_info_1 ON sales_info (year,month,branch,product) LOCAL
+(PARTITION ip_sales_info_1 (SUBPARTITION isp_sales_info_11,SUBPARTITION isp_sales_info_12,SUBPARTITION isp_sales_info_13),
+PARTITION ip_sales_info_2 (SUBPARTITION isp_sales_info_21,SUBPARTITION isp_sales_info_22,SUBPARTITION isp_sales_info_23),
+PARTITION ip_sales_info_3 (SUBPARTITION isp_sales_info_31,SUBPARTITION isp_sales_info_32,SUBPARTITION isp_sales_info_33));
+
+INSERT INTO sales_info VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','10','0402','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with Range Partitioning
+CREATE TABLE sales_info_range
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY RANGE(year)
+(PARTITION p_sales_info_range_1 VALUES LESS THAN('2011'),
+ PARTITION p_sales_info_range_2 VALUES LESS THAN('2021'),
+ PARTITION p_sales_info_range_3 VALUES LESS THAN('2031'));
+INSERT INTO sales_info_range VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info_range VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','10','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with List Partitioning
+CREATE TABLE sales_info_list
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY LIST(year)
+(PARTITION p_sales_info_list_1 VALUES('2018','2019'),
+ PARTITION p_sales_info_list_2 VALUES('2021'));
+INSERT INTO sales_info_list VALUES ('2018','10','0101','11001',20,300,'');
+INSERT INTO sales_info_list VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with Hash Partitioning
+CREATE TABLE sales_info_hash
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(year)
+(PARTITION p_sales_info_hash_1,
+ PARTITION p_sales_info_hash_2);
+   
+-- Finance Information Table
+CREATE TABLE finance_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ revenue_total NUMBER(10,2),
+ cost_total NUMBER(10,2),
+ fee_total NUMBER(10,2)
+);
+CREATE INDEX idx_finance_info_1 ON finance_info (year,month,branch);
+INSERT INTO finance_info VALUES ('2001','01','0201',2888,2000,300);
+INSERT INTO finance_info VALUES ('2021','01','0201',28888,24000,3000);
+INSERT INTO finance_info VALUES ('2021','01','0101',38888,34000,4000);
+INSERT INTO finance_info VALUES ('2021','02','0101',37778,33000,6000);
+   
+-- Numbers Table often used in mathematical function descriptions, contains TINYINT, SMALLINT, INT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers VALUES(-5,55,5555,5555555555555555555,5.555,-5.55555555,555);
+   
+-- Numbers Table often used in mathematical function descriptions, contains INT, TINYINT, SMALLINT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers_nobit VALUES(-5,55,5555,5555555555555555555,5.555,5.55555555555,555);
+   
+-- Area1 Table often used in aggregation function descriptions
+CREATE TABLE area1
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL,
+ employee_count INT);
+INSERT INTO area1 VALUES ('01','EastChina','Shanghai','');
+INSERT INTO area1 VALUES ('02','WestChina','Chengdu',300);
+INSERT INTO area1 VALUES ('03','SouthChina','Guangzhou',400);
+INSERT INTO area1 VALUES ('04','NorthChina','Beijing',300);
+INSERT INTO area1 VALUES ('05','CentralChina','Wuhan','');
+   
+-- Branches1 Table often used in aggregation function descriptions
+CREATE TABLE branches1
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200),
+ employee_count INT);
+INSERT INTO branches1 VALUES ('0001','Shenzhen','','',40);
+INSERT INTO branches1 VALUES ('0101','Shanghai','01','Jingan District, Shanghai','');
+INSERT INTO branches1 VALUES ('0102','Nanjing','01','City of Nanjing',70);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0104','Xiamen','01','Xiamen','');
+INSERT INTO branches1 VALUES ('0401','Beijing','04','','');
+INSERT INTO branches1 VALUES ('0402','Tianjin','04','',10);
+INSERT INTO branches1 VALUES ('0403','Dalian','04','Dalian City',30);
+INSERT INTO branches1 VALUES ('0404','Shenyang','04','','');
+INSERT INTO branches1 VALUES ('0201','Chengdu','02','','');
+INSERT INTO branches1 VALUES ('0501','Wuhan','','',30);
+INSERT INTO branches1 VALUES ('0502','Changsha','05','',40);
+   
+COMMIT;
+```
+
+## Standalone Deployment LSC Sample Tables
+
+```sql
+DROP TABLE IF EXISTS finance_info;
+DROP TABLE IF EXISTS sales_info;
+DROP TABLE IF EXISTS sales_info_range;
+DROP TABLE IF EXISTS sales_info_list;
+DROP TABLE IF EXISTS sales_info_hash;
+DROP TABLE IF EXISTS orders_info;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS area;    
+DROP TABLE IF EXISTS numbers;
+DROP TABLE IF EXISTS numbers_nobit;
+DROP TABLE IF EXISTS area1;
+DROP TABLE IF EXISTS branches1;
+    
+-- Area Information Table
+CREATE TABLE area
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL);
+INSERT INTO area VALUES ('01','EastChina','Shanghai');
+INSERT INTO area VALUES ('02','WestChina','Chengdu');
+INSERT INTO area VALUES ('03','SouthChina','Guangzhou');
+INSERT INTO area VALUES ('04','NorthChina','Beijing');
+INSERT INTO area VALUES ('05','CentralChina','Wuhan');
+    
+-- Branches Information Table
+CREATE TABLE branches
+(branch_no CHAR(4),
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200));
+INSERT INTO branches VALUES ('0001','Shenzhen','','');
+INSERT INTO branches VALUES ('0101','Shanghai','01','Jingan District, Shanghai');
+INSERT INTO branches VALUES ('0102','Nanjing','01','City of Nanjing');
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0104','Xiamen','01','Xiamen');
+INSERT INTO branches VALUES ('0401','Beijing','04','');
+INSERT INTO branches VALUES ('0402','Tianjin','04','');
+INSERT INTO branches VALUES ('0403','Dalian','04','Dalian City');
+INSERT INTO branches VALUES ('0404','Shenyang','04','');
+INSERT INTO branches VALUES ('0201','Chengdu','02','');
+INSERT INTO branches VALUES ('0501','Wuhan','','');
+INSERT INTO branches VALUES ('0502','Changsha','05','');
+    
+-- Department Information Table
+CREATE TABLE department
+(deparment_no CHAR(3),
+ department_name VARCHAR2(20));
+INSERT INTO department VALUES('000','Public Dep');
+INSERT INTO department VALUES('010','Sales Dep');
+INSERT INTO department VALUES('008','Purchasing Dep');
+INSERT INTO department VALUES('002','Finance Dep');
+    
+-- Employees Information Table
+CREATE TABLE employees
+(branch CHAR(4),
+ department CHAR(3),
+ employee_no CHAR(10) NOT NULL,
+ employee_name VARCHAR2(10),
+ sex CHAR(1),
+ entry_date DATE
+ );
+INSERT INTO employees VALUES ('0101','000','0101000001','Mask','1',SYSDATE-1000);
+INSERT INTO employees VALUES ('0101','000','0101000002','John','1',SYSDATE-2000);
+INSERT INTO employees VALUES ('0201','010','0201010011','Anna','0',SYSDATE-300);
+INSERT INTO employees VALUES ('0201','008','0201008003','Jack','1',SYSDATE-700);
+INSERT INTO employees VALUES ('0101','008','0201008004','Jim','1',SYSDATE-200);
+    
+-- Product Information Table
+CREATE TABLE product
+(product_no CHAR(5),
+ product_name VARCHAR2(30),
+ cost NUMBER,
+ price NUMBER
+);
+INSERT INTO product VALUES ('11001','product001',8,10);
+INSERT INTO product VALUES ('11002','product002',13,16);
+INSERT INTO product VALUES ('10001','product001',99,100);
+INSERT INTO product VALUES ('10002','product002',199,200);
+    
+-- Orders Information Table
+CREATE TABLE orders_info (order_no CHAR(14) NOT NULL,
+             product_no CHAR(5),
+             area CHAR(2),
+             branch CHAR(4),
+             order_date DATE DEFAULT SYSDATE NOT NULL,
+             salesperson CHAR(10),
+             id NUMBER)
+    PARTITION BY RANGE (id )
+    INTERVAL (1000)
+    (PARTITION p_orders_info_1 VALUES LESS THAN (800));
+INSERT INTO orders_info VALUES ('20010102020001','11001','01','0101',SYSDATE-400,'0201010011',300);
+INSERT INTO orders_info VALUES ('20010102020001','11002','02','0201',SYSDATE-400,'0201008003',1300);
+INSERT INTO orders_info VALUES ('20010102020001','10001','04','0402',SYSDATE-400,'0201010011',2300);
+INSERT INTO orders_info VALUES ('20210102020002','11001','04','0401',SYSDATE-400,'0201008003',400);
+INSERT INTO orders_info VALUES ('20210102020002','11002','05','0501',SYSDATE-400,'0201010011',200);
+INSERT INTO orders_info VALUES ('20210102020002','10001','01','0102',SYSDATE-400,'0201008003',100);
+    
+-- Sales Information Table
+CREATE TABLE sales_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION template (SUBPARTITION sp_sales_info_1 VALUES ('2001','2002','2010'),
+ SUBPARTITION sp_sales_info_2 VALUES ('2021','2020','2019'),
+ SUBPARTITION sp_sales_info_3 VALUES (DEFAULT))
+(PARTITION p_sales_info_1,PARTITION p_sales_info_2,PARTITION p_sales_info_3);
+CREATE UNIQUE INDEX idx_sales_info_1 ON sales_info (year,month,branch,product) LOCAL
+(PARTITION ip_sales_info_1 (SUBPARTITION isp_sales_info_11,SUBPARTITION isp_sales_info_12,SUBPARTITION isp_sales_info_13),
+PARTITION ip_sales_info_2 (SUBPARTITION isp_sales_info_21,SUBPARTITION isp_sales_info_22,SUBPARTITION isp_sales_info_23),
+PARTITION ip_sales_info_3 (SUBPARTITION isp_sales_info_31,SUBPARTITION isp_sales_info_32,SUBPARTITION isp_sales_info_33));
+INSERT INTO sales_info VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','10','0402','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with Range Partitioning
+CREATE TABLE sales_info_range
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY RANGE(year)
+(PARTITION p_sales_info_range_1 VALUES LESS THAN('2011'),
+ PARTITION p_sales_info_range_2 VALUES LESS THAN('2021'),
+ PARTITION p_sales_info_range_3 VALUES LESS THAN('2031'));
+INSERT INTO sales_info_range VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info_range VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','10','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','05','0101','11001',40,600,'');
+    
+-- Sales Information Table with List Partitioning
+CREATE TABLE sales_info_list
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY LIST(year)
+(PARTITION p_sales_info_list_1 VALUES('2018','2019'),
+ PARTITION p_sales_info_list_2 VALUES('2021'));
+INSERT INTO sales_info_list VALUES ('2018','10','0101','11001',20,300,'');
+INSERT INTO sales_info_list VALUES ('2021','05','0101','11001',40,600,'');
+    
+-- Sales Information Table with Hash Partitioning
+CREATE TABLE sales_info_hash
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(year)
+(PARTITION p_sales_info_hash_1,
+ PARTITION p_sales_info_hash_2);
+    
+-- Finance Information Table
+CREATE TABLE finance_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ revenue_total NUMBER(10,2),
+ cost_total NUMBER(10,2),
+ fee_total NUMBER(10,2)
+);
+CREATE UNIQUE INDEX idx_finance_info_1 ON finance_info (year,month,branch);
+INSERT INTO finance_info VALUES ('2001','01','0201',2888,2000,300);
+INSERT INTO finance_info VALUES ('2021','01','0201',28888,24000,3000);
+INSERT INTO finance_info VALUES ('2021','01','0101',38888,34000,4000);
+INSERT INTO finance_info VALUES ('2021','02','0101',37778,33000,6000);
+    
+-- Numbers Table often used in mathematical function descriptions, contains TINYINT, SMALLINT, INT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers VALUES(-5,55,5555,5555555555555555555,5.555,-5.55555555,555);
+    
+-- Numbers Table often used in mathematical function descriptions, contains INT, TINYINT, SMALLINT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers_nobit VALUES(-5,55,5555,5555555555555555555,5.555,5.55555555555,555);
+    
+-- Area1 Table often used in aggregation function descriptions
+CREATE TABLE area1
+(area_no CHAR(2) NOT NULL,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL,
+ employee_count INT);
+INSERT INTO area1 VALUES ('01','EastChina','Shanghai','');
+INSERT INTO area1 VALUES ('02','WestChina','Chengdu',300);
+INSERT INTO area1 VALUES ('03','SouthChina','Guangzhou',400);
+INSERT INTO area1 VALUES ('04','NorthChina','Beijing',300);
+INSERT INTO area1 VALUES ('05','CentralChina','Wuhan','');
+    
+-- Branches1 Table often used in aggregation function descriptions
+CREATE TABLE branches1
+(branch_no CHAR(4),
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200),
+ employee_count INT);
+INSERT INTO branches1 VALUES ('0001','Shenzhen','','',40);
+INSERT INTO branches1 VALUES ('0101','Shanghai','01','Jingan District, Shanghai','');
+INSERT INTO branches1 VALUES ('0102','Nanjing','01','City of Nanjing',70);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0104','Xiamen','01','Xiamen','');
+INSERT INTO branches1 VALUES ('0401','Beijing','04','','');
+INSERT INTO branches1 VALUES ('0402','Tianjin','04','',10);
+INSERT INTO branches1 VALUES ('0403','Dalian','04','Dalian City',30);
+INSERT INTO branches1 VALUES ('0404','Shenyang','04','','');
+INSERT INTO branches1 VALUES ('0201','Chengdu','02','','');
+INSERT INTO branches1 VALUES ('0501','Wuhan','','',30);
+INSERT INTO branches1 VALUES ('0502','Changsha','05','',40);
+    
+COMMIT;
+```
+
+## ISC Distributed Cluster Deployment TAC Sample Tables
+
+```sql
+DROP TABLE IF EXISTS finance_info;
+DROP TABLE IF EXISTS sales_info;
+DROP TABLE IF EXISTS sales_info_range;
+DROP TABLE IF EXISTS sales_info_list;
+DROP TABLE IF EXISTS sales_info_hash;
+DROP TABLE IF EXISTS orders_info;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS area;
+DROP TABLE IF EXISTS numbers;
+DROP TABLE IF EXISTS numbers_nobit;
+DROP TABLE IF EXISTS area1;
+DROP TABLE IF EXISTS branches1;
+   
+-- Area Information Table
+CREATE TABLE area
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL);
+INSERT INTO area VALUES ('01','EastChina','Shanghai');
+INSERT INTO area VALUES ('02','WestChina','Chengdu');
+INSERT INTO area VALUES ('03','SouthChina','Guangzhou');
+INSERT INTO area VALUES ('04','NorthChina','Beijing');
+INSERT INTO area VALUES ('05','CentralChina','Wuhan');
+   
+-- Branches Information Table
+CREATE TABLE branches
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200));
+INSERT INTO branches VALUES ('0001','Shenzhen','','');
+INSERT INTO branches VALUES ('0101','Shanghai','01','Jingan District, Shanghai');
+INSERT INTO branches VALUES ('0102','Nanjing','01','City of Nanjing');
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0104','Xiamen','01','Xiamen');
+INSERT INTO branches VALUES ('0401','Beijing','04','');
+INSERT INTO branches VALUES ('0402','Tianjin','04','');
+INSERT INTO branches VALUES ('0403','Dalian','04','Dalian City');
+INSERT INTO branches VALUES ('0404','Shenyang','04','');
+INSERT INTO branches VALUES ('0201','Chengdu','02','');
+INSERT INTO branches VALUES ('0501','Wuhan','','');
+INSERT INTO branches VALUES ('0502','Changsha','05','');
+   
+-- Department Information Table
+CREATE TABLE department
+(deparment_no CHAR(3) PRIMARY KEY,
+ department_name VARCHAR2(20));
+INSERT INTO department VALUES('000','Public Dep');
+INSERT INTO department VALUES('010','Sales Dep');
+INSERT INTO department VALUES('008','Purchasing Dep');
+INSERT INTO department VALUES('002','Finance Dep');
+   
+-- Employees Information Table
+CREATE TABLE employees
+(branch CHAR(4),
+ department CHAR(3),
+ employee_no CHAR(10) NOT NULL PRIMARY KEY,
+ employee_name VARCHAR2(10),
+ sex CHAR(1),
+ entry_date DATE
+ );
+INSERT INTO employees VALUES ('0101','000','0101000001','Mask','1',SYSDATE-1000);
+INSERT INTO employees VALUES ('0101','000','0101000002','John','1',SYSDATE-2000);
+INSERT INTO employees VALUES ('0201','010','0201010011','Anna','0',SYSDATE-300);
+INSERT INTO employees VALUES ('0201','008','0201008003','Jack','1',SYSDATE-700);
+INSERT INTO employees VALUES ('0101','008','0201008004','Jim','1',SYSDATE-200);
+   
+-- Product Information Table
+CREATE TABLE product
+(product_no CHAR(5) PRIMARY KEY,
+ product_name VARCHAR2(30),
+ cost NUMBER,
+ price NUMBER
+);
+INSERT INTO product VALUES ('11001','product001',8,10);
+INSERT INTO product VALUES ('11002','product002',13,16);
+INSERT INTO product VALUES ('10001','product001',99,100);
+INSERT INTO product VALUES ('10002','product002',199,200);
+   
+-- Orders Information Table
+CREATE TABLE orders_info (order_no CHAR(14) NOT NULL,
+             product_no CHAR(5),
+             area CHAR(2),
+             branch CHAR(4),
+             order_date DATE DEFAULT SYSDATE NOT NULL,
+             salesperson CHAR(10),
+             id NUMBER)
+PARTITION BY HASH (id)
+SUBPARTITION BY RANGE (area)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_orders_info_1 VALUES LESS THAN (2),
+ SUBPARTITION sp_orders_info_2 VALUES LESS THAN (4),
+ SUBPARTITION sp_orders_info_3 VALUES LESS THAN (MAXVALUE)
+)
+PARTITIONS AUTO;
+INSERT INTO orders_info VALUES ('20010102020001','11001','01','0101',SYSDATE-400,'0201010011',300);
+INSERT INTO orders_info VALUES ('20010102020001','11002','02','0201',SYSDATE-400,'0201008003',1300);
+INSERT INTO orders_info VALUES ('20010102020001','10001','04','0402',SYSDATE-400,'0201010011',2300);
+INSERT INTO orders_info VALUES ('20210102020002','11001','04','0401',SYSDATE-400,'0201008003',400);
+INSERT INTO orders_info VALUES ('20210102020002','11002','05','0501',SYSDATE-400,'0201010011',200);
+INSERT INTO orders_info VALUES ('20210102020002','10001','01','0102',SYSDATE-400,'0201008003',100);
+   
+-- Sales Information Table
+CREATE TABLE sales_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_1 VALUES ('2001','2002','2010'),
+ SUBPARTITION sp_sales_info_2 VALUES ('2021','2020','2019'),
+ SUBPARTITION sp_sales_info_3 VALUES (DEFAULT))
+PARTITIONS AUTO;
+CREATE INDEX idx_sales_info_1 ON sales_info (year,month,branch,product);
+INSERT INTO sales_info VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','10','0402','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with Range Partitioning
+CREATE TABLE sales_info_range
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY RANGE(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_range_1 VALUES LESS THAN('2011'),
+SUBPARTITION sp_sales_info_range_2 VALUES LESS THAN('2021'),
+SUBPARTITION sp_sales_info_range_3 VALUES LESS THAN('2031'))
+PARTITIONS AUTO;
+INSERT INTO sales_info_range VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info_range VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','10','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with List Partitioning
+CREATE TABLE sales_info_list
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_list_1 VALUES('2018','2019'),
+SUBPARTITION sp_sales_info_list_2 VALUES('2021'))
+PARTITIONS AUTO;
+INSERT INTO sales_info_list VALUES ('2018','10','0101','11001',20,300,'');
+INSERT INTO sales_info_list VALUES ('2021','05','0101','11001',40,600,'');
+   
+-- Sales Information Table with Hash Partitioning
+CREATE TABLE sales_info_hash
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY HASH(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_hash_1,
+ SUBPARTITION sp_sales_info_hash_2)
+PARTITIONS AUTO;
+   
+-- Finance Information Table
+CREATE TABLE finance_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ revenue_total NUMBER(10,2),
+ cost_total NUMBER(10,2),
+ fee_total NUMBER(10,2)
+);
+CREATE INDEX idx_finance_info_1 ON finance_info (year,month,branch);
+INSERT INTO finance_info VALUES ('2001','01','0201',2888,2000,300);
+INSERT INTO finance_info VALUES ('2021','01','0201',28888,24000,3000);
+INSERT INTO finance_info VALUES ('2021','01','0101',38888,34000,4000);
+INSERT INTO finance_info VALUES ('2021','02','0101',37778,33000,6000);
+   
+-- Numbers Table often used in mathematical function descriptions, contains TINYINT, SMALLINT, INT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers VALUES(-5,55,5555,5555555555555555555,5.555,-5.55555555,555);
+   
+-- Numbers Table often used in mathematical function descriptions, contains INT, TINYINT, SMALLINT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers_nobit VALUES(-5,55,5555,5555555555555555555,5.555,5.55555555555,555);
+   
+-- Area1 Table often used in aggregation function descriptions
+CREATE TABLE area1
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL,
+ employee_count INT);
+INSERT INTO area1 VALUES ('01','EastChina','Shanghai','');
+INSERT INTO area1 VALUES ('02','WestChina','Chengdu',300);
+INSERT INTO area1 VALUES ('03','SouthChina','Guangzhou',400);
+INSERT INTO area1 VALUES ('04','NorthChina','Beijing',300);
+INSERT INTO area1 VALUES ('05','CentralChina','Wuhan','');
+   
+-- Branches1 Table often used in aggregation function descriptions
+CREATE TABLE branches1
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200),
+ employee_count INT);
+INSERT INTO branches1 VALUES ('0001','Shenzhen','','',40);
+INSERT INTO branches1 VALUES ('0101','Shanghai','01','Jingan District, Shanghai','');
+INSERT INTO branches1 VALUES ('0102','Nanjing','01','City of Nanjing',70);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0104','Xiamen','01','Xiamen','');
+INSERT INTO branches1 VALUES ('0401','Beijing','04','','');
+INSERT INTO branches1 VALUES ('0402','Tianjin','04','',10);
+INSERT INTO branches1 VALUES ('0403','Dalian','04','Dalian City',30);
+INSERT INTO branches1 VALUES ('0404','Shenyang','04','','');
+INSERT INTO branches1 VALUES ('0201','Chengdu','02','','');
+INSERT INTO branches1 VALUES ('0501','Wuhan','','',30);
+INSERT INTO branches1 VALUES ('0502','Changsha','05','',40);
+   
+COMMIT;
+```
+
+## ISC Distributed Cluster Deployment LSC Sample Tables
+
+```sql
+DROP TABLE IF EXISTS finance_info;
+DROP TABLE IF EXISTS sales_info;
+DROP TABLE IF EXISTS sales_info_range;
+DROP TABLE IF EXISTS sales_info_list;
+DROP TABLE IF EXISTS sales_info_hash;
+DROP TABLE IF EXISTS orders_info;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS area;
+DROP TABLE IF EXISTS numbers;
+DROP TABLE IF EXISTS numbers_nobit;
+DROP TABLE IF EXISTS area1;
+DROP TABLE IF EXISTS branches1;
+
+-- Area Information Table
+CREATE TABLE area
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL);
+INSERT INTO area VALUES ('01','EastChina','Shanghai');
+INSERT INTO area VALUES ('02','WestChina','Chengdu');
+INSERT INTO area VALUES ('03','SouthChina','Guangzhou');
+INSERT INTO area VALUES ('04','NorthChina','Beijing');
+INSERT INTO area VALUES ('05','CentralChina','Wuhan');
+
+-- Branches Information Table
+CREATE TABLE branches
+(branch_no CHAR(4),
+branch_name VARCHAR2(200) NOT NULL,
+area_no CHAR(2),
+address VARCHAR2(200));
+INSERT INTO branches VALUES ('0001','Shenzhen','','');
+INSERT INTO branches VALUES ('0101','Shanghai','01','Jingan District, Shanghai');
+INSERT INTO branches VALUES ('0102','Nanjing','01','City of Nanjing');
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0104','Xiamen','01','Xiamen');
+INSERT INTO branches VALUES ('0401','Beijing','04','');
+INSERT INTO branches VALUES ('0402','Tianjin','04','');
+INSERT INTO branches VALUES ('0403','Dalian','04','Dalian City');
+INSERT INTO branches VALUES ('0404','Shenyang','04','');
+INSERT INTO branches VALUES ('0201','Chengdu','02','');
+INSERT INTO branches VALUES ('0501','Wuhan','','');
+INSERT INTO branches VALUES ('0502','Changsha','05','');
+
+-- Department Information Table
+CREATE TABLE department
+(deparment_no CHAR(3),
+department_name VARCHAR2(20));
+INSERT INTO department VALUES('000','Public Dep');
+INSERT INTO department VALUES('010','Sales Dep');
+INSERT INTO department VALUES('008','Purchasing Dep');
+INSERT INTO department VALUES('002','Finance Dep');
+
+-- Employees Information Table
+CREATE TABLE employees
+(branch CHAR(4),
+department CHAR(3),
+employee_no CHAR(10) NOT NULL,
+employee_name VARCHAR2(10),
+sex CHAR(1),
+entry_date DATE
+);
+INSERT INTO employees VALUES ('0101','000','0101000001','Mask','1',SYSDATE-1000);
+INSERT INTO employees VALUES ('0101','000','0101000002','John','1',SYSDATE-2000);
+INSERT INTO employees VALUES ('0201','010','0201010011','Anna','0',SYSDATE-300);
+INSERT INTO employees VALUES ('0201','008','0201008003','Jack','1',SYSDATE-700);
+INSERT INTO employees VALUES ('0101','008','0201008004','Jim','1',SYSDATE-200);
+
+-- Product Information Table
+CREATE TABLE product
+(product_no CHAR(5),
+product_name VARCHAR2(30),
+cost NUMBER,
+price NUMBER
+);
+INSERT INTO product VALUES ('11001','product001',8,10);
+INSERT INTO product VALUES ('11002','product002',13,16);
+INSERT INTO product VALUES ('10001','product001',99,100);
+INSERT INTO product VALUES ('10002','product002',199,200);
+
+-- Orders Information Table
+CREATE TABLE orders_info (order_no CHAR(14) NOT NULL,
+product_no CHAR(5),
+area CHAR(2),
+branch CHAR(4),
+order_date DATE DEFAULT SYSDATE NOT NULL,
+salesperson CHAR(10),
+id NUMBER)
+PARTITION BY HASH(id)
+SUBPARTITION BY RANGE (area )
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_orders_info_1 VALUES LESS THAN (2),
+SUBPARTITION sp_orders_info_2 VALUES LESS THAN (4),
+SUBPARTITION sp_orders_info_3 VALUES LESS THAN (MAXVALUE))
+PARTITIONS AUTO;
+INSERT INTO orders_info VALUES ('20010102020001','11001','01','0101',SYSDATE-400,'0201010011',300);
+INSERT INTO orders_info VALUES ('20010102020001','11002','02','0201',SYSDATE-400,'0201008003',1300);
+INSERT INTO orders_info VALUES ('20010102020001','10001','04','0402',SYSDATE-400,'0201010011',2300);
+INSERT INTO orders_info VALUES ('20210102020002','11001','04','0401',SYSDATE-400,'0201008003',400);
+INSERT INTO orders_info VALUES ('20210102020002','11002','05','0501',SYSDATE-400,'0201010011',200);
+INSERT INTO orders_info VALUES ('20210102020002','10001','01','0102',SYSDATE-400,'0201008003',100);
+
+-- Sales Information Table
+CREATE TABLE sales_info
+(year CHAR(4) NOT NULL,
+month CHAR(2) NOT NULL,
+branch CHAR(4),
+product CHAR(5),
+quantity NUMBER DEFAULT 0 NOT NULL,
+amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_1 VALUES ('2001','2002','2010'),
+SUBPARTITION sp_sales_info_2 VALUES ('2021','2020','2019'),
+SUBPARTITION sp_sales_info_3 VALUES (DEFAULT))
+PARTITIONS AUTO;
+CREATE UNIQUE INDEX idx_sales_info_1 ON sales_info (year,month,branch,product);
+INSERT INTO sales_info VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','10','0402','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','05','0101','11001',40,600,'');
+
+-- Sales Information Table with Range Partitioning
+CREATE TABLE sales_info_range
+(year CHAR(4) NOT NULL,
+month CHAR(2) NOT NULL,
+branch CHAR(4),
+product CHAR(5),
+quantity NUMBER DEFAULT 0 NOT NULL,
+amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY RANGE(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_range_1 VALUES LESS THAN('2011'),
+SUBPARTITION sp_sales_info_range_2 VALUES LESS THAN('2021'),
+SUBPARTITION sp_sales_info_range_3 VALUES LESS THAN('2031'))
+PARTITIONS AUTO;
+INSERT INTO sales_info_range VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info_range VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','10','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','05','0101','11001',40,600,'');
+
+-- Sales Information Table with List Partitioning
+CREATE TABLE sales_info_list
+(year CHAR(4) NOT NULL,
+month CHAR(2) NOT NULL,
+branch CHAR(4),
+product CHAR(5),
+quantity NUMBER DEFAULT 0 NOT NULL,
+amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+salsperson CHAR(10))
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_list_1 VALUES('2018','2019'),
+SUBPARTITION sp_sales_info_list_2 VALUES('2021'))
+PARTITIONS AUTO;
+INSERT INTO sales_info_list VALUES ('2018','10','0101','11001',20,300,'');
+INSERT INTO sales_info_list VALUES ('2021','05','0101','11001',40,600,'');
+-- Sales Information Table with Hash Partitioning
+CREATE TABLE sales_info_hash
+(year CHAR(4) NOT NULL,
+month CHAR(2) NOT NULL,
+branch CHAR(4),
+product CHAR(5),
+quantity NUMBER DEFAULT 0 NOT NULL,
+amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+salsperson CHAR(10))
+PARTITION BY HASH(product)
+SUBPARTITION BY HASH(year)
+SUBPARTITION TEMPLATE
+(SUBPARTITION sp_sales_info_hash_1,
+SUBPARTITION sp_sales_info_hash_2)
+PARTITIONS AUTO;
+
+-- Finance Information Table
+CREATE TABLE finance_info
+(year CHAR(4) NOT NULL,
+month CHAR(2) NOT NULL,
+branch CHAR(4),
+revenue_total NUMBER(10,2),
+cost_total NUMBER(10,2),
+fee_total NUMBER(10,2)
+);
+CREATE UNIQUE INDEX idx_finance_info_1 ON finance_info (year,month,branch);
+INSERT INTO finance_info VALUES ('2001','01','0201',2888,2000,300);
+INSERT INTO finance_info VALUES ('2021','01','0201',28888,24000,3000);
+INSERT INTO finance_info VALUES ('2021','01','0101',38888,34000,4000);
+INSERT INTO finance_info VALUES ('2021','02','0101',37778,33000,6000);
+
+-- Numbers table often used in mathematical function descriptions, contains TINYINT, SMALLINT, INT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers(numbera INT,numberb TINYINT,numberc SMALLINT,numberd
+BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers VALUES(-5,55,5555,5555555555555555555,5.555,-5.55555555,555);
+
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,
+numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers_nobit VALUES
+(-5,55,5555,5555555555555555555,5.555,5.55555555555,555);
+
+ area_name VARCHAR2(60),
+CREATE TABLE area1
+(area_no CHAR(2) NOT NULL,
+area_name VARCHAR2(60),
+DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL,
+employee_count INT);
+INSERT INTO area1 VALUES ('01','EastChina','Shanghai','');
+INSERT INTO area1 VALUES ('02','WestChina','Chengdu',300);
+INSERT INTO area1 VALUES ('03','SouthChina','Guangzhou',400);
+INSERT INTO area1 VALUES ('04','NorthChina','Beijing',300);
+INSERT INTO area1 VALUES ('05','CentralChina','Wuhan','');
+
+ branch_name VARCHAR2(200) NOT NULL,
+CREATE TABLE branches1
+(branch_no CHAR(4),
+branch_name VARCHAR2(200) NOT NULL,
+area_no CHAR(2),
+address VARCHAR2(200),
+employee_count INT);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0101','Shanghai','01','Jingan District, Shanghai','');
+INSERT INTO branches1 VALUES ('0102','Nanjing','01','City of Nanjing',70);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0104','Xiamen','01','Xiamen','');
+INSERT INTO branches1 VALUES ('0401','Beijing','04','','');
+INSERT INTO branches1 VALUES ('0402','Tianjin','04','',10);
+INSERT INTO branches1 VALUES ('0403','Dalian','04','Dalian City',30);
+INSERT INTO branches1 VALUES ('0404','Shenyang','04','','');
+INSERT INTO branches1 VALUES ('0201','Chengdu','02','','');
+INSERT INTO branches1 VALUES ('0501','Wuhan','','',30);
+INSERT INTO branches1 VALUES ('0502','Changsha','05','',40);
+COMMIT;
+```
+
+## YAC/Distributed Cluster Deployment HEAP Sample Tables
+
+```sql
+DROP TABLE IF EXISTS finance_info;
+DROP TABLE IF EXISTS sales_info;
+DROP TABLE IF EXISTS sales_info_range;
+DROP TABLE IF EXISTS sales_info_list;
+DROP TABLE IF EXISTS sales_info_hash;
+DROP TABLE IF EXISTS orders_info;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS area; 
+DROP TABLE IF EXISTS numbers;
+DROP TABLE IF EXISTS numbers_nobit;
+DROP TABLE IF EXISTS area1;
+DROP TABLE IF EXISTS branches1;
+  
+-- Area Information Table
+CREATE TABLE area
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL);
+INSERT INTO area VALUES ('01','EastChina','Shanghai');
+INSERT INTO area VALUES ('02','WestChina','Chengdu');
+INSERT INTO area VALUES ('03','SouthChina','Guangzhou');
+INSERT INTO area VALUES ('04','NorthChina','Beijing');
+INSERT INTO area VALUES ('05','CentralChina','Wuhan');
+  
+-- Branches Information Table
+CREATE TABLE branches
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2)  CONSTRAINT c_branches_1 REFERENCES area(area_no) ON DELETE SET NULL,
+ address VARCHAR2(200));
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0101','Shanghai','01','Jingan District, Shanghai');
+INSERT INTO branches VALUES ('0102','Nanjing','01','City of Nanjing');
+INSERT INTO branches VALUES ('0103','Fuzhou','01','');
+INSERT INTO branches VALUES ('0104','Xiamen','01','Xiamen');
+INSERT INTO branches VALUES ('0401','Beijing','04','');
+INSERT INTO branches VALUES ('0402','Tianjin','04','');
+INSERT INTO branches VALUES ('0403','Dalian','04','Dalian City');
+INSERT INTO branches VALUES ('0404','Shenyang','04','');
+INSERT INTO branches VALUES ('0201','Chengdu','02','');
+INSERT INTO branches VALUES ('0501','Wuhan','','');
+INSERT INTO branches VALUES ('0502','Changsha','05','');
+  
+-- Department Information Table
+CREATE TABLE department
+(deparment_no CHAR(3) PRIMARY KEY,
+ department_name VARCHAR2(20));
+INSERT INTO department VALUES('000','Public Dep');
+INSERT INTO department VALUES('010','Sales Dep');
+INSERT INTO department VALUES('008','Purchasing Dep');
+INSERT INTO department VALUES('002','Finance Dep');
+  
+-- Employees Information Table
+CREATE TABLE employees
+(branch CHAR(4)   CONSTRAINT c_employees_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+ department CHAR(3)   CONSTRAINT c_employees_2 REFERENCES department(deparment_no) ON DELETE SET NULL,
+ employee_no CHAR(10) NOT NULL PRIMARY KEY,
+ employee_name VARCHAR2(10),
+ sex CHAR(1),
+ entry_date DATE
+ );
+INSERT INTO employees VALUES ('0101','000','0101000001','Mask','1',SYSDATE-1000);
+INSERT INTO employees VALUES ('0101','000','0101000002','John','1',SYSDATE-2000);
+INSERT INTO employees VALUES ('0201','010','0201010011','Anna','0',SYSDATE-300);
+INSERT INTO employees VALUES ('0201','008','0201008003','Jack','1',SYSDATE-700);
+INSERT INTO employees VALUES ('0101','008','0201008004','Jim','1',SYSDATE-200);
+  
+-- Product Information Table
+CREATE TABLE product
+(product_no CHAR(5) PRIMARY KEY,
+ product_name VARCHAR2(30),
+ cost NUMBER,
+ price NUMBER
+);
+INSERT INTO product VALUES ('11001','product001',8,10);
+INSERT INTO product VALUES ('11002','product002',13,16);
+INSERT INTO product VALUES ('10001','product001',99,100);
+INSERT INTO product VALUES ('10002','product002',199,200);
+  
+-- Orders Information Table
+CREATE TABLE orders_info (order_no CHAR(14) NOT NULL,
+             product_no CHAR(5) CONSTRAINT c_orders_info_3 REFERENCES product(product_no) ON DELETE SET NULL,
+             area CHAR(2) CONSTRAINT c_orders_info_2 REFERENCES area(area_no) ON DELETE SET NULL,
+             branch CHAR(4) CONSTRAINT c_orders_info_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+             order_date DATE DEFAULT SYSDATE NOT NULL,
+             salesperson CHAR(10) CONSTRAINT c_orders_info_4 REFERENCES employees(employee_no) ON DELETE SET NULL,
+             id NUMBER)
+    PARTITION BY RANGE (id )
+    INTERVAL (1000)
+    (PARTITION p_orders_info_1 VALUES LESS THAN (800));
+INSERT INTO orders_info VALUES ('20010102020001','11001','01','0101',SYSDATE-400,'0201010011',300);
+INSERT INTO orders_info VALUES ('20010102020001','11002','02','0201',SYSDATE-400,'0201008003',1300);
+INSERT INTO orders_info VALUES ('20010102020001','10001','04','0402',SYSDATE-400,'0201010011',2300);
+INSERT INTO orders_info VALUES ('20210102020002','11001','04','0401',SYSDATE-400,'0201008003',400);
+INSERT INTO orders_info VALUES ('20210102020002','11002','05','0501',SYSDATE-400,'0201010011',200);
+INSERT INTO orders_info VALUES ('20210102020002','10001','01','0102',SYSDATE-400,'0201008003',100);
+  
+-- Sales Information Table
+CREATE TABLE sales_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4) CONSTRAINT c_sales_info_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+ product CHAR(5) CONSTRAINT c_sales_info_2 REFERENCES product(product_no) ON DELETE SET NULL,
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10) CONSTRAINT c_sales_info_3 REFERENCES employees(employee_no) ON DELETE SET NULL)
+PARTITION BY HASH(branch)
+SUBPARTITION BY LIST(year)
+SUBPARTITION template (SUBPARTITION sp_sales_info_1 VALUES ('2001','2002','2010'),
+ SUBPARTITION sp_sales_info_2 VALUES ('2021','2020','2019'),
+ SUBPARTITION sp_sales_info_3 VALUES (DEFAULT))
+(PARTITION p_sales_info_1,PARTITION p_sales_info_2,PARTITION p_sales_info_3);
+
+CREATE INDEX idx_sales_info_1 ON sales_info (year,month,branch,product) LOCAL
+(PARTITION ip_sales_info_1 (SUBPARTITION isp_sales_info_11,SUBPARTITION isp_sales_info_12,SUBPARTITION isp_sales_info_13),
+PARTITION ip_sales_info_2 (SUBPARTITION isp_sales_info_21,SUBPARTITION isp_sales_info_22,SUBPARTITION isp_sales_info_23),
+PARTITION ip_sales_info_3 (SUBPARTITION isp_sales_info_31,SUBPARTITION isp_sales_info_32,SUBPARTITION isp_sales_info_33));
+
+INSERT INTO sales_info VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','10','0402','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info VALUES ('2021','05','0101','11001',40,600,'');
+  
+-- Sales Information Table with Range Partitioning
+CREATE TABLE sales_info_range
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY RANGE(year)
+(PARTITION p_sales_info_range_1 VALUES LESS THAN('2011'),
+ PARTITION p_sales_info_range_2 VALUES LESS THAN('2021'),
+ PARTITION p_sales_info_range_3 VALUES LESS THAN('2031'));
+INSERT INTO sales_info_range VALUES ('2001','01','0201','11001',30,500,'0201010011');
+INSERT INTO sales_info_range VALUES ('2015','11','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','10','0101','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2000','12','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2015','03','0102','11001',20,300,'');
+INSERT INTO sales_info_range VALUES ('2021','05','0101','11001',40,600,'');
+  
+-- Sales Information Table with List Partitioning
+CREATE TABLE sales_info_list
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY LIST(year)
+(PARTITION p_sales_info_list_1 VALUES('2018','2019'),
+ PARTITION p_sales_info_list_2 VALUES('2021'));
+INSERT INTO sales_info_list VALUES ('2018','10','0101','11001',20,300,'');
+INSERT INTO sales_info_list VALUES ('2021','05','0101','11001',40,600,'');
+  
+-- Sales Information Table with Hash Partitioning
+CREATE TABLE sales_info_hash
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4),
+ product CHAR(5),
+ quantity NUMBER DEFAULT 0 NOT NULL,
+ amount NUMBER(10,2) DEFAULT 0 NOT NULL,
+ salsperson CHAR(10))
+PARTITION BY HASH(year)
+(PARTITION p_sales_info_hash_1,
+ PARTITION p_sales_info_hash_2);
+  
+-- Finance Information Table
+CREATE TABLE finance_info
+(year CHAR(4) NOT NULL,
+ month CHAR(2) NOT NULL,
+ branch CHAR(4) CONSTRAINT c_finance_info_1 REFERENCES branches(branch_no) ON DELETE SET NULL,
+ revenue_total NUMBER(10,2),
+ cost_total NUMBER(10,2),
+ fee_total NUMBER(10,2)
+);
+CREATE INDEX idx_finance_info_1 ON finance_info (year,month,branch);
+INSERT INTO finance_info VALUES ('2001','01','0201',2888,2000,300);
+INSERT INTO finance_info VALUES ('2021','01','0201',28888,24000,3000);
+INSERT INTO finance_info VALUES ('2021','01','0101',38888,34000,4000);
+INSERT INTO finance_info VALUES ('2021','02','0101',37778,33000,6000);
+  
+-- Numbers table often used in mathematical function descriptions, contains TINYINT, SMALLINT, INT, BIGINT, FLOAT, DOUBLE, NUMBER, BIT fields
+CREATE TABLE numbers(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER,numberh BIT);
+INSERT INTO numbers VALUES(-5,55,5555,5555555555555555555,5.555,-5.55555555,555,1);
+  
+-- Numbers table without BIT field, often used in mathematical function descriptions, contains INT, TINYINT, SMALLINT, BIGINT, FLOAT, DOUBLE, NUMBER fields
+CREATE TABLE numbers_nobit(numbera INT,numberb TINYINT,numberc SMALLINT,numberd BIGINT,numbere FLOAT,numberf DOUBLE,numberg NUMBER);
+INSERT INTO numbers_nobit VALUES(-5,55,5555,5555555555555555555,5.555,5.55555555555,555);
+  
+-- Area1 table often used in aggregation function descriptions
+CREATE TABLE area1
+(area_no CHAR(2) NOT NULL PRIMARY KEY,
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen' NOT NULL,
+ employee_count INT);
+INSERT INTO area1 VALUES ('01','EastChina','Shanghai','');
+INSERT INTO area1 VALUES ('02','WestChina','Chengdu',300);
+INSERT INTO area1 VALUES ('03','SouthChina','Guangzhou',400);
+INSERT INTO area1 VALUES ('04','NorthChina','Beijing',300);
+INSERT INTO area1 VALUES ('05','CentralChina','Wuhan','');
+  
+-- Branches1 table often used in aggregation function descriptions
+CREATE TABLE branches1
+(branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ area_no CHAR(2),
+ address VARCHAR2(200),
+ employee_count INT);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0101','Shanghai','01','Jingan District, Shanghai','');
+INSERT INTO branches1 VALUES ('0102','Nanjing','01','City of Nanjing',70);
+INSERT INTO branches1 VALUES ('0103','Fuzhou','01','','');
+INSERT INTO branches1 VALUES ('0104','Xiamen','01','Xiamen','');
+INSERT INTO branches1 VALUES ('0401','Beijing','04','','');
+INSERT INTO branches1 VALUES ('0402','Tianjin','04','',10);
+INSERT INTO branches1 VALUES ('0403','Dalian','04','Dalian City',30);
+INSERT INTO branches1 VALUES ('0404','Shenyang','04','','');
+INSERT INTO branches1 VALUES ('0201','Chengdu','02','','');
+INSERT INTO branches1 VALUES ('0501','Wuhan','','',30);
+INSERT INTO branches1 VALUES ('0502','Changsha','05','',40);
+  
+COMMIT;
+```

@@ -1,0 +1,1 @@
+Operation monitoring mainly refers to the daily inspection and monitoring of sessions, logs, etc. by DBAs during database operation, in order to promptly discover anomalies.  

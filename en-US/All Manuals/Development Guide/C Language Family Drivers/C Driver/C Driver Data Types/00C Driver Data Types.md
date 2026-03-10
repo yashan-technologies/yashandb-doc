@@ -1,0 +1,5 @@
+The data types of the YashanDB C driver are divided into two types: external data types prefixed with YAC_SQLT_ and internal data types prefixed with YAC_TYPE_.  
+- [External Data Types for C Driver](External Data Types for C Driver):  
+The YashanDB C driver uses YAC_SQLT type codes to specify data types in bindings (including YacBindParameter, YacBindParameterByName, and yacBindColumn, etc.). Developers can obtain application-transparent data structures or data structure handles to build applications.  
+- [Internal Data Types for C Driver](Internal Data Types for C Driver):  
+The YashanDB C driver uses YAC_TYPE type codes to specify YashanDB database types. Each YAC_TYPE type code uniquely identifies one YashanDB database type, for example, YAC_TYPE_VARCHAR maps to the varchar type in YashanDB. These data types are primarily used for metadata interfaces such as yacColAttribute, etc.

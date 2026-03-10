@@ -1,0 +1,5 @@
+initno:1
+
+filename:yacRowIdToText,yacTextToRowId,yacStringAllocSize,yacStringAssign,yacStringAssignText,yacStringPtr,yacStringResize,yacStringSize,yacRawAllocSize,yacRawAssign,yacRawAssignBytes,yacRawPtr,yacRawResize,yacRawSize
+
+enName:yacRowIdToText,yacTextToRowId,yacStringAllocSize,yacStringAssign,yacStringAssignText,yacStringPtr,yacStringResize,yacStringSize,yacRawAllocSize,yacRawAssign,yacRawAssignBytes,yacRawPtr,yacRawResize,yacRawSize

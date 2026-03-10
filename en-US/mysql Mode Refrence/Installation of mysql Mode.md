@@ -1,0 +1,1 @@
+YashanDB Standalone Deployment now supports mysql compatibility. The installation steps is similar as installing the yashan mode, and you only need to config the `mode` parameter as mysql. Please refer to [Installation and Deployment](../All Manuals/Installation and Upgrade/Installation and Deployment/00Installation and Deployment) for details.

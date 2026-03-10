@@ -1,0 +1,1 @@
+This article introduces the compatibility of YashanDB with Oracle and MySQL, including two sections: [Compatibility with Oracle](Compatibility with Oracle) and [Compatibility with MySQL](Compatibility with MySQL).

@@ -1,0 +1,5 @@
+Accessing data stored in a database requires the use of a standard data access language, such as SQL.
+
+SQL is a declarative language that focuses mainly on data processing.
+
+However, in practical SQL-based development scenarios, it is often necessary to combine multiple SQL statements into a single logical block, such as a transaction or common handling of functionality for the same business. In this regard, YashanDB provides two capabilities: one is to offer various driver interfaces to work with customer development tools and industry middleware to complete the business. The other is the PL language, which provides a development platform directly within the database kernel, offering SQL-based data processing capabilities. PL statements can be flexibly and freely combined and stored in various object forms within the database, reducing network transmission costs when invoked, making it both efficient and flexible.

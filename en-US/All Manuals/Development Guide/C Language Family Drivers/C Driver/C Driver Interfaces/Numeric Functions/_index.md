@@ -1,0 +1,3 @@
+initno:1
+
+filename:yacNumberRound,yacNumberFromInt,yacNumberFromReal,yacNumberFromText,yacNumberToInt,yacNumberToReal,yacNumberToText

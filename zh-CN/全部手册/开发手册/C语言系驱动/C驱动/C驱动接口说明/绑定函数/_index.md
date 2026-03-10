@@ -1,0 +1,5 @@
+initno:1
+
+filename:yacBindColumn,yacBindParameter,yacBindParameterByName
+
+enName:yacBindColumn,yacBindParameter,yacBindParameterByName
