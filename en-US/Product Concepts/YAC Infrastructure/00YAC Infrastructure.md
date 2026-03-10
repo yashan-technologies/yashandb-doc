@@ -1,0 +1,1 @@
+YashanDB, under the YAC Deployment model, relies on shared storage for hardware and introduces new infrastructure in software, including the Yashan Cluster Service (YCS) and Yashan File System (YFS), which provide cluster management and parallel file services, respectively.

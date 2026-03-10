@@ -1,0 +1,4 @@
+For heterogeneous database migration, YashanDB supports the following two migration methods.
+
+- Data Migration Platform - YMP: YMP (YashanDB Migration Platform) is the database migration product provided by YashanDB, supporting data source types including Oracle, MySQL, DM, PG, and YashanDB. It supports one-click migration of metadata and data to the Yashan database. The migration from MySQL to YashanDB is similar to the migration from Oracle to YashanDB. Please refer to [Migrating Oracle Data to YashanDB.md](../体验yashan模式/将Oracle数据迁移到YashanDB).
+- Third-party Migration Platform: It supports migrating databases such as Oracle, MySQL, DM, etc. to YashanDB using third-party tools like Kettle. For relevant operations, please refer to the knowledge base [Kettle Migrating MySQL to YashanDB](https://yashandb.com/newsinfo/7396987.html), [Kettle Migrating PostgreSQL to YashanDB](https://yashandb.com/newsinfo/7396988.html).

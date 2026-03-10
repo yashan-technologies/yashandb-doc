@@ -1,0 +1,5 @@
+YashanDB JDBC驱动建立了一套异常体系，将数据库服务端返回的错误码按照含义根据JDBC4.3规范进行了分类，对其抛出不同的SQLException子类型，有助于用户更好的根据异常类型来理解发生错误的原因。
+
+在服务端返回多个错误码的情况下，抛出的异常类型由第一个已分类的错误码决定。
+
+SQLException都有一个SQLState属性，因此YashanDB JDBC驱动还为每一种由错误码映射而来的SQLException都指定了一个一一对应的sqlState值，该值前两位来自于X/Open 和 SQL Access Group SQL CAE 规范（1992）中所定义的SQLSTATE的头两个字符，后三位为'000'。

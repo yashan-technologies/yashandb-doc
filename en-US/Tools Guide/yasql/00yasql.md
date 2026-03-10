@@ -1,0 +1,1 @@
+*yasql* is the client connection management tool for YashanDB. It allows users to connect to the database server and perform operations and maintenance. In addition to the basic functionality for operating the database, *yasql* also offers several other functionalities to facilitate user experience.

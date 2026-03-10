@@ -1,0 +1,15 @@
+This view displays the databucket file information of all LSC tablespaces for all nodes in the distributed cluster.
+
+|Field |Type |Description |
+| --- | --- | --- |
+| GROUP_ID | INTEGER | Group ID |
+| GROUP_NODE_ID | INTEGER | Node ID within the group |
+| ID | INTEGER | databucket ID |
+| NAME | VARCHAR(255) | Databucket name |
+| TYPE | INTEGER | Databucket type <br>\* 0: LOCAL_FS type |
+| TS# | INTEGER | ID of the tablespace to which the databucket belongs |
+| SLOT | INTEGER | Serial number of the databucket within the tablespace |
+| URL | VARCHAR(255) | Databucket storage path |
+| USED_SIZE | BIGINT | Used space of the databucket (unit: bytes) |
+| MAX_SIZE | BIGINT | Databucket maximize availability space (unit: bytes) |
+| READONLY | BOOLEAN | Whether the databucket is read-only |

@@ -1,0 +1,5 @@
+Flashback refers to the ability to revert data to a certain historical point in time by only rolling back the relevant changes made to database objects, without the need to perform traditional restore backup operations.
+
+YashanDB supports [Flashback Recovery](Flashback Recovery) at the database-wide level or for a specific table. For example, it allows for a flashback to a point in time before the execution of a DROP command on a table, thus restoring accidentally deleted tables and data. The flashback operation does not impact the usage of the database and does not incur additional space usage.
+
+Additionally, it provides [Flashback Query](Flashback Query) functionality, allowing users to trace the historical versions of table data. Under certain conditions, even after table data has been modified by UPDATE or DELETE operations, users can still access data from a specific historical version.

@@ -1,0 +1,5 @@
+initno:1
+
+filename:OCITransCommit,OCITransDetach,OCITransForget,OCITransPrepare,OCITransRollback,OCITransStart
+
+enName:OCITransCommit,OCITransDetach,OCITransForget,OCITransPrepare,OCITransRollback,OCITransStart
