@@ -1,0 +1,1 @@
+YashanDB从v23.4版本开始支持yashan和mysql两种SQL语法模式，本章节描述了在原生yashan模式场景下的数据库功能快速体验。

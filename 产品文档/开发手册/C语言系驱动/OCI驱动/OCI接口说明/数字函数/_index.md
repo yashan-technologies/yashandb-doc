@@ -1,0 +1,5 @@
+initno:1
+
+filename:OCINumberFromInt,OCINumberFromReal,OCINumberFromText,OCINumberToInt,OCINumberToReal,OCINumberToText
+
+enName:OCINumberFromInt,OCINumberFromReal,OCINumberFromText,OCINumberToInt,OCINumberToReal,OCINumberToText

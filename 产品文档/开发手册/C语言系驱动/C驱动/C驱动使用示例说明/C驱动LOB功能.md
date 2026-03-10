@@ -1,0 +1,414 @@
+## 接口
+
+| 函数                                                         | 说明                                        |
+| ------------------------------------------------------------ | ------------------------------------------- |
+| [yacLobDescAlloc](../C驱动接口说明/已弃用的函数/yacLobDescAlloc) | LOB协议中，为loblocator分配空间             |
+| [yacLobCreateTemporary](../C驱动接口说明/已弃用的函数/yacLobCreateTemporary) | LOB协议中，通知服务端创建临时LOB            |
+| [yacLobWrite](../C驱动接口说明/已弃用的函数/yacLobWrite)  | LOB协议中，上传buf中的数据并存到服务端LOB里 |
+| [yacLobFreeTemporary](../C驱动接口说明/LOB函数/yacLobFreeTemporary) | LOB协议中，通知服务端释放临时LOB            |
+| [yacLobDescFree](../C驱动接口说明/已弃用的函数/yacLobDescFree) | LOB协议中，为loblocator释放空间             |
+| [yacLobRead](../C驱动接口说明/已弃用的函数/yacLobRead)    | LOB协议中，读取服务端LOB中的数据并存储到buf |
+| [yacLobDescAlloc2](../C驱动接口说明/LOB函数/yacLobDescAlloc2) | LOB协议中，为loblocator分配空间             |
+| [yacLobRead2](../C驱动接口说明/LOB函数/yacLobRead2)          | LOB协议中，从某个位置读取LOB数据            |
+| [yacLobWrite2](../C驱动接口说明/LOB函数/yacLobWrite2)        | LOB协议中，从某个位置将数据插入到LOB        |
+| [yacLobWriteAppend](../C驱动接口说明/LOB函数/yacLobWriteAppend) | LOB协议中，将数据追加到LOB末尾              |
+| [yacLobTrim](../C驱动接口说明/LOB函数/yacLobTrim)            | LOB协议中，截取LOB数据                      |
+| [yacLobDescFree2](../C驱动接口说明/LOB函数/yacLobDescFree2)  | LOB协议中，为loblocator释放空间             |
+
+## 使用示例
+
+```c
+#include <string.h>
+#include "yacli.h"
+
+
+#define YAC_CALL(proc)                           \
+    do {                                         \
+        if ((YacResult)(proc) != YAC_SUCCESS) {  \
+            return YAC_ERROR;                    \
+        }                                        \
+    } while (0)
+
+void printError()
+{
+    YacInt32   code;
+    YacChar    msg[1000];
+    YacTextPos pos;
+
+    yacGetDiagRec(&code, msg, 1000, NULL, NULL, 0, &pos);
+    if (pos.line != 0) {
+        printf("[%d:%d]", pos.line, pos.column);
+    }
+    printf("YAC-%05d %s\n", code, msg);
+}
+
+typedef struct {
+    YacHandle env;
+    YacHandle conn;
+    YacHandle stmt;
+} YacTestEnv;
+
+YacTestEnv gTestEnv = { 0 };
+
+// 连接数据库
+YacResult testConnect()
+{
+    // 更改为实际数据库服务器的IP和端口
+    const YacChar* gSrvStr = "192.168.1.2:1688";
+    const YacChar* user = "sales";
+    const YacChar* pwd = "sales";
+
+    YAC_CALL(yacAllocHandle(YAC_HANDLE_ENV, NULL, &gTestEnv.env));
+    YAC_CALL(yacAllocHandle(YAC_HANDLE_DBC, gTestEnv.env, &gTestEnv.conn));
+    YAC_CALL(yacConnect(gTestEnv.conn, gSrvStr, YAC_NULL_TERM_STR, user, YAC_NULL_TERM_STR, pwd, YAC_NULL_TERM_STR));
+    YAC_CALL(yacAllocHandle(YAC_HANDLE_STMT, gTestEnv.conn, &gTestEnv.stmt));
+
+    return YAC_SUCCESS;
+}
+// 断开数据库
+YacResult testDisConnect()
+{
+    YAC_CALL(yacFreeHandle(YAC_HANDLE_STMT, gTestEnv.stmt));
+    yacDisconnect(gTestEnv.conn);
+    YAC_CALL(yacFreeHandle(YAC_HANDLE_DBC, gTestEnv.conn));
+    YAC_CALL(yacFreeHandle(YAC_HANDLE_ENV, gTestEnv.env));
+
+    return YAC_SUCCESS;
+}
+
+// 单行绑定LOB导入数据
+YacResult testSingleBindLob()
+{
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "drop table if exists yacli", YAC_NULL_TERM_STR));
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "create table yacli(col1 clob, col2 blob)", YAC_NULL_TERM_STR));
+
+    YAC_CALL(yacPrepare(gTestEnv.stmt, "insert into yacli values(?, ?)", YAC_NULL_TERM_STR));
+
+    YacLobLocator* lobLocator1;
+    YacLobLocator* lobLocator2;
+
+    YAC_CALL(yacBindParameter(gTestEnv.stmt, 1, YAC_PARAM_INPUT, YAC_SQLT_CLOB, &lobLocator1, 0, 0, NULL));
+    YAC_CALL(yacBindParameter(gTestEnv.stmt, 2, YAC_PARAM_INPUT, YAC_SQLT_BLOB, &lobLocator2, 0, 0, NULL));
+
+    /* insert lob data
+    '01234567899876543210',  'aaaaaaaaaabbbbbbbbbb'
+    '98765432100123456789',  'bbbbbbbbbbaaaaaaaaaa'
+    */
+
+    // first row insert
+    YAC_CALL(yacLobDescAlloc(gTestEnv.conn, YAC_TYPE_CLOB, (YacVoid**)&lobLocator1));
+    YAC_CALL(yacLobDescAlloc(gTestEnv.conn, YAC_TYPE_BLOB, (YacVoid**)&lobLocator2));
+    YAC_CALL(yacLobCreateTemporary(gTestEnv.conn, lobLocator1));
+    YAC_CALL(yacLobCreateTemporary(gTestEnv.conn, lobLocator2));
+    YacChar buf1[100] = "01234567899876543210";
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator1, NULL, (YacUint8*)buf1, 10));
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator1, NULL, (YacUint8*)(buf1 + 10), 10));
+    YacChar buf2[100] = "aaaaaaaaaabbbbbbbbbb";
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator2, NULL, (YacUint8*)buf2, 10));
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator2, NULL, (YacUint8*)(buf2 + 10), 10));
+    YAC_CALL(yacExecute(gTestEnv.stmt));
+    YAC_CALL(yacLobFreeTemporary(gTestEnv.conn, lobLocator1));
+    YAC_CALL(yacLobFreeTemporary(gTestEnv.conn, lobLocator2));
+    YAC_CALL(yacLobDescFree(lobLocator1, YAC_TYPE_CLOB));
+    YAC_CALL(yacLobDescFree(lobLocator2, YAC_TYPE_BLOB));
+
+    // second row insert
+    YAC_CALL(yacLobDescAlloc(gTestEnv.conn, YAC_TYPE_CLOB, (YacVoid**)&lobLocator1));
+    YAC_CALL(yacLobDescAlloc(gTestEnv.conn, YAC_TYPE_BLOB, (YacVoid**)&lobLocator2));
+    YAC_CALL(yacLobCreateTemporary(gTestEnv.conn, lobLocator1));
+    YAC_CALL(yacLobCreateTemporary(gTestEnv.conn, lobLocator2));
+    YacChar buf3[100] = "98765432100123456789";
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator1, NULL, (YacUint8*)buf3, 10));
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator1, NULL, (YacUint8*)(buf3 + 10), 10));
+    YacChar buf4[100] = "bbbbbbbbbbaaaaaaaaaa";
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator2, NULL, (YacUint8*)buf4, 10));
+    YAC_CALL(yacLobWrite(gTestEnv.conn, lobLocator2, NULL, (YacUint8*)(buf4 + 10), 10));
+    YAC_CALL(yacExecute(gTestEnv.stmt));
+    YAC_CALL(yacLobFreeTemporary(gTestEnv.conn, lobLocator1));
+    YAC_CALL(yacLobFreeTemporary(gTestEnv.conn, lobLocator2));
+    YAC_CALL(yacLobDescFree(lobLocator1, YAC_TYPE_CLOB));
+    YAC_CALL(yacLobDescFree(lobLocator2, YAC_TYPE_BLOB));
+
+    YAC_CALL(yacCommit(gTestEnv.conn));
+
+    return YAC_SUCCESS;
+}
+
+// 单行取LOB数据
+YacResult testSingleFetchLob()
+{
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "select * from yacli", YAC_NULL_TERM_STR));
+
+    YacLobLocator* lobLocator1;
+    YacLobLocator* lobLocator2;
+
+    YacInt32 indicator[2];
+    YAC_CALL(yacBindColumn(gTestEnv.stmt, 0, YAC_SQLT_CLOB, &lobLocator1, 0, &indicator[0]));
+    YAC_CALL(yacBindColumn(gTestEnv.stmt, 1, YAC_SQLT_BLOB, &lobLocator2, 0, &indicator[1]));
+
+    YAC_CALL(yacLobDescAlloc(gTestEnv.conn, YAC_TYPE_CLOB, (YacVoid**)&lobLocator1));
+    YAC_CALL(yacLobDescAlloc(gTestEnv.conn, YAC_TYPE_BLOB, (YacVoid**)&lobLocator2));
+
+    /* fetch lob data
+    '01234567899876543210',  'aaaaaaaaaabbbbbbbbbb'
+    '98765432100123456789',  'bbbbbbbbbbaaaaaaaaaa'
+    */
+
+    YacUint32 fetchedRows;
+    YacChar buf1[100];
+    YacUint64 bytes1 = 100;
+    YacChar buf2[100];
+    YacUint64 bytes2 = 100;
+
+    // first row fetch
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    if (indicator[0] == YAC_NULL_DATA || indicator[1] == YAC_NULL_DATA) {
+        return YAC_ERROR;
+    }
+    YAC_CALL(yacLobRead(gTestEnv.conn, lobLocator1, &bytes1, (YacUint8*)buf1, 0));
+    YAC_CALL(yacLobRead(gTestEnv.conn, lobLocator2, &bytes2, (YacUint8*)buf2, 0));
+    if (fetchedRows != 1 || memcmp(buf1, "01234567899876543210", bytes1) != 0 || memcmp(buf2, "aaaaaaaaaabbbbbbbbbb", bytes2) != 0)
+    {
+        return YAC_ERROR;
+    }
+
+    // second row fetch
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    YAC_CALL(yacLobRead(gTestEnv.conn, lobLocator1, &bytes1, (YacUint8*)buf1, 0));
+    YAC_CALL(yacLobRead(gTestEnv.conn, lobLocator2, &bytes2, (YacUint8*)buf2, 0));
+    if (fetchedRows != 1 || memcmp(buf1, "98765432100123456789", bytes1) != 0 || memcmp(buf2, "bbbbbbbbbbaaaaaaaaaa", bytes2) != 0)
+    {
+        return YAC_ERROR;
+    }
+
+    YAC_CALL(yacLobDescFree(lobLocator1, YAC_TYPE_CLOB));
+    YAC_CALL(yacLobDescFree(lobLocator2, YAC_TYPE_BLOB));
+
+    return YAC_SUCCESS;
+}
+
+// 批量绑定导入LOB数据（使用连续内存导入）
+#define PARAM_SET_SIZE 10
+#define MAX_LOB_SIZE (80 << 20) // 80M
+YacResult testMultiBindLobByContinuousMemory()
+{
+    YacUint32 paramSet = PARAM_SET_SIZE;
+    YAC_CALL(yacSetStmtAttr(gTestEnv.stmt, YAC_ATTR_PARAMSET_SIZE, &paramSet, sizeof(YacUint32)));
+    // 设置批量绑定行数为10
+
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "drop table if exists yacli", YAC_NULL_TERM_STR));
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "create table yacli(col1 clob, col2 blob)", YAC_NULL_TERM_STR));
+
+    YAC_CALL(yacPrepare(gTestEnv.stmt, "insert into yacli values(?, ?)", YAC_NULL_TERM_STR));
+
+    YacChar* bufClob = (YacChar*)malloc(MAX_LOB_SIZE * PARAM_SET_SIZE);
+    if (bufClob == NULL) {
+        return YAC_ERROR;
+    }
+
+    YacChar* bufBlob = (YacChar*)malloc(MAX_LOB_SIZE * PARAM_SET_SIZE);
+    if (bufBlob == NULL) {
+        return YAC_ERROR;
+    }
+
+    YacInt32 indicator1[PARAM_SET_SIZE] = { 0 };
+    YacInt32 indicator2[PARAM_SET_SIZE] = { 0 };
+
+    YacChar* buf1 = bufClob + MAX_LOB_SIZE * 1;
+    YacChar* buf2 = bufClob + MAX_LOB_SIZE * 2;
+    YacChar* buf3 = bufClob + MAX_LOB_SIZE * 3;
+    YacChar* buf4 = bufClob + MAX_LOB_SIZE * 4;
+
+    for (YacUint32 i = 0; i < PARAM_SET_SIZE; i++) {
+        memset(bufClob + MAX_LOB_SIZE * i, 'a' + i, i + 1);
+        indicator1[i] = i + 1;
+    }
+
+    for (YacUint32 i = 0; i < PARAM_SET_SIZE; i++) {
+        memset(bufBlob + MAX_LOB_SIZE * i, '0' + i, i + 1);
+        indicator2[i] = i + 1;
+    }
+
+    YAC_CALL(yacBindParameter(gTestEnv.stmt, 1, YAC_PARAM_INPUT, YAC_SQLT_VARCHAR2, bufClob, MAX_LOB_SIZE, MAX_LOB_SIZE, indicator1));
+    YAC_CALL(yacBindParameter(gTestEnv.stmt, 2, YAC_PARAM_INPUT, YAC_SQLT_BINARY2, bufBlob, MAX_LOB_SIZE, MAX_LOB_SIZE, indicator2));
+
+    /* 每批插入的数据
+    'a',           30
+    'bb',          3131
+    'ccc',         323232
+    'dddd',        33333333
+    'eeeee',       3434343434
+    'ffffff',      353535353535
+    'ggggggg',     36363636363636
+    'hhhhhhhh',    3737373737373737
+    'iiiiiiiii',   383838383838383838
+    'jjjjjjjjjj',  39393939393939393939
+    */
+
+    //执行几次就插入几批，此处插入40行
+    YAC_CALL(yacExecute(gTestEnv.stmt));
+    //yacExecute中间可以修改数据
+    YAC_CALL(yacExecute(gTestEnv.stmt));
+    YAC_CALL(yacExecute(gTestEnv.stmt));
+    YAC_CALL(yacExecute(gTestEnv.stmt));
+
+    YAC_CALL(yacCommit(gTestEnv.conn));
+
+    free(bufClob);
+    free(bufBlob);
+
+    return YAC_SUCCESS;
+}
+
+// 批量取LOB数据（使用连续内存获取）
+#define ROW_SET_SIZE 10
+YacResult testMultiFetchLobByContinuousMemory()
+{
+    YacUint32 rowSet = ROW_SET_SIZE;
+    YAC_CALL(yacSetStmtAttr(gTestEnv.stmt, YAC_ATTR_ROWSET_SIZE, &rowSet, sizeof(YacUint32)));
+    // 设置批量取数据绑定行数为10
+
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "select * from yacli", YAC_NULL_TERM_STR));
+
+    YacChar* bufClob = (YacChar*)malloc(MAX_LOB_SIZE * PARAM_SET_SIZE);
+    if (bufClob == NULL) {
+        return YAC_ERROR;
+    }
+
+    YacChar* bufBlob = (YacChar*)malloc(MAX_LOB_SIZE * PARAM_SET_SIZE);
+    if (bufBlob == NULL) {
+        return YAC_ERROR;
+    }
+
+    YacInt32 indicator1[PARAM_SET_SIZE] = { 0 };
+    YacInt32 indicator2[PARAM_SET_SIZE] = { 0 };
+
+    YAC_CALL(yacBindColumn(gTestEnv.stmt, 0, YAC_SQLT_VARCHAR2, bufClob, MAX_LOB_SIZE, indicator1));
+    YAC_CALL(yacBindColumn(gTestEnv.stmt, 1, YAC_SQLT_BINARY2, bufBlob, MAX_LOB_SIZE, indicator2));
+
+    /* 每批获取到的数据
+    'a',           30
+    'bb',          3131
+    'ccc',         323232
+    'dddd',        33333333
+    'eeeee',       3434343434
+    'ffffff',      353535353535
+    'ggggggg',     36363636363636
+    'hhhhhhhh',    3737373737373737
+    'iiiiiiiii',   383838383838383838
+    'jjjjjjjjjj',  39393939393939393939
+    */
+
+    YacUint32 fetchedRows;
+
+    //fetch几次就获取几批，此处获取40行，fetchedRows返回当前批获取的行数
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+
+    free(bufClob);
+    free(bufBlob);
+
+    return YAC_SUCCESS;
+}
+
+// LOB接口读写LOB数据（使用LOB2接口）
+YacResult testOperatingLob()
+{
+    YacUint32 rowSet = 1;
+    YAC_CALL(yacSetStmtAttr(gTestEnv.stmt, YAC_ATTR_ROWSET_SIZE, &rowSet, sizeof(YacUint32)));
+
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "drop table if exists yacli_lob", YAC_NULL_TERM_STR));
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "create table yacli_lob(col1 clob, col2 blob)", YAC_NULL_TERM_STR));
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "insert into yacli_lob values('aaaaaaaaaabbbbbbbbbb', '4142434445')", YAC_NULL_TERM_STR));
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "insert into yacli_lob values('bbbbbbbbbbaaaaaaaaaa', '4243444546')", YAC_NULL_TERM_STR));
+    YAC_CALL(yacCommit(gTestEnv.conn));
+    YAC_CALL(yacDirectExecute(gTestEnv.stmt, "select * from yacli_lob for update", YAC_NULL_TERM_STR));
+
+
+    YacLobLocator* lobLocator1 = NULL;
+    YacLobLocator* lobLocator2 = NULL;
+    YAC_CALL(yacLobDescAlloc2(gTestEnv.conn, &lobLocator1));
+    YAC_CALL(yacLobDescAlloc2(gTestEnv.conn, &lobLocator2));
+
+    YacInt32 indicator[2];
+    YAC_CALL(yacBindColumn(gTestEnv.stmt, 0, YAC_SQLT_CLOB, &lobLocator1, -1, &indicator[0]));
+    YAC_CALL(yacBindColumn(gTestEnv.stmt, 1, YAC_SQLT_BLOB, &lobLocator2, -1, &indicator[1]));
+
+
+    /* fetch lob data
+    'aaaaaaaaaabbbbbbbbbb',  '4142434445'
+    'bbbbbbbbbbaaaaaaaaaa',  '4243444546'
+    */
+
+    YacUint32 fetchedRows = 0;
+    YacChar buf1[100];
+    YacUint64 byteSize1 = 0;
+    YacUint64 charSize1 = 100;
+    YacChar buf2[100];
+    YacUint64 byteSize2 = 100;
+    YacUint64 charSize2 = 0;
+    YacUint64 offset = 1;
+    YacUint64 bytes1 = 100;
+    YacUint64 bytes2 = 100;
+
+    // first row fetch
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    if (indicator[0] == YAC_NULL_DATA || indicator[1] == YAC_NULL_DATA) {
+        return YAC_ERROR;
+    }
+    YAC_CALL(yacLobRead2(gTestEnv.conn, lobLocator1, &byteSize1, &charSize1, offset, (YacUint8*)buf1, 100));
+    YAC_CALL(yacLobRead2(gTestEnv.conn, lobLocator2, &byteSize2, &charSize2, offset, (YacUint8*)buf2, 100));
+    if (fetchedRows != 1 || memcmp(buf1, "aaaaaaaaaabbbbbbbbbb", byteSize1) != 0 || memcmp(buf2, "ABCDE", byteSize2) != 0)
+    {
+        return YAC_ERROR;
+    }
+
+    // second row fetch
+    YAC_CALL(yacFetch(gTestEnv.stmt, &fetchedRows));
+    YAC_CALL(yacLobRead2(gTestEnv.conn, lobLocator1, &byteSize1, &charSize1, offset, (YacUint8*)buf1, 100));
+    YAC_CALL(yacLobRead2(gTestEnv.conn, lobLocator2, &byteSize2, &charSize2, offset, (YacUint8*)buf2, 100));
+    if (fetchedRows != 1 || memcmp(buf1, "bbbbbbbbbbaaaaaaaaaa", byteSize1) != 0 || memcmp(buf2, "BCDEF", byteSize2) != 0)
+    {
+        return YAC_ERROR;
+    }
+
+    charSize1 = 10;
+    YAC_CALL(yacLobWrite2(gTestEnv.conn, lobLocator1, &byteSize1, &charSize1, offset, (YacUint8*)buf1, 100));
+    YAC_CALL(yacLobWriteAppend(gTestEnv.conn, lobLocator1, &byteSize1, &charSize1, (YacUint8*)buf1, 100));
+
+    YacUint64 newlen = 5;
+    YAC_CALL(yacLobTrim(gTestEnv.conn, lobLocator1, &newlen));
+
+    YAC_CALL(yacRollback(gTestEnv.conn));
+
+    YAC_CALL(yacLobDescFree2(lobLocator1));
+    YAC_CALL(yacLobDescFree2(lobLocator2));
+    return YAC_SUCCESS;
+}
+
+YacResult cexample()
+{
+    YAC_CALL(testConnect());
+    YAC_CALL(testSingleBindLob());
+    YAC_CALL(testSingleFetchLob());
+    YAC_CALL(testMultiBindLobByContinuousMemory());
+    YAC_CALL(testMultiFetchLobByContinuousMemory());
+    YAC_CALL(testOperatingLob());
+    YAC_CALL(testDisConnect());
+
+    return YAC_SUCCESS;
+}
+
+int main()
+{
+    if (cexample() == YAC_SUCCESS) {
+        printf("cexample succeed!\n");
+    } else {
+        printError();
+        printf("cexample failed!\n");
+    }
+    return 0;
+}
+```

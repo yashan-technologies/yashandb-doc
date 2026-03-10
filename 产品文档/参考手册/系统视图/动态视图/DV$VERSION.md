@@ -1,0 +1,9 @@
+本视图显示分布式集群中所有节点的版本信息。 
+
+| 字段  | 类型  | 说明  |
+| --- | --- | --- |
+| GROUP_ID | INTEGER | 组ID |
+| GROUP_NODE_ID | INTEGER | 组内节点ID |
+| BANNER | VARCHAR(64) | 数据库版本全称 |
+| VERSION_NUMBER | VARCHAR(16) | 数据库版本号 |
+

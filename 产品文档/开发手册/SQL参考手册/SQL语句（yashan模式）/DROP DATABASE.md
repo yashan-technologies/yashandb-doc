@@ -1,0 +1,43 @@
+## 通用描述
+
+DROP DATABASE用于删除当前数据库，删除数据库所包含的如下持久化文件：
+
+- 控制文件
+- 数据文件
+- Slice文件
+- 日志文件
+
+> **Note**：
+>
+> 本语句只能由SYS用户在数据库处于NOMOUNT状态时执行，且要求数据库的控制文件完整（控制文件组成员均存在且正确）。
+>
+> 共享集群部署模式下执行该语句需保证执行节点角色为MASTER ROLE，且为NOMOUNT状态。
+> 
+> 执行完DROP DATABASE语句之后数据库会自行重启。
+
+本语句不适用于分布式部署。
+
+## 语句定义
+
+**drop database::=**
+
+```ebnf+diagram
+syntax::= DROP DATABASE [INCLUDING ARCHIVELOG]
+```
+
+### 1. INCLUDING ARCHIVELOG
+
+该语句决定是否删除数据库的归档日志文件，缺省为不删除。
+
+示例（单机、共享集群部署）
+
+```sql
+-- 启动实例到NOMOUNT
+$ yasboot cluster restart -c yashandb -m nomount
+
+-- 以sys用户登录数据库
+$ yasql sys/********@192.168.1.2:1688
+
+-- 删除数据库
+SQL> DROP DATABASE;
+```

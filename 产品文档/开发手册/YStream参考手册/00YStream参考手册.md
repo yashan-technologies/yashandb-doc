@@ -1,0 +1,11 @@
+YStream是YashanDB提供的逻辑日志解析接口，客户端API采用Java代码实现。
+
+使用YStream时，建议打开数据库归档，否则发生redo切换时，YStream服务可能找不到redo而报错。
+
+YStream服务创建时，会记录日志解析起始点。若数据库已开启归档，不论YStream服务处于何种状态，日志解析起始点后的所有未被解析的归档都不会自动清理。若无需再使用某个服务对应的日志解析，请及时删除不必要的YStream服务，以免妨碍数据库自动清理归档，造成存储空间浪费。
+
+在备库上使用YStream时，应确保主备实例或主备集群间网络连接快速、稳定，否则可能出现网络连接断开异常；备实例的计算、存储性能不低于主实例，否则主备实例日志差距过大可能引起超时异常；Switchover备库的YStream服务会与主实例断开连接后重连，备库YStream可能出现网络连接断开异常，建议在YStream服务停止后再执行Switchover操作；主实例shutdown或其他原因异常退出，备库YStream也可能出现网络连接断开异常，建议在YStream服务停止后主实例再执行shutdown操作。
+
+客户端软件可以集成YStream API的jar包，在已开启附加日志（[库级](../SQL参考手册/SQL语句（yashan模式）/ALTER DATABASE.html#supplementallogclauses)或[表级](../SQL参考手册/SQL语句（yashan模式）/ALTER DATABASE.html#addsupplementalloggingclause)）的YashanDB数据库环境中，调用API接口获取YashanDB逻辑日志，包括DML和DDL。
+
+YStream不适用于分布式部署。

@@ -1,0 +1,23 @@
+本章节主要介绍YashanDB（mysql模式）按mysql语法进行解析的SQL语句，本章节未提及的yashan模式同名[SQL语句](../SQL语句（yashan模式）/00SQL语句（yashan模式）)则仍然使用yashan语法进行解析。
+
+- [ALTER DATABASE](ALTER DATABASE)
+
+- [ALTER TABLE](ALTER TABLE)
+
+- [ALTER USER](ALTER USER)
+
+- [CREATE DATABASE](CREATE DATABASE)
+
+- [CREATE INDEX](CREATE INDEX)
+
+- [CREATE TABLE](CREATE TABLE)
+
+- [CREATE USER](CREATE USER)
+
+- [DROP DATABASE](DROP DATABASE)
+
+- [DROP INDEX](DROP INDEX)
+
+- [REVOKE](REVOKE)
+
+- [USE](USE)
