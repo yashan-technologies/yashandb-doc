@@ -1,0 +1,12 @@
+本视图显示集群中所有实例所有配置参数汇总信息。
+
+|  字段| 类型| 说明|
+| --- | --- | --- |
+| GROUP_ID | NUMBER | 组ID |
+| GROUP_NODE_ID | NUMBER | 组内节点ID |
+| INST_ID | NUMBER  | 实例ID |
+| NAME | VARCHAR(64) | 参数的名称 |
+| VALUE | VARCHAR(4096) | 当前内存中参数的值 |
+| DEFAULT_VALUE | VARCHAR(4096) | 参数的默认值 |
+| IS_DEPRECATED | VARCHAR(8) | 参数是否过时 |
+| CLUSTER_CONSISTENT | VARCHAR(8) | 共享集群/分布式集群部署中，是否要求所有实例的参数值保持一致<br>\* TRUE：要求一致，修改该参数且指定实时生效时数据库会自动将其同步到所有实例以保证全局一致性<br>\* FALSE：不要求一致，各个实例可单独自定义配置且不会自动同步 |

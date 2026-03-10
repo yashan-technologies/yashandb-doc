@@ -1,0 +1,9 @@
+本视图显示当前系统提供的所有数据类型信息，具体清单见开发手册[数据类型](../../../开发手册/SQL参考手册/数据类型/00数据类型)、[游标](../../../开发手册/PL参考手册/PL语言基础/变量/游标)、[RECORD](../../../开发手册/PL参考手册/PL语言基础/变量/RECORD)。
+|  字段| 类型| 说明|
+| --- | --- | --- |
+| GROUP_ID | NUMBER | 组ID |
+| GROUP_NODE_ID | NUMBER | 组内节点ID |
+| INST_ID | NUMBER  | 实例ID |
+| TYPE#| SMALLINT | 数据类型的ID|
+| NAME | VARCHAR(64) | 数据类型名称 |
+| MAX_SIZE | INTEGER | 数据类型对应的最大宽度（单位：字节）|

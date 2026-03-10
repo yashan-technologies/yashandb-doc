@@ -1,0 +1,5 @@
+initno:1
+
+filename:yacLobCreateTemporary,yacLobDescAlloc,yacLobDescFree,yacLobRead,yacLobWrite
+
+enName:yacLobCreateTemporary,yacLobDescAlloc,yacLobDescFree,yacLobRead,yacLobWrite

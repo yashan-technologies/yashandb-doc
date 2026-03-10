@@ -1,0 +1,54 @@
+本视图显示存算一体分布式集群中所有节点已创建的会话信息。
+
+|  字段| 类型| 说明|
+|-------------------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| GROUP_ID               | INTEGER      | 组ID                 |
+| GROUP_NODE_ID         | INTEGER      | 组内节点ID                  |
+| SID                     | SMALLINT     | 会话ID                    |
+| GLOBAL_SESSION_ID     | INTEGER      | 分布式下全局会话ID           |
+| SERIAL#                 | INTEGER      | 分配序列号                     |
+| PADDR                   | BIGINT       | 会话分配的线程内存地址               |
+| XID                     | BIGINT       | 会话此时所具有的事务ID         |
+| XRMID                   | INTEGER      | 会话所绑定的XRM ID                |
+| LOCKWAIT                | BIGINT       | 等待锁ID      |
+| WAIT_EVENT             | VARCHAR(32)  | 等待事件名称，该字段值参考[等待事件](../../等待事件)文档描述。             |
+| WAIT_CLASS             | VARCHAR(32)  | 等待事件所属的类型<br>\*   APPLICATION<br>\*   CONCURRENCY<br>\*   COMMIT<br>\*   USER I/O<br>\*   SYSTEM I/O<br>\*   OTHER<br>\*   IDLE<br>\*   NETWORK<br>\*   CONFIGURATION<br>\*   CLUSTER<br>\*   DISTRIBUTED |
+| USER#                   | INTEGER      | 数据库用户ID                      |
+| USERNAME                | VARCHAR(64)  | 数据库用户名      |
+| STATUS                  | VARCHAR(8)   | 会话状态<br>\* ACTIVE：活跃<br>\* INACTIVE：不活跃<br>\* KILLED：已被中断           |
+| CLI_OSUSER             | VARCHAR(68)  | 客户端用户名           |
+| CLI_PROGRAM            | VARCHAR(256) | 客户端程序名（yasql、JDBC Driver、C Driver、Go Driver...）         |
+| OSUSER             | VARCHAR(68)  | 客户端用户名                 |
+| PROGRAM            | VARCHAR(256) | 客户端程序名（yasql、JDBC Driver、C Driver、Go Driver...）       |
+| CLI_HOSTNAME           | VARCHAR(256) | 客户端服务器名              |
+| COMMAND                 | INTEGER      | SQL命令类型值，可以从V$SQLCOMMAND中查询对应的SQL命令名。示例：`select command_name from V$SQLCOMMAND where command_type = 1` |
+| SQL_HASH_VALUE        | BIGINT       | 当前会话正在执行的SQL哈希值（SQL文本计算得到）      |
+| SQL_ID                 | VARCHAR(13)  | 当前会话正在执行的SQL ID（SQL文本的哈希/加密运算结果）               |
+| TYPE                    | VARCHAR(16)  | 会话类型<br>\* USER：用户会话<br>\* BACKGROUND：后台或并行会话             |
+| SERVER                  | VARCHAR(10)  | 会话连接模式                         |
+| LOGON_TIME              | TIMESTAMP(6)    | 客户端登录时间                     |
+| IP_ADDRESS             | VARCHAR(45)  | 客户端IP地址          |
+| IP_PORT                 | INTEGER      | 客户端端口号             |
+| EXEC_START_TIME       | TIMESTAMP(6)    | 当前sql语句执行时间                |
+| RETRY_CNT               | INTEGER      | 当前命令的重试次数                  |
+| RETRY_INFO              | INTEGER      | 当前命令的重试错误码             |
+| EXEC_STATUS             | INTEGER      | 执行状态    |
+| AUDSID                  | BIGINT       | 审计会话ID                            |
+| CLIENT_INFO             | VARCHAR(64)  | 客户端信息，由调用DBMS_APPLICATION_INFO.SET_CLIENT_INFO过程设置所得          |
+| MODULE                  | VARCHAR(64)  | 当前执行模块的名称，由调用DBMS_APPLICATION_INFO.SET_MODULE过程设置所得         |
+| MODULE_HASH             | BIGINT       | MODULE列的HASH值                |
+| ACTION                  | VARCHAR(64)  | 当前正在执行的操作的名称，由调用DBMS_APPLICATION_INFO包中的相关过程设置所得       |
+| ACTION_HASH             | BIGINT       | ACTION列的HASH值                   |
+| CLIENT_PROTOCAL_VERSION| BIGINT | 客户端协议版本 |
+| CLIENT_VERSION| VARCHAR(256) | 客户端软件版本 |
+| CLIENT_DRIVER | VARCHAR(256) | 客户端驱动名 | 
+| PORT | INTEGER | 客户端端口号 |
+| PROCESS | VARCHAR(8) | 客户端操作系统PID |
+| MACHINE | VARCHAR(256) | 客户端操作系统名 |
+| TERMINAL | VARCHAR(256) | 客户端操作系统终端名 |
+| SPA_USE_MEM             | BIGINT       | 会话当前使用SPA内存大小（单位：字节）                            |
+| SPA_USE_QUOTA           | BIGINT       | 会话当前占有的配额（单位：字节）                      |
+| SPA_MAX_USE_MEM         | BIGINT       | 会话最大使用SPA内存大小（单位：字节）                   |
+| RESOURCE_CONSUMER_GROUP | VARCHAR(68)  | 会话所属的资源组                            |
+| PREV_SQL_ID | VARCHAR(13) | 会话最近一次执行的SQL ID |
+| PREV_CHILD_ADDRESS | RAW(8) | 会话最近一次执行的子游标地址 |

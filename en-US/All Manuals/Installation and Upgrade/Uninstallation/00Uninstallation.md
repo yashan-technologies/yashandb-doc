@@ -1,0 +1,1 @@
+Before uninstalling YashanDB, it is recommended that you first perform a [data backup](../../数据库管理/备份与恢复/00备份与恢复) to ensure the integrity and security of the data, so that you have a complete data copy available for restoration or migration when needed.

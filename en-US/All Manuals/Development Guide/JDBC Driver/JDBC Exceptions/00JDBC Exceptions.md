@@ -1,0 +1,5 @@
+The YashanDB JDBC driver has established an exception system that classifies the error codes returned by the database server according to their meanings, following the JDBC 4.3 specification. It throws different subtypes of SQLException, which helps users better understand the reasons for errors based on the exception type.
+
+In cases where the server returns multiple error codes, the type of exception thrown is determined by the first classified error code.
+
+All SQLExceptions have a SQLState attribute. Therefore, the YashanDB JDBC driver also specifies a corresponding sqlState value for each SQLException mapped from an error code. The first two characters of this value come from the first two characters defined in the SQLSTATE specification by the X/Open and SQL Access Group SQL CAE (1992), and the last three characters are '000'.

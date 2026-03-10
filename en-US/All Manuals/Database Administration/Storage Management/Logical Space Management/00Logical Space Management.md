@@ -1,0 +1,1 @@
+Logical space management refers to the management of database storage space, including tablespace management, tablespace set keys, and table storage space management.  

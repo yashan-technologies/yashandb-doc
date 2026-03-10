@@ -1,0 +1,1 @@
+The GIS view provides views related to the ST_GEOMETRY type offered by the system, used to display information about columns of ST_GEOMETRY type. Users can query these views to understand the properties of the columns of this data type.
