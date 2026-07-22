@@ -1,0 +1,58 @@
+This view displays the current session information.
+
+|Field |Type |Description |
+|-------------------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| GROUP_ID                | NUMBER       | Group ID                                                                                                                                                                                            |
+| GROUP_NODE_ID           | NUMBER       | Node ID within the group                                                                                                                                                                          |
+| INST_ID                 | NUMBER       | Instance ID                                                                                                                                                                                         |
+| SID                     | SMALLINT     | Session ID                                                                                                                                                                                          |
+| GLOBAL_SESSION_ID       | INTEGER      | Global Session ID                                                                                                                                                                                  |
+| SERIAL#                 | INTEGER      | Assigned sequence number                                                                                                                                                                            |
+| PADDR                   | BIGINT       | Memory address allocated for the session                                                                                                                                                           |
+| XID                     | BIGINT       | Transaction ID held by the session at this moment                                                                                                                                                  |
+| XRMID                   | INTEGER      | XRM ID bound to the session                                                                                                                                                                        |
+| LOCKWAIT                | BIGINT       | Lock wait ID                                                                                                                                                                                       |
+| WAIT\_EVENT             | VARCHAR(32)  | Name of the wait event, the value of this field refers to the [Wait Events](../../Wait Events) documentation                                                                                     |
+| WAIT\_CLASS             | VARCHAR(32)  | Type of the wait event<br>\* APPLICATION<br>\* CONCURRENCY<br>\* COMMIT<br>\* USER I/O<br>\* SYSTEM I/O<br>\* OTHER<br>\* IDLE<br>\* NETWORK<br>\* CONFIGURATION<br>\* CLUSTER<br>\* DISTRIBUTED |
+| USER#                   | INTEGER      | Database user ID                                                                                                                                                                                   |
+| USERNAME                | VARCHAR(64)  | Database username                                                                                                                                                                                  |
+| STATUS                  | VARCHAR(8)   | Session status<br/>* ACTIVE: Active<br/>* INACTIVE: Inactive<br/>* KILLED: Intervened                                                                                                              |
+| CLI\_OSUSER             | VARCHAR(68)  | Client username                                                                                                                                                                                    |
+| CLI\_PROGRAM            | VARCHAR(256) | Client program name (*yasql*, JDBC Driver, C Driver, Go Driver...)                                                                                                                                |
+| OSUSER             | VARCHAR(68)  | Client username                                                                                                                                                                                                         |
+| PROGRAM            | VARCHAR(256) | Client program name (e.g., *yasql*, JDBC Driver, C Driver, Go Driver...)                                                                                                                                              |
+| CLI\_HOSTNAME           | VARCHAR(256) | Client server name                                                                                                                                                                                 |
+| COMMAND                 | INTEGER      | SQL command type value, can be queried from V$SQLCOMMAND for corresponding SQL command name. Example: `select command_name from v$sqlcommand where command_type = 1`                          |
+| SQL\_HASH\_VALUE        | BIGINT       | Hash value of the SQL currently executed by the session (calculated from SQL text)                                                                                                               |
+| SQL\_ID                 | VARCHAR(13)  | SQL ID currently executed by the session (result of hash/encryption of SQL text)                                                                                                                 |
+| DTEXT                   | VARCHAR(200) | Text of the DDL statement currently executed by the session                                                                                                                                     |
+| TYPE                    | VARCHAR(16)  | Session type<br/>* USER: User session<br/>* BACKGROUND: Background or parallel session                                                                                                           |
+| SERVER                  | VARCHAR(10)  | Session connection mode                                                                                                                                                                            |
+| LOGON_TIME              | TIMESTAMP(6)    | Client login time                                                                                                                                                                                  |
+| IP_ADDRESS              | VARCHAR(45)  | Client IP address                                                                                                                                                                                 |
+| IP_PORT                 | INTEGER      | Client port number                         |
+| EXEC_START_TIME         | TIMESTAMP(6)     | The time when the current SQL statement started execution                                                                                                                                                                  |
+| IS_HEARTBEAT            | VARCHAR(8)   | Whether the session is a heartbeat session          |
+| RETRY_CNT               | INTEGER      | Number of retries for the current command             |
+| RETRY_INFO              | INTEGER      | Error code for the current command retry                  |
+| EXEC_STATUS             | INTEGER      | Execution status              |
+| AUDSID                  | BIGINT       | Audit session ID            |
+| CLIENT_IDENTIFIER        | VARCHAR(68)  | Client identifier for the current session           |
+| CLIENT_INFO             | VARCHAR(64)  | Client information, set by calling the DBMS_APPLICATION_INFO.SET_CLIENT_INFO procedure          |
+| MODULE                  | VARCHAR(64)  | Name of the current executing module, set by calling the DBMS_APPLICATION_INFO.SET_MODULE procedure             |
+| MODULE_HASH             | BIGINT       | HASH value of the MODULE column               |
+| ACTION                  | VARCHAR(64)  | Name of the operation currently being executed, set by related procedures in the DBMS_APPLICATION_INFO package            |
+| ACTION_HASH             | BIGINT       | HASH value of the ACTION column                   |
+| CLIENT_PROTOCOL_VERSION  | BIGINT       | Client protocol version                 |
+| CLIENT_VERSION          | VARCHAR(256) | Client software version                |
+| CLIENT_DRIVER           | VARCHAR(256) | Client driver name                 |
+| PORT                    | INTEGER      | Client port number                 |
+| PROCESS                 | VARCHAR(8)   | Client operating system PID         |
+| MACHINE                 | VARCHAR(256) | Client operating system name                 |
+| TERMINAL                | VARCHAR(256) | Client operating system terminal name             |
+| SPA_USE_MEM             | BIGINT       | Current SPA memory size used by the session (unit: bytes)           |
+| SPA_USE_QUOTA           | BIGINT       | Current quota held by the session (unit: bytes)       |
+| SPA_MAX_USE_MEM         | BIGINT       | Maximum SPA memory size allowed for the session (unit: bytes)        |
+| RESOURCE_CONSUMER_GROUP  | VARCHAR(68)  | Resource group to which the session belongs                 |
+| PREV_SQL_ID | VARCHAR(13) | SQL identifier of the last SQL statement executed |
+| PREV_CHILD_ADDRESS | RAW(8) | Child cursor address of the last SQL statement executed |

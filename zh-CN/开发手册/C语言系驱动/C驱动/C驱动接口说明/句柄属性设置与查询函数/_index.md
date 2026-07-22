@@ -1,0 +1,5 @@
+initno:1
+
+filename:yacGetConnAttr,yacGetEnvAttr,yacGetStmtAttr,yacSetConnAttr,yacSetEnvAttr,yacSetStmtAttr
+
+enName:yacGetConnAttr,yacGetEnvAttr,yacGetStmtAttr,yacSetConnAttr,yacSetEnvAttr,yacSetStmtAttr

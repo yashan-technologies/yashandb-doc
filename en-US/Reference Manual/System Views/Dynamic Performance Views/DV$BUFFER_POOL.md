@@ -1,0 +1,11 @@
+This view displays the basic information of the data buffers for all nodes in an ISC distributed cluster.
+
+|Field |Type |Description |
+| --- | --- | --- |
+| GROUP\_ID | INTEGER | Group ID |
+| GROUP\_NODE\_ID | INTEGER | Node ID within the group |
+| ID  | INTEGER | Buffer partition number |
+| SIZE | BIGINT | Buffer partition size (in bytes) |
+| BLOCK\_SIZE | INTEGER | Data block size of the buffer partition (in bytes) |
+| CHUNKS | INTEGER | Number of data chunks in the data block partition |
+| BUFFERS | INTEGER | Number of data blocks in the data block partition |

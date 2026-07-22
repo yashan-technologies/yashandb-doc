@@ -1,5 +1,0 @@
-initno:1
-
-filename:yacDirectExecute,yacExecute,yacFetch,yacGetData,yacNumParams,yacNumResultCols,yacPrepare,yacStmtGetNextResult
-
-enName:yacDirectExecute,yacExecute,yacFetch,yacGetData,yacNumParams,yacNumResultCols,yacPrepare,yacStmtGetNextResult

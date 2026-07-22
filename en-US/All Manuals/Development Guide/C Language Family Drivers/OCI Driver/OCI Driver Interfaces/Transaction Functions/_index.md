@@ -1,3 +1,0 @@
-initno:1
-
-filename:OCITransCommit,OCITransDetach,OCITransForget,OCITransPrepare,OCITransRollback,OCITransStart

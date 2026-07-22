@@ -1,5 +1,0 @@
-initno:1
-
-filename:OCIAttrGet,OCIAttrSet,OCIDescriptorAlloc,OCIDescriptorFree,OCIHandleAlloc,OCIHandleFree,OCIParamGet
-
-enName:OCIAttrGet,OCIAttrSet,OCIDescriptorAlloc,OCIDescriptorFree,OCIHandleAlloc,OCIHandleFree,OCIParamGet

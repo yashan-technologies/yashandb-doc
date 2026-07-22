@@ -1,3 +1,0 @@
-initno:1
-
-filename:OCIErrorGet,OCIMemoryAlloc,OCIMemoryFree,OCINlsCharSetNameToId,OCINlsEnvironmentVariableGet,OCIPasswordChange,OCIPing,OCIBreak,OCIReset

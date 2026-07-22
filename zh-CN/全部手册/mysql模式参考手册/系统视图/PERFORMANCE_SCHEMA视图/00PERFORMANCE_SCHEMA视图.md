@@ -1,2 +1,0 @@
-
-PERFORMANCE_SCHEMA视图为系统提供的以PERFORMANCE_SCHEMA.开头的视图，用于展现mysql模式下的系统变量。

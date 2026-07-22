@@ -1,0 +1,16 @@
+This chapter mainly introduces SQL statements parsed according to MySQL syntax in YashanDB (mysql mode). The yashan mode [SQL statements](../../../Development Guide/SQL Reference Manual/SQL Statements/00SQL Statements) mentioned by the same name are still parsed using yashan syntax.
+
+- [ALTER DATABASE](ALTER DATABASE)
+- [ALTER TABLE](ALTER TABLE)
+- [ALTER USER](ALTER USER)
+- [CREATE DATABASE](CREATE DATABASE)
+- [CREATE INDEX](CREATE INDEX)
+- [CREATE TABLE](CREATE TABLE)
+- [CREATE USER](CREATE USER)
+- [CREATE VIEW](CREATE VIEW)
+- [DROP DATABASE](DROP DATABASE)
+- [DROP INDEX](DROP INDEX)
+- [GRANT](GRANT)
+- [LOCK TABLE](LOCK TABLE)
+- [REVOKE](REVOKE)
+- [USE](USE)

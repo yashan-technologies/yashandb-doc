@@ -1,1 +1,0 @@
-YashanDB (mysql mode) has implemented ​​a subset of MySQL system variables​​ to simplify application migration and adaptation.

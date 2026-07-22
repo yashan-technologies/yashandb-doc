@@ -1,3 +1,0 @@
-initno:1
-
-filename:INFORMATION_SCHEMA Views,MYSQL Views,PERFORMANCE_SCHEMA Views

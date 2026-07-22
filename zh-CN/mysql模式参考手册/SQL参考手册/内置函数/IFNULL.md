@@ -1,0 +1,77 @@
+```ebnf
+ifnull = IFNULL "(" expr1 "," expr2 ")".
+```
+
+IFNULL函数有2个[expr](../通用SQL语法/expr)参数，当expr1不为NULL时返回expr1，否则返回expr2。
+
+expr1、expr2的值可以为任意数据类型，但当expr1、expr2其中之一为TEXT或BLOB类型时，不允许与其它类型搭配使用（即expr1和expr2的数据类型必须相同），否则函数返回错误。
+
+函数返回值类型规则如下：
+
+- 当expr1、expr2其中之一为NULL，另一个为常量时，函数返回值类型为常量对应的数据类型。
+
+- 当expr1和expr2的数据类型相同时，函数返回此数据类型的值。
+
+- 当expr1和expr2的数据类型不相同，函数将先进行隐式类型转换后再返回结果，基本规则如下：
+
+  - expr1与expr2分属于数值型、日期时间型、字符型不同大类组时，函数返回值为VARCHAR类型。
+
+  - BINARY或VARBINARY和数值型/日期时间型/字符型比较时返回BINARY类型；BINARY或VARBINARY和TEXT/BLOB比较时返回BLOB类型。
+
+  - expr1与expr2其中之一为布尔型：
+
+    - 另一个属于非数值型的其他大类时，函数返回VARCHAR类型。
+
+    - 另一个属于数值型时，函数返回对应的数值类型。
+
+  - expr1与expr2均属于日期时间型时，函数返回类型如下表所示：（将TIME类型转换为DATE或TIMESTAMP类型时年月日补充为当前日期）
+
+| expr1/expr2                          | DATE      | TIME      | TIMESTAMP | DATETIME  |
+| ------------------------------------ | --------- | --------- | --------- | --------- |
+| **DATE**                             | DATE      | DATE      | TIMESTAMP | TIMESTAMP |
+| **TIME**                             | DATE      | TIME      | TIMESTAMP | TIMESTAMP |
+| **TIMESTAMP**                        | TIMESTAMP | TIMESTAMP | TIMESTAMP | TIMESTAMP |
+| **DATETIME**                        | TIMESTAMP | TIMESTAMP | TIMESTAMP | TIMESTAMP |
+
+  - expr1与expr2均属于数值型时，函数返回类型如下表所示：（仅当expr1与expr2均为NUMBER类型且精度相同时，函数返回同精度的NUMBER类型）
+
+| expr1/expr2           | BIT             | TINYINT          | SMALLINT | INT              | BIGINT | FLOAT  | DOUBLE | NUMBER      | TINYINT UNSIGNED | SMALLINT UNSIGNED| INT UNSIGNED     | BIGINT UNSIGNED |
+|-----------------------|-----------------|------------------| -------- |------------------| ------ | ------ | ------ | ----------- |------------------| ------ |------------------|-----------------|
+| **BIT**               | BIT             | BIGINT           | BIGINT   | BIGINT           | BIGINT | DOUBLE | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **TINYINT**           | BIGINT          | TINYINT          | SMALLINT | INT              | BIGINT | FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **SMALLINT**          | BIGINT          | SMALLINT         | SMALLINT | INT              | BIGINT | FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **INT**               | BIGINT          | INT              | INT      | INT              | BIGINT | FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **BIGINT**            | BIGINT          | BIGINT           | BIGINT   | BIGINT           | BIGINT | FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **FLOAT**             | DOUBLE          | FLOAT            | FLOAT    | FLOAT            | FLOAT  | FLOAT  | DOUBLE | DOUBLE      | FLOAT            | FLOAT    | FLOAT            | FLOAT           |
+| **DOUBLE**            | DOUBLE          | DOUBLE           | DOUBLE   | DOUBLE           | DOUBLE | DOUBLE | DOUBLE | DOUBLE      | DOUBLE          | DOUBLE           | DOUBLE   | DOUBLE          |      
+| **NUMBER**            | 浮动精度NUMBER      | 浮动精度NUMBER       | 浮动精度NUMBER   | 浮动精度NUMBER       | 浮动精度NUMBER | 浮动精度NUMBER | 浮动精度NUMBER | 浮动精度NUMBER或NUMBER(p/s) |浮动精度NUMBER       | 浮动精度NUMBER   | 浮动精度NUMBER       | 浮动精度NUMBER |
+| **TINYINT UNSIGNED**  | BIGINT UNSIGNED | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED| FLOAT  | DOUBLE | NUMBER      | TINYINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **SMALLINT UNSIGNED** | BIGINT UNSIGNED | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED| FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | SMALLINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+| **INT UNSIGNED**      | BIGINT UNSIGNED | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED| FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| INT UNSIGNED  | BIGINT UNSIGNED |
+| **BIGINT UNSIGNED**   | BIGINT UNSIGNED | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED| FLOAT  | DOUBLE | NUMBER      | BIGINT UNSIGNED  | BIGINT UNSIGNED| BIGINT UNSIGNED  | BIGINT UNSIGNED |
+
+示例（单机HEAP表）
+
+```sql
+SELECT IFNULL(1, 2) res FROM DUAL;
+         res 
+------------ 
+           1
+
+SELECT IFNULL(NULL, 2) res FROM DUAL;
+res   
+----- 
+2    
+
+SELECT IFNULL(TRUE, 2) res FROM DUAL;
+         res 
+------------ 
+           1
+             
+SELECT IFNULL(5, CAST('0.232222' AS NUMBER)) res,
+TYPEOF (IFNULL(5, CAST('0.232222' AS NUMBER))) res_type
+FROM DUAL;
+        res res_type                                                         
+----------- -----------------
+          5 number
+```

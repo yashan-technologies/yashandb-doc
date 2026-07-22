@@ -1,0 +1,3 @@
+initno:1
+
+filename:OCIBindArrayOfStruct,OCIBindByName,OCIBindByPos,OCIDefineByPos,OCIDefineByPos2,OCIDescribeAny,OCIBindDynamic,OCIDefineDynamic

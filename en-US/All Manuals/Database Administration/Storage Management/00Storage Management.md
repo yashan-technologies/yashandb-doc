@@ -1,1 +1,0 @@
-This chapter mainly includes [Cluster File System Management](./集群文件系统管理/00集群文件系统管理), [Database File Management](./数据库文件管理/00数据库文件管理), and [Logical Space Management](./逻辑空间管理/00逻辑空间管理).  
