@@ -51,7 +51,13 @@ Used to execute SQL files; for details, please refer to [executing SQL statement
 
 **yasql_subcommand**
 
-After connecting and logging into the database via *yasql*, the available subcommands (case-insensitive) are listed in the table below.
+Through *yasql*, you can execute subcommands after connecting and logging in to the database. The input specifications are as follows:
+
+- Subcommands, SQL statements, and PL statements are not case-sensitive, but shell commands need to follow their actual writing conventions.
+
+- A single line can input up to 4000 bytes. If the statement length exceeds this specification, use line breaks reasonably, otherwise the YASQL-00021 error will occur.
+
+The specific subcommand list is shown in the table below.
 
 |Subcommand |Function  |
 | ------------ | ------------------------------------------ |
@@ -255,12 +261,15 @@ $ yasql sales/******** -c "select 1 from dual";
 
 ### Execute SQL Files
 
+The maximum length of a single line in an SQL file is 128000 bytes. If the statement length exceeds this specification, use line breaks reasonably, otherwise the YASQL-00019 error will occur.
+
 <span id="fsql" name="fsql"></span>
 **Method 1**: By using the `-f\[-e\]` parameter
 
 Using the `-f \[-e\] filename[.ext]` parameter, you can directly connect and log in to the database to execute a SQL file, and the file extension can be omitted.
 
 - `-f` specifies the SQL file to execute.
+
 - `-e` is used to display the specific statements being executed in the file.
 
 When the SQL file is in the same directory as the *yasql* tool, you do not need to specify the file path; otherwise, the path of the file must be specified (absolute or relative path is acceptable).
@@ -293,6 +302,7 @@ SQL> select 2 from dual;
 You can execute local SQL files using the `@filename[.ext]` or `@@filename[.ext]` command, and the extension can be omitted. The specific usage is as follows:
 
 - After logging into the database, directly execute `@filename[.ext]` or `@@filename[.ext]` in the *yasql* command-line interface.
+
 - Directly execute `yasql username/password@host:port @filename[.ext]` or `yasql username/password@host:port @@filename[.ext]` to log in to the database and execute local SQL files; the login status and *yasql* command-line interface will be retained after execution.
 
 When entering `@file_name.ext` or `@@file_name.ext` interactively, `@` or `@@` will look for the required file in the current working directory. When the SQL file is in the current working directory of the *yasql* tool, you do not need to specify the file's path; otherwise, the path of the file must be specified (absolute or relative path is acceptable).

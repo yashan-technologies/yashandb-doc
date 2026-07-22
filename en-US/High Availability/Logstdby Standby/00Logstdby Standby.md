@@ -48,7 +48,9 @@ Objects that can be synchronized via logical replication are primarily HEAP tabl
 
 > **Note**: 
 >
-> The logical standby database can only synchronize HEAP tables with identity column or auto-increment column (mysql mode) from primary database.
+> - For HEAP table containing virtual columns, the logical standby database can only synchronize can only synchronize DDL statements, not the data.
+>
+> - The logical standby database can only synchronize HEAP tables with identity column or auto-increment column (mysql mode) from primary database.
 
 <span id="requirement" name="requirement"></span>
 
@@ -73,8 +75,6 @@ When there is a logical standby database, the following constraints apply to ope
 - The primary database is not allowed to execute table data flashbacks; otherwise, the logical standby database may become inconsistent with the data in the primary database.
 
 - The primary database must not manually disable library-level additional logging; otherwise, it will cause exceptions in the logical standby database, preventing normal synchronization.
-
-- The primary database cannot utilize auto-increment(mysql mode specific type) columns or identity columns.
 
 - It must be ensured that each row in the primary database tables can be uniquely identified. It is recommended to create primary keys or unique constraints/indexes in the tables. When primary keys or unique constraints/indexes exist, the UPDATE statement will record the necessary column values in the redo log to uniquely identify the modified target row, and unique constraints/indexes help improve the efficiency of applying UPDATE statements in the logical standby database, avoiding/reducing full table scans.
 

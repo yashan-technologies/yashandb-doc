@@ -4,6 +4,8 @@ This chapter provides instructions for installing the YashanDB C driver on Windo
 
 - [YashanDB C Installation Guide for Linux](./Installing C Driver (Linux))
 
+- [YashanDB C Installation Guide for macOS](./Installing C Driver (macOS))
+
 
 > **Note**:
 > 

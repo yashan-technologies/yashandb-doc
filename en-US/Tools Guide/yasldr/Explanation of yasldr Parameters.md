@@ -29,6 +29,7 @@
 | SENDER_TIMEOUT                 | [0,86400]                         | Sets the timeout duration (in seconds) for sender threads during the import process; the default value is 30. If set to 0, the sender thread will not timeout; if there is a unique constraint on the table, the import may get stuck.                                                                                                                                      |
 | PART_SEND_POLICY              | [SQF,HASH,ROUND]                  | Sets the algorithm for distributing data units to sender threads during import; the default value is SQF. SQF indicates shortest queue first, and HASH indicates that the data unit ID is hashed based on the number of sender threads. Using HASH can significantly improve performance when importing partition tables. If the CSV data distribution is extremely uneven, resulting in some partition data being far higher than others, the SQF algorithm should be used.                                                                                                                                               |
 | ENABLE_AFFINITY               | [TRUE,FALSE]                      | Sets whether reader threads and senders run with CPU affinity during the import process; the default value is TRUE, indicating that CPU affinity will be applied.                                                                                                                                                                                |
+| AFFINITY_SEND                 | [TRUE,FALSE]                      | Sets whether to enable affinity import in YAC deployment; the default value is FALSE. When enabled, regular table objects and level-1 partition objects can leverage affinity to improve import performance in mode=BATCH. Affinity import requires the yasldr operation user to have SELECT_CATALOG_ROLE role privileges. You can query whether objects have affinity properties configured through the ALL_OBJECT_AFFINITIES view.   |
 | MOJIBAKE_REPLACE | [TRUE,FALSE] | During data import, whether to tolerate unrecognizable characters in the source data file. The default value is `FALSE`, indicating that no tolerance for unrecognizable characters is applied — if the source byte stream contains characters not supported by the tool's specified character set, import may fail. <br />The tolerance mechanism for unrecognizable characters is as follows:  <br/>1. When character set conversion fails due to unrecognizable characters in the source byte stream, skip 1 byte from the source byte stream and add a `?` character to the target buffer.  <br/>2. If unrecognizable characters still exist, repeat the above step until the end of the source byte stream.  |
 
 ## Load Data DML Parameters
@@ -130,16 +131,16 @@ If the initial state of the table is LOGGING, it needs to be restored to LOGGING
 
 `parameter_value` must be TRUE or FALSE; the default value is FALSE.
 
-It is only recommended to set the nologging attribute in data migration scenarios, while you should take the following into account:
+It is only recommended to set the NOLOGGING attribute in data migration scenarios, while you should take the following into account:
 
-- The primary/standby environment should not enable nologging; the standby database should be set up after data import is completed.
-- After using nologging import, performing a full checkpoint can ensure data persistence; otherwise, it may lead to data loss after a crash.
-- When the table property is nologging, and a crash occurs, upon restart, it will be marked as corrupted and can only be recovered by truncating the table, requiring the aforementioned import process to be rerun to restore data.
-- If a transaction fails, all nologging tables that have performed insert operations within the transaction will be marked as corrupted.
-- The bulk load mode import of LSC tables with nologging attributes is unaffected by the nologging setting (performance remains unchanged and failures will not be marked as corrupted).
-- When a table is nologging, update and delete operations cannot be performed. This attribute should be quickly modified back to logging after completion of the import.
-- Modifying the table status to nologging is considered a DDL operation and will lock the table. Concurrent execution of DML statements may cause DML statement failures.
-- When a table is nologging, or imported using nologging, constraint violations may result in fault tolerance failures, specifically affected by the position of the violated data among all data.
+- The primary/standby environment should not enable NOLOGGING; the standby database should be set up after data import is completed.
+- After using NOLOGGING import, performing a full checkpoint can ensure data persistence; otherwise, it may lead to data loss after a crash.
+- When the table property is NOLOGGING, and a crash occurs, upon restart, it will be marked as corrupted and can only be recovered by truncating the table, requiring the aforementioned import process to be rerun to restore data.
+- If a transaction fails, all NOLOGGING tables that have performed insert operations within the transaction will be marked as corrupted.
+- The bulk load mode import of LSC tables with NOLOGGING attributes is unaffected by the NOLOGGING setting (performance remains unchanged and failures will not be marked as corrupted).
+- When a table is NOLOGGING, update and delete operations cannot be performed. This attribute should be quickly modified back to logging after completion of the import.
+- Modifying the table status to NOLOGGING is considered a DDL operation and will lock the table. Concurrent execution of DML statements may cause DML statement failures.
+- When a table is NOLOGGING, or imported using NOLOGGING, constraint violations may result in fault tolerance failures, specifically affected by the position of the violated data among all data.
 
 ##### NULL_LOB_FORMAT_SIZE
 

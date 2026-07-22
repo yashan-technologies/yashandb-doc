@@ -59,6 +59,7 @@
 | INTERVAL DAY TO SECOND       | INTERVAL DAY TO SECOND            | Y   | Y   | N | N | N | N | N |
 | INTERVAL YEAR TO MONTH       | INTERVAL YEAR TO MONTH            | Y   | Y   | N | N | N | N | N |
 | JSON                         | JSON                              | Y | Y | N | N | N | N | N |
+| XML                          | XML                               | Y   | Y   | N | N | N | N | N |
 
 
 
@@ -78,6 +79,7 @@
 | INTERVAL DAY TO SECOND       | INTERVAL DAY TO SECOND            | Y             | N | N | N | N | N | N |
 | INTERVAL YEAR TO MONTH       | INTERVAL YEAR TO MONTH            | Y             | N | N | N | N | N | N |
 | JSON                         | JSON                              | Y             | N | N | N | N | N | N |
+| XML                          | XML                               | N             | N | N | N | N | N | N |
 
 
 
@@ -96,6 +98,7 @@
 | DOUBLE | DOUBLE | N | N | N | N | N | N |
 | NUMBER | NUMBER | N | N | N | N | N | N |
 | BIT | BIT | N | N | N | N | N | N |
+| XML | XML | N | N | N | N | N | N |
 
 
 
@@ -133,6 +136,7 @@
 | INTERVAL DAY TO SECOND   | INTERVAL DAY TO SECOND            | N            | N            | N | N | N | N |
 | INTERVAL YEAR TO MONTH   | INTERVAL YEAR TO MONTH            | N            | N            | N | N | N | N |
 | JSON                     | JSON                              | Y            | N            | N | N | N | N |
+| XML                      | XML                               | N            | N            | N | N | N | N |
 
 
 
@@ -152,3 +156,4 @@
 | INTERVAL DAY TO SECOND   | INTERVAL DAY TO SECOND            | N | N | N | Y | N | N              | N | N |
 | INTERVAL YEAR TO MONTH   | INTERVAL YEAR TO MONTH            | N | N | N | Y | N | N              | N | N |
 | JSON                     | JSON                              | N | N | N | Y | N | N              | N | N |
+| XML                      | XML                               | N | N | N | N | N | N              | N | N |

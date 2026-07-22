@@ -24,4 +24,4 @@ Some parameters currently only support the following values:
 
 |Parameter |Valid Values |
 | ---- |----|
-| rnum_length | sizeof({float | double}) |
+| rnum_length | sizeof({float / double}) |

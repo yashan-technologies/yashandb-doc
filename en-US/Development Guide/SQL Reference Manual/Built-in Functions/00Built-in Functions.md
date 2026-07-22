@@ -514,15 +514,17 @@ Table functions support a maximum expanded row of 65535 bytes.
 
 [PX_OBJ](PX_OBJ)
 
+[TIME_SERIES_TABLE](TIME_SERIES_TABLE)
+
 Geographic Information Processing Functions (GIS Function)
 -------------------------
 
-Geographic information processing functions refer to a series of functions used to process spatial geographic information, only supporting Standalone Deployment HEAP tables. For more details, please refer to [GIS Function](GIS Function/00GIS Function).
+Geographic information processing functions refer to a series of functions used to process spatial geographic information. For more details, please refer to [GIS Function](GIS Function/00GIS Function).
 
 XML Data Processing Functions (XML Function)
 -------------------------
 
-XML data processing functions refer to a series of functions used to handle XML-related data, only supporting Standalone Deployment HEAP tables. For more details, please refer to [XML Function](XML Function/00XML Function).
+XML data processing functions refer to a series of functions used to handle XML-related data. For more details, please refer to [XML Function](XML Function/00XML Function).
 
 Security Functions
 --------------------
@@ -567,12 +569,37 @@ YashanDB provides the following security functions:
 
 [SECURITY_MOD_VERSION](SECURITY_MOD_VERSION)
 
+AI Functions
+-----------------
+
+AI Functions are functions that process information based on AI models. These functions provide intelligent computing capabilities by invoking registered AI models.
+
+For AI model registration and management, refer to [DBMS_LLM](../../PL Reference Manual/Built-in Advanced PL Packages/DBMS_LLM.md).
+
+YashanDB provides the following AI functions:
+
+[AI_EMBED](AI_EMBED)
+
+[AI_COMPLETE](AI_COMPLETE)
+
+[AI_RERANK](AI_RERANK)
+
+[AI_CLASSIFY](AI_CLASSIFY)
+
+[AI_SENTIMENT](AI_SENTIMENT)
+
+[AI_SUMMARIZE](AI_SUMMARIZE)
+
+[AI_TRANSLATE](AI_TRANSLATE)
+
 Other Functions
 --------------------
 
 [BFILENAME](BFILENAME)
 
 [COALESCE](COALESCE)
+
+[CONTAINS](CONTAINS)
 
 [CHECK\_AUDIT\_THRESHOLD](CHECK_AUDIT_THRESHOLD)
 

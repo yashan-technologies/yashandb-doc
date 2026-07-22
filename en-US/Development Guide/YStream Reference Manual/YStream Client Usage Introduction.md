@@ -7,7 +7,7 @@ The compatibility information for the YashanDB YStream client with JDK versions 
 
 ### Method 1: Install YStream Client via Maven
 
-Ystream is already published on [The Maven](https://central.sonatype.com/artifact/com.yashandb/Ystream) and has the following Group ID and artifactId:
+YStream is already published on [The Maven](https://central.sonatype.com/artifact/com.yashandb/Ystream) and has the following Group ID and artifactId:
 
 - Group ID: com.yashandb
 - artifactId: Ystream

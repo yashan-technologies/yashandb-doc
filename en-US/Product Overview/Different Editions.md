@@ -28,7 +28,7 @@
 | Advanced Functionality | Flashback Query    | Not Supported        | Supported                     | Supported                     |
 | Advanced Functionality | Stored Procedure Debugging Functionality | Not Supported | Supported | Supported                     |
 | Advanced Functionality | External Function Extension | Not Supported  | Supported               | Supported                     |
-| Advanced Functionality | DBLINK           | Not Supported        | Supported                     | Supported                     |
+| Advanced Functionality | DBLink           | Not Supported        | Supported                     | Supported                     |
 | Advanced Functionality | Materialized View | Not Supported       | Supported                    | Supported                     |
 | Advanced Functionality | Diagnostic Package | Not Supported      | Supported                   | Supported                     |
 | Advanced Functionality | Column Storage | Not Supported | Supported | Supported |

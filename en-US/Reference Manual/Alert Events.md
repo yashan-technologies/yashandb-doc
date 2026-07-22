@@ -72,7 +72,7 @@ In Maximize protection mode, if there is an exception in synchronizing the stand
 
 In Maximize protection mode, if there is an exception in synchronizing the standby database and transactions cannot be committed, executing a shutdown immediate will cause the database to wait for transaction commits and after a period, force exit and report an alarm. 
 
-In YAC/Distributed Cluster Deployment, when YCS instances and database instances are kicked out of the cluster, it will wait for in-flight IO to finish before force exiting, to avoid data corruption, and report an alarm.
+In YAC/Distributed Cluster Deployment, when YCS instances and database instances are kicked out of the cluster, it will wait for in-transit IO to finish before force exiting, to avoid data corruption, and report an alarm.
 
 This alarm event is not cleared.
 
@@ -237,6 +237,16 @@ Handling Suggestions:
 - Expand the tablespace.
 - Delete unused objects in the tablespace or perform a shrink operation on sparse tables to release space.
 
+### SqlPoolFull
+
+When the SQL Pool usage reaches 90%, an alarm log is recorded.
+
+When the SQL Pool usage drops to 50%, the alarm is cleared.
+
+Handling suggestions:
+
+- Release idle SQL execution resources in a timely manner, close invalid cursors, and disconnect idle business sessions.
+
 ### StandbyDisconnect
 
 When the primary cluster detects a disconnection from the standby cluster, an alarm log is recorded. When the primary cluster detects that the standby cluster has reconnected, it logs the clearing of the alarm.
@@ -263,7 +273,7 @@ Handling Suggestions:
 
 ### YcsDbFenced
 
-In a YAC, the current database instance and YCS instance being kicked out of the cluster require waiting for in-flight IOs to finish before forcibly stopping the database service.
+In a YAC, the current database instance and YCS instance being kicked out of the cluster require waiting for in-transit IOs to finish before forcibly stopping the database service.
 
 This alarm event needs to be cleared.
 

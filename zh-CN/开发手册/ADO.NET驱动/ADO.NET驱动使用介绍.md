@@ -116,4 +116,65 @@ command.Dispose();
   ![](./image/error1.png)
 
   可通过在服务器端打开对应端口的方式解决。
-  
+
+## 批量执行SQL
+
+YashanDB ADO.NET驱动支持通过数组绑定（Array Binding）技术实现批量INSERT/UPDATE/DELETE操作，仅需一次网络往返和一次SQL编译即可完成批量操作，可显著提升性能。
+
+### 约束说明
+
+- 仅当ArrayBindCount大于1时启用批量模式，ArrayBindCount为1时按普通模式执行。
+- 所有数组参数的长度必须一致，且与ArrayBindCount匹配。
+- 无法对LOB类型（BLOB/CLOB/NCLOB）进行批量操作。
+
+### 使用方式
+
+通过设置YasdbCommand的ArrayBindCount属性指定批量大小，并将参数值设置为数组即可启用批量执行模式。
+
+**批量INSERT**
+
+```c#
+var cmd = conn.CreateCommand();
+cmd.CommandText = "INSERT INTO employees (employee_id, first_name, salary) VALUES (:id, :name, :salary)";
+cmd.ArrayBindCount = 1000;
+
+var ids = Enumerable.Range(1, 1000).Select(i => (int)i).ToArray();
+var names = Enumerable.Range(1, 1000).Select(i => $"Employee_{i}").ToArray();
+var salaries = Enumerable.Range(1, 1000).Select(i => (decimal)(5000 + i * 10)).ToArray();
+
+cmd.Parameters.Add(":id", ids);
+cmd.Parameters.Add(":name", names);
+cmd.Parameters.Add(":salary", salaries);
+
+int affectedRows = cmd.ExecuteNonQuery();
+Console.WriteLine($"Inserted {affectedRows} rows");
+```
+
+**批量UPDATE**
+
+```c#
+var cmd = conn.CreateCommand();
+cmd.CommandText = "UPDATE employees SET salary = :new_salary WHERE employee_id = :id";
+cmd.ArrayBindCount = 3;
+
+var newSalaries = new decimal[] { 6000, 7000, 8000 };
+var employeeIds = new int[] { 1, 2, 3 };
+
+cmd.Parameters.Add(":new_salary", newSalaries);
+cmd.Parameters.Add(":id", employeeIds);
+
+int affected = cmd.ExecuteNonQuery();
+```
+
+**批量DELETE**
+
+```c#
+var cmd = conn.CreateCommand();
+cmd.CommandText = "DELETE FROM employees WHERE employee_id = :id";
+cmd.ArrayBindCount = 3;
+
+var idsToDelete = new int[] { 1001, 1002, 1003 };
+cmd.Parameters.Add(":id", idsToDelete);
+
+int affected = cmd.ExecuteNonQuery();
+```

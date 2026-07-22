@@ -38,9 +38,7 @@ Creating a PDB requires operating on the CDB root in OPEN state. PDBs can be cre
 
     > **Note**:
     >
-    > - When using the yasboot command to create PDB, the syntax mode cannot be specified, and only yashan mode PDBs can be created.
-    >
-    > - If deployed as a non-CDB (without specifying --enable-pluggable-database) but subsequently converted to a CDB through configuration modification, such as upgrading from v23.4 or lower versions to v23.5 or above, then yasboot cannot be used for PDB-related operations. 
+    > If deployed as a non-CDB (without specifying --enable-pluggable-database) but subsequently converted to a CDB through configuration modification, such as upgrading from v23.4 or lower versions to v23.5 or above, then yasboot cannot be used for PDB-related operations. 
 
 ## Operational Steps
 
@@ -158,7 +156,7 @@ Specific operational steps examples are as follows:
 1. Log in to the database installation server using the installation user.
 
 
-2. Execute the [ycsctl add pdb](../../../Tools Guide/ycsctl/Cluster Management Commands.md#addpdb) command to add a PDB to the CDB cluster.
+2. Execute the [ycsctl add pdb](../../../Tools Guide/ycsctl/User Guide for ycsctl/Database Resource Management Commands.md#addpdb) command to add a PDB to the CDB cluster.
 
    ```shell
    $ ycsctl add pdb -db yashandb -pdb pdb1

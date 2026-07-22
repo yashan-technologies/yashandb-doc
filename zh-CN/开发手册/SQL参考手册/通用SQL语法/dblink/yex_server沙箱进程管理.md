@@ -7,7 +7,7 @@ yex_server沙箱进程是由yasdb进程在特定场景中自发启动的守护�
 
 - 调用外置存储过程（外置自定义函数等）。
 
-- 对dblink远端表做INSERT、DELETE、UPDATE以及SELECT操作。
+- 对DBLink远端表做INSERT、DELETE、UPDATE以及SELECT操作。
 
 yex_server沙箱进程中开放的配置参数说明如下：
 
@@ -25,9 +25,9 @@ yex_server沙箱进程中开放的配置参数说明如下：
 
 当前沙箱进程中无需配置外置存储过程的运行参数。
 
-**dblink的配置参数**
+**DBLink的配置参数**
 
-请参考[dblink语法说明](dblink语法说明.md)了解dblink涉及的沙箱进程参数。
+请参考[DBLink语法说明](DBLink语法说明.md)了解DBLink涉及的沙箱进程参数。
 
 ## 配置步骤
 
@@ -54,7 +54,7 @@ YashanDB安装后，yex_server.ini文件不会自动生成，您可以根据实�
 
 3. 保存并退出编辑。
 
-4. 停止yex_server进程。当业务再次应用外置存储过程或dblink后将以新的配置启动yex_server。
+4. 停止yex_server进程。当业务再次应用外置存储过程或DBLink后将以新的配置启动yex_server。
 
     ```shell
     $ ps -efww | grep -w yex_server | grep -v grep  | awk '{print $2}' | xargs -x -i kill -9 {}

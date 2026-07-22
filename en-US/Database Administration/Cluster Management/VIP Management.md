@@ -12,8 +12,6 @@ The start and stop of the VIP and high availability management require the YCSRA
 
 ## Configuration Requirements
 
-
-
 - The server's network interface must be an Ethernet card and support ARP/NDP protocols.
 
 - The public network information for YAC must be configured first (either by specifying the `--public-network` parameter in the `yasboot package ce gen` command during installation, or by executing the `ycsctl add network` command after installation completion). This configuration is a prerequisite for VIP functionality activation.
@@ -28,8 +26,6 @@ The start and stop of the VIP and high availability management require the YCSRA
 
 - VIP must belong to the public network subnet and must be in the same subnet as the instance listening address (LISTEN_ADDR).
 
-
-
 <span id="vip_configuration" name="vip_configuration"></span>
 
 ## Configure VIP for an Existing YAC
@@ -42,12 +38,9 @@ If the user did not configure VIP during the installation and deployment of YAC,
 
 - IP addresses that meet VIP configuration requirements have been planned.
 
-
-
 ###  ## Step 1: Configure Public Network Subnet
 
 1. Log in to the database installation server using the installation user.
-
 
 2. View cluster information to confirm whether the public network and service ports have been configured.
 
@@ -77,46 +70,7 @@ If the user did not configure VIP during the installation and deployment of YAC,
     $ ycsctl add network -subnet 192.168.1.0/24/ens192
     ```
 
-
-
-### Step 2 (Optional): Configure Node Service Port
-
-If a node's service port number is not configured or needs to modify it, perform the following operations.
-
- 
-
-1. Stop the cluster
-
-    ```shell
-    $ yasboot cluster stop -c yashandb
-    ```
-
-2. Start the YASFS service.
-
-    ```shell
-    $ yasfs -D /data/yashan/yasdb_data/ycs/ce-1-1&
-    ```
-
-3. Configure service port number for the target node, please fill in the actual node names and port numbers in the command.
-
-    ```shell
-    $ ycsctl modify node host0002 serviceport=1688
-    ```
-
-4. Stop the YASFS service.
-
-    ```shell
-    $ yfscmd exec "shudown abort"
-    ```
-
-5. Start the cluster.
-
-    ```shell
-    $ yasboot cluster start -c yashandb
-    ```
-
-
-### Step 3: Configure and Start VIP
+### Step 2: Configure and Start VIP
 
 1. Add VIP configuration information.
 
@@ -174,64 +128,27 @@ When the user performs cluster environment operations and maintenance, such as m
 >
 > Before adjusting the corresponding configuration, please ensure that upper-layer business no longer relies on connection information based on the target VIP and port, or that the cluster has other online VIP resources that can provide connection services.
 
-###  Change the Node Service Port
+### Change VIP Address
 
-To change the node service port, please perform the following operations:
+Changing the VIP address will automatically stop the VIP resources of the current cluster. You need to execute ycsctl start vip to start the resources before you can normally access the database.
 
- 
-
-1. Stop the cluster
-
-    ```shell
-    $ yasboot cluster stop -c yashandb
-    ```
-
-2. Start the YASFS service.
-
-    ```shell
-    $ yasfs -D /data/yashan/yasdb_data/ycs/ce-1-1&
-    ```
-
-3. Configure service port number for the target node, please fill in the actual node names and port numbers in the command.
-
-    ```shell
-    $ ycsctl modify node host0002 serviceport=1688
-    ```
-
-4. Stop the YASFS service.
-
-    ```shell
-    $ yfscmd exec "shudown abort"
-    ```
-
-5. Start the cluster.
-
-    ```shell
-    $ yasboot cluster start -c yashandb
-    ```
-
-
-###  Change VIP Address
-
-To change the VIP address, you need to first delete the old VIP and then configure the new VIP address.
+>**Note**:
+>
+> This document mainly introduces replacing other IP addresses within the same public subnet as new VIPs.
+>
+> If you need to replace the entire public subnet configuration, you need to execute ycsctl remove scan to remove the configured SCAN resource, execute ycsctl remove vip to remove the configured VIP resources, then execute ycsctl modify network to update the public subnet configuration, and then add and enable SCAN resources and VIP resources as needed. 
 
 1. Log in to the database installation server using the installation user.
 
-
-2. Delete the old VIP of the target node.
+2.  Change the VIP address(s).
 
     ```shell
-    # This example will force stop the VIP of node host0001 and delete its configuration information
-
-    $ ycsctl remove vip -n host0001 -f
+    $ ycsctl add vip -n host0001 --vip 192.168.1.82/24
     ```
 
-3. Add new VIP resource configuration information and start VIP resources.
+3. Start VIP resources.
 
     ```shell
-    # Example assigns the address 192.168.1.71 to node host0001 as the new VIP address
-    $ ycsctl add vip -n host0001 192.168.1.71/24/ens192
-
     $ ycsctl start vip
     ```
 
@@ -251,7 +168,7 @@ To change the VIP address, you need to first delete the old VIP and then configu
         Node name: host0001, yascs/yasfs inter connect URL: 172.16.1.2:1788, Node ID: 1
             public service port: 1688
             yasdb instance name:yasdb-1-1, yasdb instance id:1
-            VIP: 192.168.1.71/24/ens192, home node: host0001
+            VIP: 192.168.1.82/24/ens192, home node: host0001
         ……
     ```
 
@@ -265,31 +182,24 @@ When deleting VIP resource configurations, only one node's configuration can be 
 
 1. Log in to the database installation server using the installation user.
 
-
 2. Delete VIP resource configurations for each node one by one.
 
     ```shell
     $ ycsctl remove vip -n host0001 -f
     $ ycsctl remove vip -n host0002 -f
-    ```
-
- 
+    ``` 
 
 ###  Delete Public Network Configuratio
 
 Before deleting public network configuration, all VIP and SCAN configurations must be deleted first.
 
-
 1. Log in to the database installation server using the installation user.
-
 
 2. Delete public network configuration.
 
     ```shell
     $ ycsctl remove network
     ```
-
-
 
 ## Common Issues
 

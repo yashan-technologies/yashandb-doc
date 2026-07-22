@@ -1,8 +1,8 @@
-本章节将指导用户于Oracle数据库中配置DBLINK，并通过ODBC数据源连接至YashanDB数据库。用户须确保Oracle服务端和YashanDB ODBC驱动位于同一台机器上。
+本章节将指导用户于Oracle数据库中配置DBLink，并通过ODBC数据源连接至YashanDB数据库。用户须确保Oracle服务端和YashanDB ODBC驱动位于同一台机器上。
 
 ## 步骤1：配置YashanDB ODBC驱动
 
-Oracle数据库配置DBLINK并连接至YashanDB数据库的操作需要使用ODBC驱动，可通过查看[ODBC驱动安装（Linux）](../ODBC安装说明/ODBC驱动安装（Linux）)自行安装和配置ODBC驱动。
+Oracle数据库配置DBLink并连接至YashanDB数据库的操作需要使用ODBC驱动，可通过查看[ODBC驱动安装（Linux）](../ODBC安装说明/ODBC驱动安装（Linux）)自行安装和配置ODBC驱动。
 
 ## 步骤2：创建数据源
 
@@ -26,7 +26,7 @@ PWD          = sys
 
 ![](./image/test.png)
 
-## 步骤4：Oracle中配置DBLINK文件
+## 步骤4：Oracle中配置DBLink文件
 
 通过执行`dg4odbc`命令检查dg4odbc驱动是否安装。
 
@@ -102,24 +102,24 @@ tnsping YASDBODBC
 
 ![](./image/tnsping.png)
 
-## 步骤7：创建DBLINK
+## 步骤7：创建DBLink
 
-执行如下命令于Oracle数据库中创建DBLINK，用户名及密码需要根据实际情况修改：
+执行如下命令于Oracle数据库中创建DBLink，用户名及密码需要根据实际情况修改：
 
 ```sql
 drop database link dblink_name; -- dblink_name自行指定
 create database link dblink_name connect to "sys" identified by "sys" using 'YASDBODBC'; -- using后跟的名字与透明网关配置init*.ora文件名相同
 ```
 
-## 步骤8：测试DBLINK
+## 步骤8：测试DBLink
 
-通过如下命令测试DBLINK是否配置成功，查询成功代表dblink配置成功：
+通过如下命令测试DBLink是否配置成功，查询成功表示DBLink配置成功：
 
 ```sql
 select USERNAME,STATUS,TYPE from v$session@dblink_name;
 ```
 
-如果需要在sqlplus验证DBLINK中文支持，需要设置oracle NLS_LANG客户端字符集同终端一致，例如：
+如果需要在sqlplus验证DBLink中文支持，需要设置oracle NLS_LANG客户端字符集同终端一致，例如：
 
 ```bash
 export NLS_LANG=american_america.AL32UTF8

@@ -18,3 +18,4 @@ This view is used to display the usage of undo blocks in all current undo segmen
 | FIRST_UFBBLK   | INTEGER | The ID of the first uninitialized undo block                                       |
 | XBLKS | INTEGER | The number of transaction blocks managed by the undo segment (reserved field)  |
 | FREE\_COUNT | INTEGER | The number of undo blocks which can be reused immediate after returned by committed transactions |
+| IS\_TEMP | BOOLEAN | Whether to use an undo segment for the temporary tablespace |

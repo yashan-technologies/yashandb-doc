@@ -11,11 +11,9 @@ The usage rules of this statement are as follows:
 
 - When YashanDB is deployed as a CDB (with configuration parameter ENABLE_PLUGGABLE_DATABASE=TRUE), the restore points on the CDB root and each PDB are independent of each other. You must connect to the target container to perform restore point-related management operations, and such operations will only take effect on that specific container.
 
+- In primary-standby HA deployments, restore points between the primary and standby databases/clusters are completely independent and not synchronized with each other. If you need to create a restore point on the standby database/standby cluster, you need to [pause redo log apply](ALTER DATABASE.md#stop_apply) before executing this statement.
 
-- In primary-standby HA deployments, restore points between the primary and standby databases/clusters are completely independent and not synchronized with each other. If you need to create a restore point on the standby database/standby cluster, you need to [pause redo log apply](./ALTER DATABASE.md#stop_apply) before executing this statement.
-
-
-- Before creating a restore point, ensure that the database has the [flashback database](./ALTER DATABASE.md#flashbackdatabaseclauses) functionality enabled and is currently in MOUNT or OPEN state.
+- Before creating a restore point, ensure that the database has the [flashback database](ALTER DATABASE.md#flashbackdatabaseclauses) functionality enabled and is currently in MOUNT or OPEN state.
 
 
 Statement Definition

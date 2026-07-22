@@ -1,4 +1,4 @@
-This article uses Centos 7.3.1, cmake version 3.16 or above, and the YashanDB client installation package yashandb-client-xx.xx-linux-x86_64.tar.gz as an example to introduce the installation and configuration process of the YashanDB C driver in this environment.
+This chapter uses Centos 7.3.1, cmake version 3.16 or above, and the YashanDB client installation package yashandb-client-xx.xx-linux-x86_64.tar.gz as an example to introduce the installation and configuration process of the YashanDB C driver in this environment.
 
 
 
@@ -7,7 +7,7 @@ This article uses Centos 7.3.1, cmake version 3.16 or above, and the YashanDB cl
 
 1. From the [YashanDB Official Website Download Center](https://download.yashandb.com/download), or contact our technical support to obtain the corresponding software package. 
 
-2. Download and extract the YashanDB client installation package to a local path, for example, /home/yasdb-driver-c/.
+2. Download and extract the driver package named `YashanDB Connector/C xxx` and marked as Linux to a local path, such as `/home/yasdb-driver-c/lib`.
 
    After extracting the installation package, the files required for the C driver can be obtained:
 
@@ -18,8 +18,6 @@ This article uses Centos 7.3.1, cmake version 3.16 or above, and the YashanDB cl
 
 
 ## Step 2: Set Up Dynamic Library Dependency Path
-
-
 
 1. Edit the bashrc file:
 
@@ -35,7 +33,7 @@ This article uses Centos 7.3.1, cmake version 3.16 or above, and the YashanDB cl
 
 3. Save and exit.
 
-4. Refresh the system variable configuration.
+4. Load bash configuration to make the modifications take effect.
 
    ```shell
    $ source ~/.bashrc

@@ -4,8 +4,8 @@ This view displays information about all partition tables.
 | --- | --- | --- |
 | OWNER | VARCHAR(64) | The username of the partition table |
 | TABLE\_NAME | VARCHAR(64) | Table name |
-| PARTITIONING\_TYPE | VARCHAR(9) | Partition type<br>\*   RANGE<br>\*   HASH<br>\*   LIST |
-| SUBPARTITIONING\_TYPE | VARCHAR(9) | Subpartition type<br/>\*   NONE non-composite partition<br/>\*   RANGE<br>\*   HASH<br>\*   LIST |
+| PARTITIONING\_TYPE | VARCHAR(9) | Partition type<br>*   RANGE<br>*   HASH<br>*   LIST<br>*   SYSTEM (for internal database use only) |
+| SUBPARTITIONING\_TYPE | VARCHAR(9) | Subpartition type<br/>*   NONE non-composite partition<br/>*   RANGE<br>*   HASH<br>*   LIST |
 | PARTITION\_COUNT | BIGINT | Number of partitions |
 | PARTITIONING\_KEY\_COUNT | INTEGER | Number of columns in the partition key |
 | SUBPARTITIONING\_KEY\_COUNT | INTEGER | Number of columns in the subpartition key |

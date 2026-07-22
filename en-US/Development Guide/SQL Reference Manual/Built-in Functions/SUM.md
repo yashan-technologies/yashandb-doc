@@ -1,5 +1,5 @@
 ```ebnf
-sum = SUM "(" [DISTINCT|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
+sum = SUM "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 
@@ -24,9 +24,11 @@ In multi-row calculations, the function will ignore rows where the expr value is
 
 This aggregate function cannot be nested with group_id, grouping, grouping_id, and UDF aggregate functions. The expr can be other aggregate functions or general expressions, and the nesting level of aggregate functions cannot exceed one layer, with types limited to numeric or character types.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Indicates that duplicate rows will be filtered out when calculating the numerical sum.
+
+DISTINCT and UNIQUE are completely equivalent.
 
 **ALL**
 

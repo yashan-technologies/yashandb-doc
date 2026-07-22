@@ -1,5 +1,5 @@
 ```ebnf
-json_value = JSON_VALUE "(" expr [FORMAT JSON] ","  json_path ")".
+json_value = JSON_VALUE "(" expr [FORMAT JSON] ","  json_path [RETURNING type] ")".
 ```
 The JSON_VALUE function retrieves the scalar value from json_value based on the path described by json_path.
 
@@ -22,7 +22,12 @@ This clause is for syntax compatibility only and has no actual meaning; it can b
 
 The path expression is a constant string, and its format definition can be referred to in the [json](../General SQL Syntax/json) documentation.
 
-***Example*** for Heap tables
+**returning type**
+
+The RETURNING clause specifies a SQL scalar type for the returned value. Currently supported types include CHAR, VARCHAR, VARCHAR2, NCHAR, NVARCHAR, TINYINT, SMALLINT, INT, BIGINT, NUMBER, FLOAT, DOUBLE, CLOB.
+
+***Example*** (HEAP table)
+
 ```sql
 SELECT JSON_VALUE('{"key4":-0.123,"key5":"test"}','$.key4') res FROM DUAL;
 RES
@@ -57,4 +62,72 @@ SELECT JSON_VALUE(JSON(c1), '$[0].key4[0][0][0]') res FROM table_json ORDER BY i
 RES
 ----------------------------------------------------------------
 456
+
+SELECT JSON_VALUE('{"data": 123}', '$.data' RETURNING CHAR(3))  v  from dual;
+
+V     
+----- 
+123  
+
+SELECT JSON_VALUE('{"data": 123}', '$.data' RETURNING DOUBLE)  v  from dual;
+
+          V 
+----------- 
+  1.23E+002
+
+SELECT JSON_VALUE('{"data": 123}', '$.data' RETURNING NUMBER)  v  from dual;
+
+          V 
+----------- 
+        123
+
+
+SELECT JSON_VALUE('{"data": "123.45"}', '$.data' RETURNING int) v from dual;
+
+           V 
+------------ 
+         123
+
+SELECT JSON_VALUE('{"data": "-99999"}', '$.data' RETURNING int) v from dual;
+
+           V 
+------------ 
+      -99999
+
+
+--- Create a table with a json column for index testing
+create table test(a int, b json);
+insert into test values(1,  '{"key" : 2147483641 }'),
+                       (8,  '{"key" : 2147483642 }'),
+                       (11, '{"key" : 2147483643 }'),
+                       (12, '{"key" : 2147483644 }'),
+                       (15, '{"key" : 2147483647 }'),
+                       (16, '{"key" : 2147483648 }'),
+                       (17, '{"key" : 2147483649 }'),
+                       (18, '{"key" : 2147483650 }'),
+                       (19, '{"key" : 2147483651 }');
+
+--- Create an index using json_value with the index column typed as bigint
+create index int_index on test(JSON_VALUE(b, '$.key' RETURNING BIGINT));
+
+--- Use json_value in a predicate; the query plan selects the int_index
+explain select * from test where json_value(b, '$.key' returning bigint) > 2147483644;
+
+PLAN_DESCRIPTION                                                 
+---------------------------------------------------------------- 
+SQL hash value: 54853043                                        
+Optimizer: ADOPT_C                                              
+                                                                
++----+--------------------------------+----------------------+------------+----------+-------------+--------------------------------+
+| Id | Operation type                 | Name                 | Owner      | Rows     | Cost(%CPU)  | Partition info                 |
++----+--------------------------------+----------------------+------------+----------+-------------+--------------------------------+
+|  0 | SELECT STATEMENT               |                      |            |          |             |                                |
+|  1 |  TABLE ACCESS BY INDEX ROWID   | TEST                 | SYS        |     33000|        6( 0)|                                |
+|* 2 |   INDEX RANGE SCAN             | SMALLINT_INDEX       | SYS        |     33000|        4(100)|                                |
++----+--------------------------------+----------------------+------------+----------+-------------+--------------------------------+
+                                                                
+Operation Information (identified by operation id):             
+---------------------------------------------------             
+                                                                
+   2 - Predicate : access("TEST"."JSON_VALUE(b, '$.key' RETURNING smallint)" > 2147483644)
 ```

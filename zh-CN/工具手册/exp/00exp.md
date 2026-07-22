@@ -16,7 +16,7 @@ exp是YashanDB的配套导出工具，提供用户按不同方式进行数据导
 - 同义词
 - 视图/物化视图：物化视图需在FULL模式或OWNER模式下导出
 - PACKAGE(BODY)/PROCEDURE/FUNCTION/TRIGGER/LIBRARY/TYPE(BODY)
-- 表
+- 表（含虚拟列的表除外）
 - 索引/分区索引
 - 主键
 - 外键

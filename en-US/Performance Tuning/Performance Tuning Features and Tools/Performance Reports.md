@@ -753,7 +753,7 @@ Lists the top PL as a percentage of sampled session activity.
 
 |Information Item |Meaning |
 | ------------ | ------------------------------------------------------------ |
-| PLSQL Entry Subprogram | Entry program of PL/SQL, obtained from v$session/v$active_session_history.PLSQL_ENTRY_SUBPROGRAM_ID |
+| PLSQL Entry Subprogram | Entry program of PL, obtained from v$session/v$active_session_history.PLSQL_ENTRY_SUBPROGRAM_ID |
 | %Activity          | Percentage of total sampled data                             |
 | PLSQL Current Subprogram | Currently executing subprogram, obtained from v$session/v$active_session_history.PLSQL_SUBPROGRAM_ID |
 | %Current           | Percentage of the subprogram in the entry program            |

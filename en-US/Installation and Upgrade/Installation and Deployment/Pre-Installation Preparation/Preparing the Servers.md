@@ -10,7 +10,7 @@ This document will list the  environment-related configurations that we recommen
 
 |Item |Recommended Configuration |Minimum Configuration |
 | --- | --- | --- |
-| Quantity/Usage | * Standalone Deployment: 1 server (single database) or multiple servers (primary-standby) used for deploying database instances<br>* YAC Deployment: 2 or more servers used for deploying cluster instances; when using distributed storage, an additional 3 or more servers are required for mounting NVMe SSDs<br>* Distributed Cluster Deployment: 2 or more servers as compute nodes; 3 or more servers as storage nodes<br>* ISC Distributed ClusterDeployment: 3 or more MN+CN+DN servers | 1 server |
+| Quantity/Usage | * Standalone Deployment: 1 server (single database) or multiple servers (primary-standby) used for deploying database instances<br>* Branch Database Deployment: 1 server used for deploying database instances<br>* YAC Deployment: 2 or more servers used for deploying cluster instances; when using distributed storage, an additional 3 or more servers are required for mounting NVMe SSDs<br>* Distributed Cluster Deployment: 2 or more servers as compute nodes; 3 or more servers as storage nodes<br>* ISC Distributed ClusterDeployment: 3 or more MN+CN+DN servers | 1 server |
 | Operating System | * Redhat Enterprise Linux 7, 8, or 9<br/>* CentOS 7.6 and above<br/>* openEuler 22.03 LTS<br/>* KylinOS V10 (ARM architecture: recommended using V10 SP3 2303 kernel 52.33, Haiguang CPU: recommended using V10 SP3 2303 kernel 52.45) | If large-page memory is to be used, the required Linux kernel version is 2.6 or above<br>If you need to use the NVMe over TCP transport protocol, the Linux kernel version must be 5.0 or higher. |
 | CPU         | X86_64, ARM64, or Loongson<br>Hyper-threading, non-hyper-threading<br>Recommended 4C or above; recommended 8C or above in YAC | Number of CPU cores > 2                                     |
 | Memory      | Recommended 16G or above; recommended 32G or above in YAC Deployment | >4G                                                         |
@@ -23,44 +23,39 @@ This document will list the  environment-related configurations that we recommen
 
 ## Storage Device Configuration
 
-When deploying a YAC or distributed cluster, in addition to servers, dedicated storage devices are also required. For YAC, either 1 SAN shared storage device or 1 set of NVMe SSDs capable of building NVMe-oF distributed storage is required; for Distributed Cluster, 1 set of NVMe SSDs capable of building NVMe-oF distributed storage is required. 
-
-<span id="Storage" name="Storage"></span>
-
-###  SAN-based Shared Storage
-
-Only YAC Deployment may use SAN shared storage. 
-
-|Item |Recommended Configuration |
-| ---- | ------------------------------------------------------------ |
-| Hard Disk  | Both SSD and HDD are supported, brands and media should not be mixed            |
-| LUN          | 4 or 6 LUNs or more, divided into system disks and data disks: <br/>* System disks: 3 or 5 LUNs, capacity 1G or above (when only 1 LUN is planned for the system disk and its AU Size configuration needs to be 32M, the capacity should be at least 2G)   <br/>* Data disks: 1 or more LUNs, capacity 50G or above |
-| Interface    | Storage devices and operating systems support Direct IO, support 512 byte memory alignment and IO size alignment<br>Storage devices support reading and writing 512 byte multiples through `pread64` and `pwrite64` interfaces,<br/>i.e., supports reading and writing the following sizes at once: 512 bytes, 1024 bytes, 1536 bytes...32M |
-| Protocol     | If [SCSI Persistent Reservation-based I/O Fencing](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) is to be used, SCSI-3 protocol (or above) and SPC-3 command set (SCSI Primary Commands-3, or above) must be supported, and type 5 persistent reservation (Write Exclusive – Registrants Only) must be supported |
+When deploying a YAC, distributed cluster, or branch database, in addition to servers, dedicated storage devices are also required. For YAC, either 1 centralized shared storage device or 1 set of NVMe SSDs capable of building Distributed NVMe storage is required; for Distributed Cluster, 1 set of NVMe SSDs capable of building Distributed NVMe storage is required; for Branch Database Deployment, 1 centralized shared storage device is required.
 
 > **Caution**:
 >
-> YAC (when using SAN-based shared storage) supports two methods of [I/O Fencing](../../../Database Administration/Cluster Management/IO Fencing/00IO Fencing), with recommendations to use [SCSI Persistent Reservation-based I/O Fencing](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing), but this method has certain requirements on the shared storage's capabilities. During the installation process, the [fenceScsiCheck script](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage) will automatically be invoked to check whether the shared storage and other devices/environments meet the requirements.
+> In YAC Deployment, YashanDB supports two methods of [I/O Fencing](../../../Database Administration/Cluster Management/IO Fencing/00IO Fencing), with recommendations to use [Reservation-based IO Fencing](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing), but this method has certain requirements on the storage devices' capabilities. During the installation process, the [fenceResvCheck script](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage) will automatically be invoked to check whether the storage devices/environments meet the requirements.
 >
-> If the fenceScsiCheck script detects an error, it will not block the installation, but YAC's I/O Fencing method will be configured as the [In-Transit I/O Protection Algorithm](../../../Database Administration/Cluster Management/IO Fencing/IO Protection Algorithm). If persistent reservation-based I/O Fencing is still required, please make adjustments according to the corresponding error prompts.
+> If the fenceResvCheck script detects an error, it will not block the installation, but YAC's I/O Fencing method will be configured as the [In-Transit I/O Protection Algorithm](../../../Database Administration/Cluster Management/IO Fencing/In-Transit IO Protection Algorithm). If persistent reservation-based I/O Fencing is still required, please make adjustments according to the corresponding error prompts.
 >
 > If SCSI persistent reservation-based I/O fencing is not used, YAC is at risk of split-brain.
 
-###  NVMe-oF-based Distributed Storage
+<span id="Storage" name="Storage"></span>
 
-YAC Deployment may use NVMe-oF distributed storage; Distributed Cluster Deployment requires the use of NVMe-oF distributed storage. 
+###  Centralized Shared Storage
+
+YAC Deployment and Branch Database Deployment may use the centralized shared storage.
 
 |Item |Recommended Configuration |
 | ---- | ------------------------------------------------------------ |
 | Hard Disk  | Both SSD and HDD are supported, brands and media should not be mixed            |
+| LUN          | For YAC Deployment, 4 or 6 LUNs or more, divided into system disks and data disks: <br/>* System disks: 3 or 5 LUNs, capacity 1G or above (when only 1 LUN is planned for the system disk and its AU Size configuration needs to be 32M, the capacity should be at least 2G)   <br/>* Data disks: 1 or more LUNs, capacity 50G or above<br/>For Branch Database Deployment, 2 LUNs, divided into system disk and data disk: <br/>* System disk: 1 LUN, capacity 1G or above<br/>* Data disk: 1 LUN, capacity 50G or above |
+| Interface    | Storage devices and operating systems support Direct IO, support 512 byte memory alignment and IO size alignment<br>Storage devices support reading and writing 512 byte multiples through `pread64` and `pwrite64` interfaces,<br/>i.e., supports reading and writing the following sizes at once: 512 bytes, 1024 bytes, 1536 bytes...32M |
+| Protocol     | * For SCSI devices: If the storage device supports the SCSI-3 protocol (and above), the SPC-3 command set (SCSI Primary Commands-3 and above), and persistent reservation of type 5 (Write Exclusive – Registrants Only), [Reservation-based IO Fencing](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) can be used. <br/>  * For NVMe devices connected via NVMe-oF RDMA: If the storage device supports the NVMe 1.3 protocol (and above) and the NVMe reservation command set, both the controller and the namespace support the NVMe reservation function, and Dispersed Namespace is not enabled, then [Reservation-based IO Fencing](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) can be used |
+
+###  NVMe-oF-based Distributed Storage
+
+YAC Deployment may use Distributed NVMe storage; Distributed Cluster Deployment requires the use of Distributed NVMe storage. 
+
+|Item |Recommended Configuration |
+| ---- | ------------------------------------------------------------ |
+| Hard Disk  | NVMe SSD is supported, brands should not be mixed |
 | NVMe-oF Disk      | 4 or 6 NVMe-oF disks or more, divided into system disks and data disks:<br/>* System disks: 3 or 5 namespaces, capacity 1G or above (when only 1 NVMe-oF disk is planned for system disks and its AU Size configuration needs to be 32M, the capacity should be at least 2G)<br/>* Data disks: 1 or more namespaces, capacity 50G or above |
 | Transport Type | Supports the following types:<br/>* NVMe over TCP: Requires Linux kernel version 5.0 or above<br/>* NVMe over RDMA: Requires using RDMA network cards and correctly installing the corresponding drivers |
-
-> **Note**:
->
-> YAC (when using SAN-based distributed storage)  only support the [IO Protection Algorithm](../../../Database Administration/Cluster Management/IO Fencing/IO Protection Algorithm).
->
-> However, during the installation and deployment process, the [fenceScsiCheck script](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage) will still be automatically invoked to detect whether the hardware requirements for SCSI persistent reservation-based I/O Fencing are met. Detection errors will not block installation and deployment.
+| Others         | For NVMe devices connected via PCIe direct connection or NVMe-oF RDMA: If the storage device supports the NVMe 1.3 protocol (or higher) and the NVMe reservation command set, both the controller and the namespace support the NVMe reservation feature, and Dispersed Namespace is not enabled, then [Reservation-based IO Fencing](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) can be used. |
 
 <span id="hosts" name="hosts"></span>
 
@@ -121,8 +116,8 @@ Assume that 2 independent and isolated subnets are planned: one public network a
 | -------- | ------ | ----- | ----------- |
 | host0001 | Public network NIC ens192: 192.168.1.0/24<br/>Private network NIC ens224: 172.16.1.0/24 | ens192: 192.168.1.2<br />ens224: 172.16.1.2 | Database Instance 1 |
 | host0002 | Public network NIC ens192: 192.168.1.0/24<br/>Private network NIC ens224: 172.16.1.0/24 | ens192: 192.168.1.2<br />ens224: 172.16.1.2 | Database Instance 2 |
-| host0003 | Private network NIC ens224：172.16.1.0/24 | ens224：172.16.1.4 | Storage Server 1 in the distributed storage example    |
-| host0004 | Private network NIC ens224：172.16.1.0/24 | ens224：172.16.1.5 | Storage server 2 in the distributed storage example    |
+| host0003 | Private network NIC ens224: 172.16.1.0/24 | ens224: 172.16.1.4 | Storage Server 1 in the distributed storage example    |
+| host0004 | Private network NIC ens224: 172.16.1.0/24 | ens224: 172.16.1.5 | Storage server 2 in the distributed storage example    |
 
   
 
@@ -135,7 +130,7 @@ Assume that 2 independent and isolated subnets are planned: one public network a
 
 #### Storage Devices
 
-- SAN-based shared storage (4 LUNs have been allocated according to the configuration requirements)
+- Centralized shared storage (4 LUNs have been allocated according to the configuration requirements)
 
 |LUN Name |LUN Path |Disk Usage |
 | ------- | ---------------------- | ------ |
@@ -144,7 +139,7 @@ Assume that 2 independent and isolated subnets are planned: one public network a
 | LUN3     | /dev/mapper/lun03-sys2  | System Disk |
 | LUN4     | /dev/mapper/lun01-data0  | Data Disk  |
 
-- NVMe-oF distributed storage (already divided into 4 NVMe-oF disks according to configuration requirements)
+- Distributed NVMe storage (already divided into 4 NVMe-oF disks according to configuration requirements)
 
 |NVMe-oF Disk Path |Disk Usage |Host Server |
 |--------|--------------------------------------|--------------------------------------|
@@ -157,7 +152,7 @@ Assume that 2 independent and isolated subnets are planned: one public network a
 
 The Primary/Standby YAC Deployment uses four servers + two shared storage as an example to build a primary/standby dual instance YAC Deployment.
 
-When using Primary/Standby YAC Deployment, only SAN shared storage is supported.  
+When using Primary/Standby YAC Deployment, only centralized shared storage is supported.  
 
 #### Servers
 
@@ -222,3 +217,22 @@ Distributed  Cluster Deployment uses two CN servers + three DN servers as an exa
 | host0001    | 192.168.1.2  | MN: 1-1 (Primary), DN: 3-2 (Standby)  |
 | host0002    | 192.168.1.3  | MN: 1-2 (Standby), CN: 2-1, DN: 3-3 (Standby) |
 | host0003    | 192.168.1.4  | MN: 1-3 (Standby), CN: 2-2, DN: 3-1 (Primary) |
+
+### Branch Database Deployment
+
+#### Servers
+
+In Branch Database Deployment, YashanDB will only be installed on one server, with no standby database.
+
+|Server Name |Server IP |Role |
+| -------- | ----------- | ---- |
+| host0001    | 192.168.1.2   | Primary   |
+
+#### Storage Devices
+
+Centralized shared storage (2 LUNs have been allocated according to the configuration requirements)
+
+|LUN Name |LUN Path |Disk Usage |
+| ------- | ---------------------- | ------ |
+| LUN1     | /dev/mapper/lun03-sys0  | System Disk |
+| LUN4     | /dev/mapper/lun01-data0  | Data Disk  |

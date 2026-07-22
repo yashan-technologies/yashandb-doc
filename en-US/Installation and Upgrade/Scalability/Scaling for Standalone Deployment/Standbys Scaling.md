@@ -202,12 +202,12 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
     - In a one-primary/multi-standby (non-cascade standby) environment: You can enable [leader election](../../../High Availability/Configuring Leader Election/Configuring Leader Election for One Primary and Multi-Standby).
 
-8. (Optional) If the `--with-host` parameter is specified during the scaling in (i.e., empty servers were removed), after scaling completes, you can cleaned up the environment of the removed server:
+8. (Optional) If the `--with-unconnected-host` parameter is specified during scale-in (i.e., instances that cannot be connected are deleted), you can clean up the environment for the servers that cannot be connected after the scale-in is complete:
 
-    1. ) Remove leftover paths, including $YASDB_DATA, $YASDB_HOME, log directories, and local tablespace directories.
+    - Remove leftover paths, including $YASDB_DATA, $YASDB_HOME, log directories, and local tablespace directories.
 
-    2. ) Remove any lingering processes, such as yasdb.
+    - Remove any lingering processes, such as yasdb.
 
-    3. ) Remove leftover scripts, such as auto-start scripts.
+    - Remove leftover scripts, such as auto-start scripts.
 
-    4. ) Remove leftover environment variables associated with YashanDB.
+    - Remove leftover environment variables associated with YashanDB.

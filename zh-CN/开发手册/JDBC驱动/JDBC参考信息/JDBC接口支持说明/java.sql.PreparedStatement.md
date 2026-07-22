@@ -25,6 +25,7 @@ YashanDB JDBC驱动对PreparedStatement接口有如下方法：
 | executeQuery() | ResultSet |
 | executeUpdate() | int |
 | getGeneratedKeys() | ResultSet |
+| getMetaData() | ResultSetMetaData |
 | getParameterMetaData() | ParameterMetaData |
 | setBigDecimal​(int parameterIndex, BigDecimal x) | void |
 | setBoolean​(int parameterIndex, boolean x) | void |
@@ -39,6 +40,7 @@ YashanDB JDBC驱动对PreparedStatement接口有如下方法：
 | setBytes​(int parameterIndex, byte\[\] x) | void |
 | setClob​(int parameterIndex, Clob x) | void |
 | setNull​(int parameterIndex, int sqlType) | void |
+| setNull(int index, int sqlType, String typeName) | void |
 | setObject​(int parameterIndex, Object x) | void |
 | setObject​(int parameterIndex, Object x, int targetSqlType) | void |
 | setObject​(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) | void |
@@ -60,6 +62,9 @@ YashanDB JDBC驱动对PreparedStatement接口有如下方法：
 | setBlob​(int parameterIndex, InputStream inputStream, long length) | void |
 | setClob​(int parameterIndex, Reader reader) | void |
 | setClob​(int parameterIndex, Reader reader, long length) | void |
+| setNClob​(int parameterIndex, Reader reader) | void | 
+| setNClob​(int parameterIndex, Reader reader, long length) | void | 
+| setNClob​(int parameterIndex, NClob value) | void | 
 | setAsciiStream​(int parameterIndex, InputStream x) | void |
 | setAsciiStream​(int parameterIndex, InputStream x, int length) | void |
 | setAsciiStream​(int parameterIndex, InputStream x, long length) | void |

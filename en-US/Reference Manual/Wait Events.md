@@ -587,6 +587,12 @@ Description: Waiting for redo cache space allocation.
 
 Trigger Condition: Waiting occurs when a session attempts to write redo to the redo cache and finds insufficient space.
 
+### log file flush
+
+Description: Waiting for redo log assembly and flush.
+
+Trigger condition: Waiting when private redo data is assembled into a redo log and batch-written to disk, usually occurring during transaction commit or when the log buffer is full.
+
 ### log file parallel write
 
 Description: Waiting for redo file flush.

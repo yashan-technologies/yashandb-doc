@@ -21,6 +21,8 @@ This view displays the column information for all tables (including the virtual 
 | IDENTITY_COLUMN            | VARCHAR(1)    | Whether the column has identity properties<br/>\* Y: is an identity column<br/>\* N: is not an identity column        |
 | CHAR_USED                  | VARCHAR(1)    | Whether the column uses BYTE length semantic or CHAR length semantic<br/>\*   C: character length semantic<br/>\*   B: byte length semantic<br/>\*   NULL: this column is not of CHAR/VARCHAR/NCHAR/NVARCHAR data type |
 | HIDDEN_COLUMN | VARCHAR(3) | Whether the column is visible<br/>\* YES: visible columns<br/>\* NO: invisible columns |
+| VIRTUAL_COLUMN             | VARCHAR(3)    | Whether it is a virtual column<br/>\*   YES: virtual column<br/>\*   NO: not a virtual column  |
+| SEGMENT_COLUMN_ID          | INTEGER       | Sequence number of the column in the row                    |
 | CHAR_LENGTH                | INTEGER       | Character definition length of the column<br/>\*   This value is assigned based on the definition if the column is of CHAR/VARCHAR/NCHAR/NVARCHAR data type; otherwise, the value is 0 |
 | CHAR_COL_DECL_LENGTH | INTEGER       | Declared length of character type columns                                                                          |
 | DIMENSION                  | INTEGER       | Number of dimensions of the vector column<br/>This field is meaningful and has a valid value only when the column is of the VECTOR data type; it is always NULL for other data types                                 |

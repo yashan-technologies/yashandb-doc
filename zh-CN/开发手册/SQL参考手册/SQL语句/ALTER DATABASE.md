@@ -55,7 +55,7 @@ ALTER DATABASE用于修改数据库的相关属性。
 **[standby\_database\_clauses](#standbydatabaseclauses)::=**
 
 ```ebnf
-= CONVERT TO PHYSICAL STANDBY
+= CONVERT TO (PHYSICAL|SNAPSHOT) STANDBY
 |SWITCHOVER
 |FAILOVER [RESET ID integer]
 |(RECOVER ((MANAGED STANDBY DATABASE (([UNTIL SCN integer][DISCONNECT FROM SESSION])|CANCEL))|(TO LOGICAL STANDBY ((KEEP IDENTITY)|db_name))))
@@ -169,7 +169,11 @@ ALTER DATABASE TEMPFILE '?/dbfiles/swap' AUTOEXTEND OFF;
 
 #### AUTOEXTEND ON
 
-开启某个数据文件的自动扩展，同时NEXT用于指定自动扩展下一空间的大小，以Bytes为单位，未指定则取默认值8K个BLOCK大小；MAXSIZE用于指定自动扩展的最大空间，UNLIMITED为无限制，未指定则默认为64M个BLOCK大小。
+开启某个数据文件的自动扩展。
+
+*   NEXT size_clause：数据文件每次自动扩展时的大小由该值指定，以Bytes为单位，取值范围为[512,32768]个BLOCK大小，省略时默认为8M个BLOCK大小。
+
+*   MAXSIZE UNLIMITED/size_clause：数据文件可扩展到的最大容量值由该值决定，以Bytes为单位，UNLIMITED表示无限制，省略时默认为64M个BLOCK大小。
 
 示例（单机/共享集群/分布式集群部署）
 
@@ -445,7 +449,13 @@ ALTER DATABASE CLEAR LOGFILE '?/dbfiles/redo5';
 
 #### CONVERT TO PHYSICAL STANDBY
 
-从主数据库切换为备数据库。
+将数据库转换为物理备库。
+
+该语句有两种使用场景：
+
+- **旧主降备**：在Failover操作后，将故障的旧主库降为物理备库。在该场景中，目标库的角色必须是PRIMARY。
+
+- **快照备库转回物理备库**：将快照备库转换回物理备库。在该场景中，目标库的角色必须是SNAPSHOT_STANDBY，转换过程中会自动对目标节点执行闪回操作将其数据恢复至切换为快照备库前的状态。
 
 示例
 
@@ -453,10 +463,43 @@ ALTER DATABASE CLEAR LOGFILE '?/dbfiles/redo5';
 ALTER DATABASE CONVERT TO PHYSICAL STANDBY;
 ```
 
-> **Note**: 
+> **Note**:
 >
-> - 数据库的角色必须是PRIMARY，且执行实例必须处于MOUNT状态。
+> - 执行该操作的实例必须处于MOUNT状态。
+>
 > - 在共享集群/分布式集群部署下，只有1号实例并且该实例是MASTER_ROLE才可以执行该操作。
+
+#### CONVERT TO SNAPSHOT STANDBY
+
+将物理备库转换为快照备库，使其可以执行读写业务。
+
+快照备库是一种特殊的备库模式，允许在物理备库的基础上打开为可读写状态，用于：
+
+- 在备库上执行测试、验证、报表生成等业务。
+
+- 隔离生产环境，在快照备库上进行问题复现。
+
+- 避免搭建额外测试环境。
+
+仅允许角色为STANDBY的物理备库转换为快照备库，且要求如下：
+
+前置条件：
+
+- 转换前备库为MOUNT阶段。
+- 至少配置3个Standby Redo文件。
+- 评估演练数据大小，保证备库有足够的存储空间。
+
+使用约束：
+
+- 仅支持物理备库转换为快照备库。
+- 转换后需要重新执行`ALTER DATABASE OPEN`才能使用。
+
+快照备库特性：
+
+- 快照备库不支持表空间操作（添加/删除表空间、修改数据文件等）。
+- 快照备库不支持在线Redo操作（添加/删除/清空Redo文件等）。
+- 快照备库不支持备份恢复操作。
+- 快照备库停止从主库接收redo日志，不再进行redo回放。
 
 #### SWITCHOVER
 
@@ -589,7 +632,7 @@ ALTER DATABASE RECOVER MANAGED STANDBY DATABASE UNTIL SCN 123123123 DISCONNECT F
 该语句用于手动注册归档。该SQL的功能约束有：
 
 * RESTORE DATABASE后且数据库未open，可以用该SQL手动注册归档。
-* 数据库恢复或创建完整后，此操作的对象必须是备库，并且配置参数SANDBOX_STANDBY为TRUE。
+* 数据库恢复或创建完成后，此操作必须在备库上执行。
 * 指定的归档的路径可以为绝对路径，也可以为文件名，使用文件名时默认路径为归档路径（配置参数ARCHIVE_LOCAL_DEST）。
 
 示例（单机/共享集群/分布式集群部署）

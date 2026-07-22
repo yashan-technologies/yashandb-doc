@@ -1,4 +1,4 @@
-The OWA_UTIL package provides a set of built-in subprograms for performing operations such as retrieving information about the calling PL/SQL procedure.
+The OWA_UTIL package provides a set of built-in subprograms for performing operations such as retrieving information about the calling PL procedure.
 
 ## WHO_CALLED_ME
 
@@ -10,7 +10,7 @@ OWA_UTIL.WHO_CALLED_ME(
    caller_t       OUT      VARCHAR2);
 ```
 
-The WHO_CALLED_ME procedure returns information about the PL/SQL procedure unit that called it through output parameters.
+The WHO_CALLED_ME procedure returns information about the PL procedure unit that called it through output parameters.
 |Parameter |Description |
 | :------------------------- | :--------------------------------- |
 | owner             | The owner of the procedure unit.      |

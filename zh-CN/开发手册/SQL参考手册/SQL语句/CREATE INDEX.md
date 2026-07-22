@@ -154,20 +154,48 @@ CREATE RTREE INDEX idx_rtree_shp ON geom_test (shp);
 
 ### SEARCH
 
-该语句用于指定创建全文索引。
+该语句用于指定创建全文索引（Search Index）。
+
+全文索引采用倒排索引存储结构，通过分词器对文本进行中英文混合分词处理，支持[CONTAINS函数](../内置函数/CONTAINS.md)实现高效的关键词检索。当查询条件中的LIKE模式可以转换为等价的CONTAINS查询时，优化器会自动进行转换以利用全文索引加速查询。全文索引用法请参见[CONTAINS函数](../内置函数/CONTAINS.md)。
 
 全文索引存在如下限制：
 
-- 全文索引仅适用于HEAP表，且不能为分区表。
+- 全文索引仅适用于HEAP表。
 
 - 只能为CHAR、VARCHAR或CLOB列创建全文索引，且每个全文索引只能指定一个列。
 
-- 当指定为全文索引时，仅允许配置并行度（[NOPARALLEL|PARALLEL](#parallel)）和表空间（[TABLESPACE]），无法配置其他[各项属性](#indexattrclause)。
+- 当指定为全文索引时，仅允许配置并行度（[NOPARALLEL|PARALLEL](#parallel)）、表空间（TABLESPACE）、全局索引（GLOBAL）或分区索引（[local_index_clause](#localindexclause)），无法配置其他[各项属性](#indexattrclause)。
+
+- 当指定为全文索引时，不能在线（ONLINE）[创建](#ONLINE)和[重建](./ALTER INDEX.md)（rebuild_clause）。
+
+- 表分区相关的DDL操作（DROP/TRUNCATE/SPLIT/MERGE）执行失败时，可能会导致对应分区中的全文索引分区不可用（UNUSABLE）。如遇此种情况，可采用重建目标索引分区进行修复。
 
 示例（HEAP表）
 
 ```sql
+-- 创建非分区表全文索引
 CREATE SEARCH INDEX idx_full_text ON branches (address);
+
+-- 创建分区表LOCAL全文索引
+CREATE SEARCH INDEX idx_full_text_local ON sales_info (description) LOCAL;
+
+-- 创建分区表GLOBAL全文索引
+CREATE SEARCH INDEX idx_full_text_global ON sales_info (description) GLOBAL;
+
+CREATE TABLE articles (
+    id INT,
+    title VARCHAR(200),
+    content VARCHAR(2000)
+);
+
+INSERT INTO articles VALUES (1, 'Database Basics', 'This book covers database fundamentals including SQL, performance optimization, and database design principles.');
+INSERT INTO articles VALUES (2, 'MySQL Guide', 'A comprehensive guide to MySQL database management and administration.');
+INSERT INTO articles VALUES (3, 'PostgreSQL vs Oracle', 'Comparison between PostgreSQL and Oracle databases, focusing on performance and features.');
+COMMIT;
+
+CREATE SEARCH INDEX idx_articles_content ON articles (content);
+
+SELECT * FROM articles WHERE CONTAINS(content, 'database') > 0;
 ```
 
 <span id="BITMAP" name="BITMAP"></span>
@@ -245,6 +273,8 @@ CREATE BITMAP INDEX idx_bitmap ON employees (sex);
 YashanDB支持以任何[通用表达式](../通用SQL语法/expr)作为索引列来建立函数索引，但存在如下约束规则：
 
 - 不能为LSC表创建函数索引。
+
+- 创建函数索引时，如果表中存在虚拟列，函数索引的表达式不能与虚拟列的表达式相同。
 
 - 在创建分区索引时，不能对分区键使用函数表达式。
 

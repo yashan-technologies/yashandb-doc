@@ -144,11 +144,13 @@ Specifies the maximum number of erroneous data rows that can be tolerated when q
 
 ```sql
 -- The following data exists in /data/area.csv:
-8|load|801|loadbranch|8
-9|load|901|loadbranch|9
+01|EastChina|Shanghai
+02|WestChina|Chengdu
 
--- Create directory object and external table in the database
+-- Create directory object in the database
 CREATE DIRECTORY dir_ext AS '/data';
+
+-- Create external table 1
 CREATE TABLE area_external(
  area_no CHAR(2),
  area_name VARCHAR2(60),
@@ -164,6 +166,29 @@ ORGANIZATION EXTERNAL(
 REJECT LIMIT 1;
 
 -- Query table data, as the data format in the file does not match the table definition format,
-select * from area_external;
+select area_no,area_name,DHQ from area_external1;
 YAS-02687 reject limit reached
+
+-- Create external table 2
+CREATE TABLE area_external2(
+ area_no CHAR(2),
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen')
+ORGANIZATION EXTERNAL(
+ TYPE YASDB_LOADER
+ DEFAULT DIRECTORY dir_ext
+ ACCESS PARAMETERS(
+  RECORDS BADFILE 'area_bad.log' LOGFILE 'area_log.log'
+  FIELDS TERMINATED BY '|')
+ LOCATION ('area.csv')
+)
+REJECT LIMIT 1;
+
+-- Query table data
+select area_no,area_name,DHQ from area_external2;
+
+AREA_NO AREA_NAME                                                     DHQ
+------- ------------------------------------------------------------- ---------------------
+01      EastChina                                                     Shanghai
+02      WestChina                                                     Chengdu
 ```

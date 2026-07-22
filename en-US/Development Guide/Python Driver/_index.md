@@ -1,3 +1,4 @@
 initno:1
 
-filename:YashanDB Python Driver Installation,YashanDB Python Driver Usage Introduction,YashanDB Python Driver Usage Examples,Status of Support for YashanDB Python Interfaces,Data Type Mapping Relationships in YashanDB Python Driver
+filename:Installing YashanDB Python Driver,YashanDB Python Driver Quick Start,YashanDB Python Driver Advanced Configuration,YashanDB Python Driver User Guide,YashanDB Python Driver Reference
+enName:Installing YashanDB Python Driver,YashanDB Python Driver Quick Start,YashanDB Python Driver Advanced Configuration,YashanDB Python Driver User Guide,YashanDB Python Driver Reference

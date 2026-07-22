@@ -11,9 +11,27 @@
 
    YashanDB服务端缺少libaio库时，如通过DBLink向Oracle数据库发起首次远程链接，yex_server沙箱进程可能在加载驱动时发生core dump（yasdb进程无影响）。本错误只在首次链接时影响yex_server进程，再次链接时系统可自动恢复正常。
 
-鉴于上述要求，对于可能使用YashanDB -> Oracle数据库远程链接的数据库，管理员应按下述指导进行必要的操作。
+对于从YashanDB到达梦数据库的链接，系统存在如下前置要求：
 
-## Oracle Instant Client下载和安装
+- YashanDB服务端已安装DBLink插件（可通过查看$YASDB_HOME/third路径下是否存在dblink_dm文件夹确认）。
+
+- YashanDB服务端已下载和安装达梦数据库OCI驱动。
+
+   未安装达梦OCI驱动的环境中，通过DBLink向达梦数据库发起远程链接，将会由于缺少必要的组件而抛出错误。
+
+对于从YashanDB到金仓数据库的链接，系统存在如下前置要求：
+
+- YashanDB服务端已安装DBLink插件（可通过查看$YASDB_HOME/third路径下是否存在dblink-kingbase文件夹确认）。
+
+- YashanDB服务端已下载和安装金仓数据库DCI驱动。
+
+   未安装金仓DCI驱动的环境中，通过DBLink向金仓数据库发起远程链接，将会由于缺少必要的组件而抛出错误。
+
+鉴于上述要求，对于可能使用YashanDB -> 异构数据库远程链接的数据库，管理员应按下述指导进行必要的操作。
+
+## 异构数据库驱动安装
+
+### 安装Oracle Instant Client与libaio库
 
 1. 以YashanDB安装用户（例如yashan）登录到数据库服务器。
 
@@ -60,14 +78,92 @@
    $ yasboot process yasagent restart -c yashandb -t hosts.toml
    ```
 
-## libaio库安装
-
-1. 以YashanDB安装用户（例如yashan）登录到数据库服务器。
-
-2. 以Centos为例，通过以下命令安装libaio库：
+7. 以Centos为例，通过以下命令安装libaio库。
 
    ```shell
    yum install libaio
+   ```
+
+### 安装达梦数据库OCI驱动
+
+1. 以YashanDB安装用户（例如yashan）登录到数据库服务器。
+
+2. 根据YashanDB服务器环境，从达梦数据库官网下载对应DM8版本的客户端安装包，获取达梦OCI驱动。
+
+3. 将安装包解压到本地路径，例如`/home/dm-instant-client/`。
+
+4. 设置动态库依赖路径。
+
+   ```shell
+   $ vi ~/.bashrc
+
+   # 在文件中添加如下信息并保存
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/dm-instant-client/lib
+   ```
+
+5. 生效环境变量。
+
+   ```shell
+   $ source ~/.bashrc
+
+   # 在回显信息中检查是否已存在上述路径
+   $ echo $LD_LIBRARY_PATH
+   ```
+
+6. 刷新正在运行的YashanDB所读取的环境变量，操作方式为重启yasom进程和所有yasagent进程。
+
+   若数据库相关进程尚未启动，则无需执行此操作。
+
+   ```shell
+   # 检查是否存在yasom进程或yasagent进程，若是则需重启
+   $ ps -ef | grep -E "yasom|yasagent" | grep -v grep
+
+   # 重启yasom进程
+   $ yasboot process yasom restart -c yashandb
+
+   # 重启所有节点上的yasagent进程
+   $ yasboot process yasagent restart -c yashandb -t hosts.toml
+   ```
+
+### 安装金仓数据库DCI驱动
+
+1. 以YashanDB安装用户（例如yashan）登录到数据库服务器。
+
+2. 根据YashanDB服务器环境，从金仓数据库官网下载对应KingbaseES V8及以上版本的DCI驱动安装包，获取金仓DCI驱动。
+
+3. 将安装包解压到本地路径，例如`/home/kingbase-dci/`。
+
+4. 设置动态库依赖路径。
+
+   ```shell
+   $ vi ~/.bashrc
+
+   # 在文件中添加如下信息并保存
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/kingbase-dci/lib
+   ```
+
+5. 生效环境变量。
+
+   ```shell
+   $ source ~/.bashrc
+
+   # 在回显信息中检查是否已存在上述路径
+   $ echo $LD_LIBRARY_PATH
+   ```
+
+6. 刷新正在运行的YashanDB所读取的环境变量，操作方式为重启yasom进程和所有yasagent进程。
+
+   若数据库相关进程尚未启动，则无需执行此操作。
+
+   ```shell
+   # 检查是否存在yasom进程或yasagent进程，若是则需重启
+   $ ps -ef | grep -E "yasom|yasagent" | grep -v grep
+
+   # 重启yasom进程
+   $ yasboot process yasom restart -c yashandb
+
+   # 重启所有节点上的yasagent进程
+   $ yasboot process yasagent restart -c yashandb -t hosts.toml
    ```
 
 ## 创建DBLink并进行操作
@@ -86,7 +182,7 @@
 
 2. 创建DBLink。
 
-   以下为示例，也可以参考[CREATE DATABASE LINK](../../SQL语句/CREATE DATABASE LINK)了解详细的DBLINK链接配置。
+   以下为示例，也可以参考[CREATE DATABASE LINK](../../SQL语句/CREATE DATABASE LINK)了解详细的DBLink链接配置。
 
    ```sql
    -- YashanDB与YashanDB的数据库链接
@@ -94,6 +190,12 @@
    
    -- YashanDB与Oracle的数据库链接，且对所有用户可见
    CREATE PUBLIC DATABASE LINK dblink_oracle CONNECT TO REGRESS identified BY REGRESS USING 'oracle:192.168.1.2:1521/orcl';
+
+   -- YashanDB与达梦数据库的数据库链接
+   CREATE DATABASE LINK dblink_dm CONNECT TO DMUSER IDENTIFIED BY DMPWD USING 'dm:192.168.1.3:5236';
+
+   -- YashanDB与金仓数据库的数据库链接
+   CREATE DATABASE LINK dblink_king CONNECT TO KINGUSER IDENTIFIED BY KINGPWD USING 'king:192.168.1.4:54321/TEST';
    ```
 
 3. 以DBLink链接到远端Oracle为例，进行数据操作。
@@ -126,7 +228,7 @@
    
    数据库服务可并发打开的DBLink连接由系统参数[DBLINK_CURSOR_COUNT](../../../../参考手册/配置参数.md#dblinkcursorcount)进行控制，参数默认值为32，可根据业务需求调整系统参数值。
    
-   DBLink连接会申请系统空闲内存来缓存远端表业务数据，要求系统空闲内存 > DBLINK_CURSOR_COUNT * 513K，否则系统内存不足时再次打开dblink会产生报错YAS-00101。
+   DBLink连接会申请系统空闲内存来缓存远端表业务数据，要求系统空闲内存 > DBLINK_CURSOR_COUNT * 513K，否则系统内存不足时再次打开DBLink会产生报错YAS-00101。
 
 4. 查看当前数据库服务上已创建的DBLink链接。
 
@@ -153,7 +255,7 @@
    exec DBMS_SESSION.CLOSE_DATABASE_LINK(dblink_oracle);
    ```
 
-可通过[DBLink语法说明](../../通用SQL语法/dblink/dblink语法说明)了解更多功能及约束。
+可通过[DBLink语法说明](../../通用SQL语法/dblink/DBLink语法说明)了解更多功能及约束。
 
 
 
@@ -235,15 +337,19 @@
    0 rows fetched.
    ```
 
-如果数据库服务重启过程中进程报错内存不足，可参考[配置文件调整](../../../../数据库管理/存储管理/数据库文件管理/配置参数文件与密码文件管理.md)将参数值调小或扩容内存后再尝试启动数据库服务。
+如果数据库服务重启过程中进程报错内存不足，可参考[配置文件调整](../../../../数据库管理/存储管理/数据库文件管理/配置参数文件与密码文件管理)将参数值调小或扩容内存后再尝试启动数据库服务。
 
 ### YAS-07314 too many connections for dblink %s
 
-此错误表示当前基于同一个DBLink访问远端表的次数超过系统配置值，该配置由yex_server.ini文件的`MAX_DBLINK_CONNS`参数进行约束，取值范围为[64,16384]，请参考[沙箱进程管理](yex_server沙箱进程管理.md)进行参数调整。可参考[dblink语法说明](dblink语法说明.md)了解更多的沙箱进程参数配置。
+此错误表示当前基于同一个DBLink访问远端表的次数超过系统配置值，该配置由yex_server.ini文件的`MAX_DBLINK_CONNS`参数进行约束，取值范围为[64,16384]，请参考[沙箱进程管理](yex_server沙箱进程管理.md)进行参数调整。可参考[DBLink语法说明](DBLink语法说明.md)了解更多的沙箱进程参数配置。
+
+### YAS-07318 too many db links
+
+此错误表示当前创建并正在使用的DBLink已超出系统配置限制。该配置由yex_server.ini文件中的[MAX_DBLINK_OBJECTS](DBLink语法说明.md#max_dblink_objects)参数约束，其取值范围为[1024,16384]。如需调整参数，请参考[yex_server沙箱进程管理](yex_server沙箱进程管理.md)完成相应操作。
 
 ### YAS-07330 ERR_YEX_TOO_MANY_XACTS
 
-此错误表示当前打开DBLink的会话数超过了系统配置值，该配置由yex_server.ini文件的`AXS_MAX_XACTS`参数进行约束，取值范围为[1024,16384]，默认值为1024，请参考[沙箱进程管理](yex_server沙箱进程管理.md)进行参数调整。可参考[DBLink语法说明](dblink语法说明.md)了解更多的沙箱进程参数配置。
+此错误表示当前打开DBLink的会话数超过了系统配置值，该配置由yex_server.ini文件的`AXS_MAX_XACTS`参数进行约束，取值范围为[1024,16384]，默认值为1024，请参考[沙箱进程管理](yex_server沙箱进程管理.md)进行参数调整。可参考[DBLink语法说明](DBLink语法说明.md)了解更多的沙箱进程参数配置。
 
 ### YAS-07331 transaction branches in same session can not exceed %d
 

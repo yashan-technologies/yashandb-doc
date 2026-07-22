@@ -42,7 +42,7 @@ Before using **CPU** resource management, you must ensure that the server has CG
 
 Please modify the corresponding configuration parameters to appropriate values according to whether IOPS resources, memory resources, and corresponding resource quota planning are enabled.
 
-In Standalone Primary-Standby Deployment, the following parameters can be configured independently in both the primary and standby CDB roots, and then differential resource upper limit values can be generated according to the resource plan.
+In Standalone Primary-Standby Deployment or Primary-Standby YAC Deployment, the following parameters can be configured independently in both the primary and standby CDB roots, and then differential resource upper limit values can be generated according to the resource plan.
 
 |Configuration Parameter |Resource |Description |Default Value |
 | ----------------------------- | ----------------| -------------------------- | ---------------------- |
@@ -92,7 +92,7 @@ In Standalone Primary-Standby Deployment, the following parameters can be config
 
     >**Note**:
     >
-    > In Standalone Primary-Standby Deployment, you can also repeat the above operations on the standby CDB root as needed to configure differential parameter values.
+    > In Standalone Primary-Standby Deployment or Primary-Standby YAC Deployment, you can also repeat the above operations on the standby CDB root as needed to configure differential parameter values.
 
 ### Step2: Create CDB Resource Plan Directives
 

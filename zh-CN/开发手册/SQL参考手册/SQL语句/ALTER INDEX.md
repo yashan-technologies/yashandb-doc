@@ -66,6 +66,8 @@ ALTER INDEX idx_sales_info_1 VISIBLE;
 >
 > 临时表上的索引被置为不可用状态后无法恢复，请谨慎操作。如需恢复，只能先删除该不可用索引再重新创建同名索引。
 
+对于全文索引，设置不可用状态会清空该索引对应分区的内部数据。
+
 示例（HEAP表、TAC表）
 
 ```sql
@@ -76,7 +78,7 @@ ALTER INDEX idx_sales_info_1 UNUSABLE;
 
 ### COALESCE
 
-该语句用于重组索引，RTree索引无法重组。
+该语句用于重组索引，RTree索引和全文索引无法重组。
 
 对于分区索引，只可对实际分配了空间的分区进行重组。
 
@@ -162,6 +164,8 @@ ALTER INDEX idx_sales_info_1 MODIFY SUBPARTITION isp_sales_info_21 COALESCE;
 对于被设置UNUSABLE的索引，重建后该索引将恢复为有效状态。
 
 对于分区索引的REBUILD操作，需在每个分区上单独执行。一级分区索引只能REBUILD PARTITION，二级分区索引只能REBUILD SUBPARTITION。
+
+对于全文索引，重建操作会重新对基表数据进行分词并构建索引数据。
 
 本操作过程中将会在索引基表上加排他锁，但在指定了ONLINE时，本操作不会阻塞并发的DML操作。
 

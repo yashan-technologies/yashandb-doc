@@ -18,6 +18,7 @@ The state of this functionality is controlled by the value of the ENABLE_LOCAL_O
     $ ll
     ```
     - If it does not exist, it indicates that it has been enabled, and no additional actions are needed.
+
     - If it exists, further actions are required.
 
 2. Check the value of ENABLE_LOCAL_OSAUTH:
@@ -45,21 +46,23 @@ When you need to enable OS authentication for a database administrator, please c
 
 ### Operation Steps
 
-1. Check if the YASDBA group exists. If not, create it (requires a user with group creation privilege):
+1. Check if the YASDBA group exists. If not, create it (the `groupadd` command needs to be executed by root user or a user with sudo privilege):
 
     ```shell
-    $ groups
+    $ getent group YASDBA
+
+    # Create YASDBA group if it does not exist
     $ groupadd YASDBA
     ```
 
-2. Add the target OS account to the YASDBA group (requires a user with group creation privilege):
+2. Add the target OS account to the YASDBA group (the `usermod` command needs to be executed by root user or a user with sudo privilege):
 
     ```shell
-    $ usermod -a -G YASDBA dba1
+    $ sudo usermod -aG YASDBA dba1
     $ groups dba1
 
-    ## If the target OS account is not the installation user, also add it to the same user group of the database installation user (e.g., yashan)
-    $ usermod -a -G yashan dba1
+    # If the target OS account is not the installation user, also add it to the same user group of the database installation user (e.g., yashan)
+    $ sudo usermod -aG yashan dba1
     $ groups dba1
     ```
 

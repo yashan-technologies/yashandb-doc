@@ -98,7 +98,7 @@ If the initial configuration cannot meet business/performance requirements, you 
 3. Execute the ALTER DATABASE ADD LOGFILE statement to add new redo log files.
 
     ```sql
-    ALTER DATABASE ADD LOGFILE ('redo4q' SIZE 200M,'redo5' SIZE 64G BLOCKSIZE 4k,'redo6' SIZE 64G PARALLEL 8);
+    ALTER DATABASE ADD LOGFILE ('redo4' SIZE 200M,'redo5' SIZE 64G BLOCKSIZE 4k,'redo6' SIZE 64G PARALLEL 8);
 
     SELECT thread#,id,name,block_size,block_count,used_blocks,sequence#,status FROM V$LOGFILE;
 

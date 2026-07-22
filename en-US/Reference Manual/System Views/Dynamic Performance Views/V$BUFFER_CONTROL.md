@@ -2,7 +2,7 @@ This view shows data buffer page control information.
 
 |Field |Type |Description |
 | --- | --- | --- |
-|  ADDR           | RAW(8)    | Memory address of buffer control                          |
+  ADDR           | RAW(8)    | Memory address of buffer control                          |
 | PART           | INTEGER   | Buffer control's buffer part area                        |
 | ID             | INTEGER   | Buffer control number                                     |
 | IN_OLD         | BOOLEAN   | Whether the buffer control is OLD                        |

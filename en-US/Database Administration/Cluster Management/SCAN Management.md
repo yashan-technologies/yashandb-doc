@@ -22,10 +22,7 @@ The start and stop of the SCAN and high availability management require the YCSR
 >
 > If you need to restart the network on the cluster server running SCAN, please manually execute `ycsctl stop scan` to stop the SCAN currently running on that node. Once the network restart is complete, execute `ycsctl start scan` to restart the SCAN.
 
-
 ## Configuration Requirements
-
-
 
 - The server's network interface must be an Ethernet card and support ARP/NDP protocols.
 
@@ -34,8 +31,6 @@ The start and stop of the SCAN and high availability management require the YCSR
 - 1-3 SCAN VIP addresses need to be planned for a cluster, and IPv4 or IPv6 should be used consistently.
 
 - After configuring SCAN, the driver or client connecting to the database via the SCAN domain name should be version 23.4.4.100 or higher; the client connecting to a PDB via the SCAN domain name should be version 27.1.1.100 or higher.
-
-
 
 <span id="scan_configuration" name="scan_configuration"></span>
 
@@ -59,12 +54,9 @@ If the user did not configure SCAN during the installation and deployment of YAC
     ……
     ```
 
-
-
 ###  ## Step 1: Configure Public Network Subnet
 
 1. Log in to the database installation server using the installation user.
-
 
 2. View cluster information to confirm whether the public network and service ports have been configured.
 
@@ -93,8 +85,6 @@ If the user did not configure SCAN during the installation and deployment of YAC
     ```shell
     $ ycsctl add network -subnet 192.168.1.0/24/ens192
     ```
-
-
 
 ###  Step 2: Configure and Start SCAN
 
@@ -157,49 +147,37 @@ If the user did not configure SCAN during the installation and deployment of YAC
 
 ## Modify SCAN Resource Configuration
 
-When the user performs cluster environment operations and maintenance (such as modifying network configurations, reassigning IP addresses, and ports), they can follow the process below to update the configuration information of VIP resources.
+When the user performs cluster environment operations and maintenance (such as modifying network configurations, reassigning IP addresses, and ports), they can follow the process below to change the configuration information of VIP resources.
 
 > **Caution**:
 >
 > Before adjusting the corresponding configuration, please ensure that upper-layer business temporarily does not depend on connection information based on SCAN.
 
-###  Change SCAN Configuration
+### Change SCAN Configuration
 
-To update the SCAN domain name or port, you need to first delete the old SCAN resource and then configure the new SCAN resource.
+Changing SCAN configuration includes changing SCAN domain name, port, or SCAN VIP address. After changing any configuration, the SCAN resources of the current cluster will be automatically stopped. You need to execute ycsctl start scan to start the resources before you can normally use the domain name to connect to the database.
 
- 
+#### Change SCAN Domain Name
 
-1. Log in to the database installation server using the installation user.
+1. Change DNS resolution rules on the DNS server according to the new domain name plan.
 
+2. Log in to the database installation server as the installation user.
 
-2. Stop all SCAN VIPs.
+3. Change the SCAN domain name.
 
-    ```shell
-    $ ycsctl stop scan
-    ```
-
-3. Delete SCAN configuration.
+    When changing only the domain name, specify the -scanname parameter as the new domain name value (for example, scan.new_example.com), and -p should be specified as the original port number.
 
     ```shell
-    $ ycsctl remove scan
+    $ ycsctl modify scan -scanname scan.new_example.com -p 1688
     ```
 
-
-4. To update the SCAN VIP address or SCAN domain name, the DNS resolution rules need to be updated on the DNS server.
-
-5. Add new SCAN configuration information.
-
-    ```shell
-    $ ycsctl add scan -scanname scan_new.example.com -p 1688
-    ```
-
-6. Start all SCAN VIPs again.
+4. Restart all SCAN VIPs.
 
     ```shell
     $ ycsctl start scan
     ```
 
-7. View the cluster configuration to confirm the modification results.
+5. View the cluster configuration to confirm the modification result.
 
     ```shell
     $ ycsctl show config
@@ -208,7 +186,7 @@ To update the SCAN domain name or port, you need to first delete the old SCAN re
 
         Network: 192.168.1.0/24
         Resource SCAN: enabled
-        SCAN name: scan_new.example.com, listening port: 1688
+        SCAN name: scan.new_example.com, listening port: 1688
         SCAN VIP: 192.168.1.100, ordinal number: 1
         SCAN VIP: 192.168.1.101, ordinal number: 2
         SCAN VIP: 192.168.1.102, ordinal number: 3
@@ -226,21 +204,94 @@ To update the SCAN domain name or port, you need to first delete the old SCAN re
             VIP: 192.168.1.63/24/ens192, home node: host0002
     ```
 
-8. View the current topology status of the cluster.
+#### Change SCAN Port
+
+1. Log in to the database installation server as the installation user.
+
+2. Change the SCAN Port.
+
+    When changing only the port number, specify -p as the new port number (for example, 4688), and the -scanname parameter should be specified as the original domain name.
 
     ```shell
-    $ ycsctl status
-    ---------------------------------------------------------------------------------------------
-    Self Host ID|Cluster Master ID|YasFS Master ID|YasDB Master ID|Active Host Count
-    ---------------------------------------------------------------------------------------------
-    1            1                 1               1               2
-    ---------------------------------------------------------------------------------------------
-    Host ID   |Target    |State     |YasFS     |YasDB     |VIP
-    ---------------------------------------------------------------------------------------------
-    1          online     online     online     online     host1.online
-    2          online     online     online     online     host2.online
-    ---------------------------------------------------------------------------------------------
-    SCAN VIP 1: host2.online   SCAN VIP 2: host1.online   SCAN VIP 3: host1.online
+    $ ycsctl modify scan -scanname scan.example.com -p 4688
+    ```
+
+3. Restart all SCAN VIPs.
+
+    ```shell
+    $ ycsctl start scan
+    ```
+
+4. View the cluster configuration to confirm the modification result.
+
+    ```shell
+    $ ycsctl show config
+        Cluster name: yashandb, config version: 7
+        ……
+
+        Network: 192.168.1.0/24
+        Resource SCAN: enabled
+        SCAN name: scan.example.com, listening port: 4688
+        SCAN VIP: 192.168.1.100, ordinal number: 1
+        SCAN VIP: 192.168.1.101, ordinal number: 2
+        SCAN VIP: 192.168.1.102, ordinal number: 3
+        Resource vip: enabled
+        ……
+        
+        Nodes in cluster:
+        Node name: host0001, yascs/yasfs inter connect URL: 172.16.1.2:1788, Node ID: 1
+            public service port: 1688
+            yasdb instance name:yasdb-1-1, yasdb instance id:1
+            VIP: 192.168.1.62/24/ens192, home node: host0001
+        Node name: host0002, yascs/yasfs inter connect URL: 172.16.1.3:1788, Node ID: 2
+            public service port: 1688
+            yasdb instance name:yasdb-1-2, yasdb instance id:1
+            VIP: 192.168.1.63/24/ens192, home node: host0002
+    ```
+
+#### Change SCAN VIP
+
+>**Note**:
+>
+> This document mainly introduces replacing other IP addresses within the same public subnet as new SCAN VIPs.
+>
+> If you need to replace the entire public subnet configuration, you need to execute ycsctl remove scan to remove the configured SCAN resource, execute ycsctl remove vip to remove the configured VIP resources, then execute ycsctl modify network to update the public subnet configuration, and then add and enable SCAN resources and VIP resources as needed. 
+
+1. Change DNS resolution rules on the DNS server according to the new SCAN VIP plan, for example, 192.168.1.200 - 201.
+
+2. Log in to the database installation server as the installation user.
+
+3. Restart all SCAN VIPs.
+
+    ```shell
+    $ ycsctl start scan
+    ```
+
+4. View the cluster configuration to confirm the modification result.
+
+    ```shell
+    $ ycsctl show config
+        Cluster name: yashandb, config version: 6
+        ……
+
+        Network: 192.168.1.0/24
+        Resource SCAN: enabled
+        SCAN name: scan.example.com, listening port: 1688
+        SCAN VIP: 192.168.1.200, ordinal number: 1
+        SCAN VIP: 192.168.1.201, ordinal number: 2
+        SCAN VIP: 192.168.1.202, ordinal number: 3
+        Resource vip: enabled
+        ……
+        
+        Nodes in cluster:
+        Node name: host0001, yascs/yasfs inter connect URL: 172.16.1.2:1788, Node ID: 1
+            public service port: 1688
+            yasdb instance name:yasdb-1-1, yasdb instance id:1
+            VIP: 192.168.1.62/24/ens192, home node: host0001
+        Node name: host0002, yascs/yasfs inter connect URL: 172.16.1.3:1788, Node ID: 2
+            public service port: 1688
+            yasdb instance name:yasdb-1-2, yasdb instance id:1
+            VIP: 192.168.1.63/24/ens192, home node: host0002
     ```
 
 ###  Relocate SCAN VIP Manually
@@ -256,7 +307,6 @@ Common automatic relocation scenarios are as follows:
 The steps for manual migration are as follows:
 
 1. Log in to the database installation server using the installation user.
-
 
 2. Query the sequence number of the SCAN VIP (i.e., the ordinal number field).
 
@@ -301,7 +351,6 @@ The steps for manual migration are as follows:
 
 1. Log in to the database installation server using the installation user.
 
-
 2. Stop all SCAN VIPs.
 
     ```shell
@@ -315,16 +364,13 @@ The steps for manual migration are as follows:
     ```
  
 
-
  
 
 ###  Delete Public Network Configuratio
 
 Before deleting public network configuration, all VIP and SCAN configurations must be deleted first.
 
-
 1. Log in to the database installation server using the installation user.
-
 
 2. Delete public network configuration.
 

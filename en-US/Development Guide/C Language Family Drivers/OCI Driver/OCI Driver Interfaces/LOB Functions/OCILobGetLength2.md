@@ -1,6 +1,6 @@
 ## Functionality Introduction
 
-The OCILobGetLength2 function is used to obtain the length of a LOB and is applicable only to LOBs larger than 4GB.
+OCILobGetLength2 is an extended version of OCILobGetLength function, used to obtain the length of a LOB. The main difference from OCILobGetLength is the use of oraub8 type for the lenp parameter instead of ub4 type, applicable only to LOBs larger than 4GB.
 
 ## Function Declaration
 

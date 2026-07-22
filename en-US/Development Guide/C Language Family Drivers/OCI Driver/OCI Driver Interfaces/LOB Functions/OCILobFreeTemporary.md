@@ -2,8 +2,6 @@
 
 The OCILobFreeTemporary function is used to free temporary LOBs.
 
-You must call the OCILobFreeTemporary function before calling the [OCIDescriptorFree](../Handle and Descriptor Functions/OCIDescriptorFree) function.
-
 ## Function Declaration
 
 ```c

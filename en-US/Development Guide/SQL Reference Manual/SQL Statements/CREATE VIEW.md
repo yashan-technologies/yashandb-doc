@@ -84,7 +84,7 @@ When the dependent sub-objects of a view undergo certain changes, the view becom
 
 When the objects that the view relies on change (as mentioned above), it triggers a refresh of the view's metadata.
 
-When the objects that the view relies on are synonyms or dblink, changes to the connecting objects cannot invalidate the view, nor refresh the view's metadata.
+When the objects that the view relies on are synonyms or DBLink, changes to the connecting objects cannot invalidate the view, nor refresh the view's metadata.
 
 After upgrading from an old version to the current version, the view is valid, but the view's metadata may be incorrect (if the base table has undergone structural changes). In this case, the view's metadata cannot be refreshed. The view needs to be rebuilt, or a DDL operation needs to be executed on the base table to trigger a refresh of the view's metadata.
 

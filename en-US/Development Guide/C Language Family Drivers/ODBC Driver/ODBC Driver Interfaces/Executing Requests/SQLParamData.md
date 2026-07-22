@@ -1,4 +1,4 @@
-## Function Purpose
+## Functionality Overview
 
 Used in conjunction with SQLPutData to provide parameter data during execution.
 

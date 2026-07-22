@@ -97,7 +97,7 @@ YashanDB is compatible with most object and object management operations of Orac
 - Sequences:
   - Includes ascending sequences and descending sequences; can specify CYCLE|NOCYCLE, CACHE|NOCACHE, ORDER|NOORDER.
   - Sequences support NEXTVAL and CURRVAL.
-- DBLINK
+- DBLink
   - Supports remote connections from Oracle to YashanDB, YashanDB to Oracle, and YashanDB to YashanDB.
   - Supports PUBLIC and PRIVATE mode links.
   - Supports connections for tables and views.

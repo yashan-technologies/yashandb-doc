@@ -11,6 +11,7 @@ The statement has the following constraints:
 - If a partition table or partition index in the tablespace has at least one partition that specifies another tablespace in its storage parameters, the tablespace cannot be deleted even if the INCLUDING CONTENTS statement is specified.
 - If there are foreign key constraints defined on objects in other tablespaces in the tablespace, the tablespace cannot be deleted even if the INCLUDING CONTENTS statement is specified, unless the CASCADE CONSTRAINT option is specified as well.
 - Built-in tablespaces such as SYSTEM/SYSAUX/UNDO/SWAP/TEMPORARY cannot be deleted.
+- Before deleting a local cache tablespace (unique to YAC/Distributed Cluster Deployment), ensure that disk cache is disabled ([ENABLE_DISKCACHE](../../../Reference Manual/Configuration Parameters.md#enable_diskcache) = FALSE).
 
 In the event of node failures while deleting a tablespace in ISC Distributed Cluster Deployment, recovery measures can be found in the [User Tablespace Management](../../../Database Administration/Storage Management/Logical Space Management/Tablespace Management/General Tablespace Management) chapter.
 

@@ -5,9 +5,10 @@ Binding parameters refer to binding variables from the program to placeholders i
 |Interface Name |Interface Description |
 |----------------------------------------------|------------------------------|
 | [OCIBindArrayOfStruct](OCIBindArrayOfStruct) | Set the skip parameter for static array binding           |
-| [OCIBindByName](OCIBindByName)               | Bind program variables to placeholders by name in the SQL statement or PL/SQL block       |
-| [OCIBindByPos](OCIBindByPos)                 | Bind program variables to placeholders by position in the SQL statement or PL/SQL block   |
+| [OCIBindByName](OCIBindByName)               | Bind program variables to placeholders by name in the SQL statement or PL block       |
+| [OCIBindByPos](OCIBindByPos)                 | Bind program variables to placeholders by position in the SQL statement or PL block   |
 | [OCIDefineByPos](OCIDefineByPos)             | Associate items in the select list with types and output data cache    |
+| [OCIDefineByPos2](OCIDefineByPos2)           | Extended version of OCIDefineByPos, supports larger buffer sizes |
 | [OCIDescribeAny](OCIDescribeAny)             | Describe existing schema and sub-schema objects                |
 | [OCIBindDynamic](OCIBindDynamic)             | Register user callback for dynamic data allocation                |
 | [OCIDefineDynamic](OCIDefineDynamic)         | Set additional attributes required for OCI_DYNAMIC_FETCH mode    |

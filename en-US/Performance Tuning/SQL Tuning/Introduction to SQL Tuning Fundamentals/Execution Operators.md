@@ -38,6 +38,7 @@ In YashanDB, all execution operators default to single-row processing. To enable
 | TABLE ACCESS FULL           | Full table scan.                                         | All                     | √ |
 | TABLE ACCESS BY INDEX ROWID | Retrieves the rowids of corresponding data blocks based on the index (returns to the table based on rowid). | All            | √        |
 | TABLE ACCESS BY USER ROWID          | Specify a single ROWID (`ROWID = ?` or `ROWID IN ('9912:0:0:5108:4', '9912:0:0:5108:8')`) to access data in the table. For the ROWID data format, please refer to [ROWID Data Format](../../../Development Guide/SQL Reference Manual/Data Types/ROWID and UROWID Types.md#Format).          | All                     | ×        |
+| TABLE ACCESS BY ROWID RANGE   | Specify a range of ROWIDs (`ROWID BETWEEN ... AND ...` or `ROWID > ?`) to access multiple rows of data in a table. For the ROWID data format, please refer to [ROWID Data Format](../../../Development Guide/SQL Reference Manual/Data Types/ROWID and UROWID Types.md#Format).                    | Row                     | √     |
 | TEMP TABLE ACCESS           | Scans temporary materialization area of shared CTE.     | All                     | √ |
 | FIXED TABLE FIXED INDEX   |  Using FIXED INDEX to scan a FIXED TABLE; only applicable when the WHERE condition is an equality check.<br/>This operator is not controlled by index-related hints.    | All         | ×        |
 
@@ -148,6 +149,7 @@ In YashanDB, all execution operators default to single-row processing. To enable
 | DISTRIBUTED COORDINATOR      | Identifier for parallel execution in ISC Distributed Cluster Deployment; indicates that all operators below this identifier are executed in parallel. | All                     | ×        |
 | PX REMOTE                    | Indicates that data interactions include cross-node transmissions. | All                     | ×        |
 | PX LOCAL                     | Indicates that data interactions are only local transmissions. | All                     | ×        |
+| PX BLOCK ITERATOR RANDOM     | Indicates that in a parallel execution scenario, data is iteratively traversed in units of data blocks, and parallel tasks are split. | All                     | ×        |
 | MERGE                        | Data merging; combines multiple sorted data sources into one. | All                     | ×        |
 | ROW TO COL                   | Converts row calculations to column calculations.          | All                     | ×        |
 | COL TO ROW                   | Converts column calculations to row calculations.          | All                     | ×        |

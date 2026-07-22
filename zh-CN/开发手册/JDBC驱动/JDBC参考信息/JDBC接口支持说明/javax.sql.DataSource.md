@@ -31,8 +31,6 @@ YashanDB JDBC驱动对DataSource接口有如下方法：
 | getSslRootCer() | String |
 | setDescription(String value) | void |
 | getDescription() | String |
-| createShardingKeyBuilder() | ShardingKeyBuilder |
-| createConnectionBuilder() | ConnectionBuilder |
 
 ## 示例
 

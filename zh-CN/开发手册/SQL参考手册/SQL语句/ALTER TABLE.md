@@ -9,7 +9,7 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 - [修改身份列](#altertableidentity)
 - 开启和关闭行迁移（[row movment](#rowmovementclause)）
 - 开启和关闭附加日志（[supplemental logging](#supplementaltablelogging)）
-- 开启和关闭redo日志（[nologging](#loggingclause)）
+- 开启和关闭redo日志（[LOGGING/NOLOGGING](#loggingclause)）
 - 开启和关闭并行 ([parallel](#parallelclause))
 - 空间收缩（[shrink space](#shrinkspaceclause)）
 - LSC表的后台数据转换选项开关（[data transformer](#enablexfmrclause)）
@@ -17,9 +17,13 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 - LSC表开启或关闭MCOL功能 （[MCOL ability](#mcolabilityclause)）
 - LSC表的强制转换（[force xfmr](#forcexfmrclause)）
 
-其中，依据LSC表的存储特性，只能对其分区相关属性（但不包括分区索引）进行修改操作（包括增加分区和删除分区等）。
+ALTER TABLE的使用约束如下：
 
-不能对[AC对象](../基本SQL元素/对象)以及AC对象的源表执行ALTER TABLE操作。
+- 依据LSC表的存储特性，只能对其分区相关属性（但不包括分区索引）进行修改操作（包括增加分区和删除分区等）。
+
+- 在共享集群/分布式集群部署中，只能在主实例（GV$INSTANCE视图中INSTANCE_ROLE=MASTER的实例）上对LSC表执行ALTER TABLE操作。
+
+- 不能对[AC对象](../基本SQL元素/对象)以及AC对象的源表执行ALTER TABLE操作。
 
 语句定义
 ----
@@ -140,7 +144,7 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 **[add\_column\_clause](#addcolumnclause)::=**
 
 ```ebnf
-= ADD [COLUMN] "(" column_definition {"," column_definition} ")" [lob_clauses].
+= ADD [COLUMN] "(" column_definition|virtual_column_definition {"," column_definition|virtual_column_definition} ")" [lob_clauses].
 ```
 
 **[column\_definition](#columndefinition)::=**
@@ -149,6 +153,14 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 = column dataType [identity_clause] [(DEFAULT default_expr | inline_constraint | column_encryption_clause)
 {" " (DEFAULT default_expr | inline_constraint | column_encryption_clause)}]. 
 ```
+
+**virtual_column_definition::=**
+
+```ebnf
+= column_name [datatype] [VISIBLE|INVISIBLE] [GENERATED ALWAYS] AS "(" column_expression ")" [VIRTUAL].
+```
+
+虚拟列语法规格说明请参考[virtual_column_definition](CREATE TABLE.md#virtualcoldef)。
 
 **[identity_clause](#identityclause)::=**
 
@@ -301,7 +313,7 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 **[update\_index\_clause](#updateindexclause)::=**
 
 ```ebnf
-= [UPDATE | INVALIDATE] GLOBAL INDEXES.
+= (UPDATE | INVALIDATE) [GLOBAL] INDEXES.
 ```
 
 **[drop\_table\_subpartition](#droptablepartition)::=**
@@ -313,7 +325,7 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 **[truncate\_table\_partition](#truncatetablepartition)::=**
 
 ```ebnf
-= TRUNCATE PARTITION (partname {"," partname}) [truncate_part_clause].
+= TRUNCATE PARTITION (partname {"," partname}) [truncate_part_clause] [update_index_clause].
 ```
 
 **[truncate\_part\_clause](#truncatepartclause)::=**
@@ -325,7 +337,7 @@ ALTER TABLE用于修改数据库里的表的结构和定义，以及对表进行
 **[truncate\_table\_subpartition](#truncatetablepartition)::=**
 
 ```ebnf
-= TRUNCATE SUBPARTITION (subpartname {"," subpartname}) [truncate_part_clause].
+= TRUNCATE SUBPARTITION (subpartname {"," subpartname}) [truncate_part_clause] [update_index_clause].
 ```
 
 **[set\_partition\_clause](#setpartitionclause)::=**
@@ -701,10 +713,11 @@ ALTER TABLE orders_info SHRINK SPACE COMPACT CASCADE;
 
 > **Note**: 
 >
-> 1.TRANSFORM和COMPACT涉及物理空间变动， 转换任务执行后将在一段时间内保留转换前的数据，用于满足长查询的需要；当达到保留的最大时间时对这些数据进行清理 。用户在确保业务不受影响的情况下，可参照[force_xfmr_clause](#forcexfmrclause)执行立即清理。
-> 2.系统中不存在AC对象时，打开BUILD AC开关不会创建AC数据文件。
+> - TRANSFORM和COMPACT涉及物理空间变动， 转换任务执行后将在一段时间内保留转换前的数据，用于满足长查询的需要；当达到保留的最大时间时对这些数据进行清理 。用户在确保业务不受影响的情况下，可参照[force_xfmr_clause](#forcexfmrclause)执行立即清理。
+>
+> - 系统中不存在AC对象时，打开BUILD AC开关不会创建AC数据文件。
 
-示例（LSC表）
+示例（单机LSC表、存算一体分布式集群部署LSC表）
 
 ```sql
 ALTER SYSTEM SET DATA_TRANSFORMER_ENABLED = TRUE SCOPE=SPFILE;
@@ -720,7 +733,7 @@ ALTER TABLE orders_info DISABLE COMPACT;
 
 该语句用于修改LSC表的可变生命周期，其含义请参考[CREATE TABLE](./CREATE TABLE)中对应语句描述。
 
-该语句不适用于存算一体分布式集群部署。
+该语句仅适用于单机部署。
 
 示例（单机LSC表）
 
@@ -740,9 +753,11 @@ ALTER TABLE area ALTER MCOL TTL '10' YEAR(9);
 
 关闭MCOL功能后，对LSC表进行的数据插入或修改操作会在提交时立即变成不可变数据，如果业务没有较高的事务要求，建议关闭此模块功能。
 
-如需关闭某个LSC表的MCOL功能，请确保已开启该表的后台数据转换能力（ENABLE TRANSFORM）。
+该语句不适用于共享/分布式集群部署。
 
-示例（LSC表）
+在单机部署、存算一体分布式集群部署中，如需关闭某个LSC表的MCOL功能，请确保已开启该表的后台数据转换能力（ENABLE TRANSFORM）。
+
+示例（单机LSC表、存算一体分布式集群部署LSC表）
 
 ```sql
 ALTER TABLE orders_info ENABLE MCOL order by;
@@ -764,9 +779,9 @@ ALTER TABLE orders_info DISABLE MCOL;
 
 - STABLE：将LSC表的可变数据强制转换成稳态数据并生成此表下所有AC数据。
 - COMPACT：将LSC表的稳态数据强制进行合并。
-- CLEAN：将LSC的所有可删除数据（ 转换任务执行完成后达到延期清理条件的数据 ）强制进行删除。
+- CLEAN：将LSC的所有可删除数据（转换任务执行完成后达到延期清理条件的数据）强制进行删除。
 
-示例（LSC表）
+示例（单机LSC表、存算一体分布式集群部署LSC表）
 
 ```sql
 ALTER TABLE sales_info ALTER SLICE ALL STABLE;
@@ -784,16 +799,16 @@ ALTER TABLE sales_info ALTER SLICE ALL CLEAN;
 
 ##### LOGGING
 
-该语句用于将表转为logging属性，即对该表的所有操作记录日志。
+该语句用于将表转为LOGGING属性，即对该表的所有操作记录日志。
 
-- 若对已是logging属性的表执行该语句，直接返回成功。
-- 若对nologging属性的表执行该语句，系统将执行一次全量checkpoint，将数据写盘并修改flushback，最后修改表的logging属性。
+- 若对已是LOGGING属性的表执行该语句，直接返回成功。
+- 若对NOLOGGING属性的表执行该语句，系统将执行一次全量checkpoint，将数据写盘并修改flushback，最后修改表的LOGGING属性。
 
 ##### LOGGING ASYNC
 
-该语句用于异步将表转为logging属性。启动新线程完成表模式转化的操作从而不阻塞主线程工作。
+该语句用于异步将表转为LOGGING属性。启动新线程完成表模式转化的操作从而不阻塞主线程工作。
 
-注意当客户端返回成功时并不保证转换一定成功，只代表启动线程成功。后续转换仍有可能失败。转换结果通过[运行日志](../../../数据库管理/运行监控/日志管理/运行日志管理)记载。
+注意当客户端返回成功时并不保证转换一定成功，只表示启动线程成功。后续转换仍有可能失败。转换结果通过[运行日志](../../../数据库管理/运行监控/日志管理/运行日志管理)记载。
 
 在异步转换表的过程中存在如下约束限制：
 
@@ -802,13 +817,13 @@ ALTER TABLE sales_info ALTER SLICE ALL CLEAN;
 
 ##### NOLOGGING
 
-该语句用于将表转为nologging属性。若对已是nologging属性的表执行该语句，直接返回成功。若对logging属性的表执行该语句，会将其转为nologging属性。建议只在数据迁移场景打开此属性。
+该语句用于将表转为NOLOGGING属性。若对已是NOLOGGING属性的表执行该语句，直接返回成功。若对LOGGING属性的表执行该语句，会将其转为NOLOGGING属性。建议只在数据迁移场景打开此属性。
 
 执行该语句存在如下约束限制：
 
-- 不能将临时表设置为nologging属性。
-- 不能将存在UDT、内置UDT（例如XMLTYPE、ST_GEOMETRY、BOX2D）列的表设置为nologging属性。
-- 主备环境中，不能将表设置为nologging属性。
+- 不能将临时表设置为NOLOGGING属性。
+- 不能将存在UDT、内置UDT（例如XMLTYPE、ST_GEOMETRY、BOX2D）列的表设置为NOLOGGING属性。
+- 主备环境中，不能将表设置为NOLOGGING属性。
 
 
 
@@ -843,12 +858,12 @@ ALTER TABLE sales_info ALTER SLICE ALL CLEAN;
 示例（单机/共享集群/分布式集群部署）
 
 ```sql
--- 执行如下语句开启logging
+-- 执行如下语句开启LOGGING
 ALTER TABLE area LOGGING;
 
--- 在主备环境中，将表设置为nologging会报错
+-- 在主备环境中，将表设置为NOLOGGING会报错
 ALTER TABLE area NOLOGGING;
-YAS-02328 table nologging is not allowed when standby exists
+YAS-02328 table NOLOGGING is not allowed when standby exists
 ```
 
 <span id="parallelclause" name="parallelclause"></span>
@@ -892,6 +907,8 @@ ALTER TABLE area NOPARALLEL;
 为表增加一个新的列字段，并对增加的列字段进行数据类型（DataType）、缺省值（DEFAULT）、行内约束（inline\_constraint）等定义。
 
 对非空表增加定义了NOT NULL约束的列字段时，必须同时为其指定缺省值，否则将提示错误。
+
+不允许修改虚拟列的属性。
 
 ###### DataType
 
@@ -1083,6 +1100,8 @@ YashanDB支持同时对列字段修改多个属性，但需遵循与[CREATE TABL
 LSC表不允许修改列字段的数据类型，HEAP表和TAC表列字段数据类型修改规则如下：
 
 - **外键约束所在列**：不允许修改子表和父表中相应列的数据类型。
+
+- **虚拟列依赖的数据列**：不允许修改数据类型，修改将返回错误提示。
 - **索引所在列**：
   
     - 若为空表（即无数据），允许将其修改为除LOB/JSON/UDT外的数据类型，但修改结果还需满足[索引列的相关规则](CREATE INDEX.md#indexexpr)。
@@ -1459,8 +1478,6 @@ YEAR  MONTH BRANCH PRODUCT      QUANTITY      AMOUNT SALSPERSON
 
 <span id="updateindexclause" name="updateindexclause"></span>
 
-
-
 ##### update\_index\_clause
 
 指定分区被删除后，对表上的全局索引（Global Index）的处理，默认为INVALIDATE。
@@ -1542,6 +1559,13 @@ ALTER TABLE sales_info DROP SUBPARTITION P_SALES_INFO_1_SP_SALES_INFO_1;
 
 当回收站开启时，被删除的数据默认将进入回收站，指定本关键字则表示数据被彻底删除，不进入回收站。本语句只作用于HEAP表。
 
+##### update\_index\_clause
+
+指定分区的数据被删除后，对表上的全局索引（Global Index）的处理，默认为INVALIDATE。
+
+*   INVALIDATE GLOBAL INDEXES：将全局索引全部失效，不可用。
+*   UPDATE GLOBAL INDEXES：全局索引不失效仍然可用。
+
 示例（单机/共享集群/分布式集群部署）
 
 ```sql
@@ -1568,6 +1592,10 @@ ALTER TABLE sales_info TRUNCATE PARTITION P_SALES_INFO_1 DROP STORAGE;
 该语句同时删除子分区对应的本地索引数据（Local Index）。
 
 ##### truncate\_part\_clause
+
+同truncate_table_partition语句中描述一致。
+
+##### update\_index\_clause
 
 同truncate_table_partition语句中描述一致。
 

@@ -1,4 +1,4 @@
-本章节主要介绍mysql模式按mysql语法进行解析的SQL语句，本章节未提及的yashan模式同名[SQL语句](../../../开发手册/SQL参考手册/SQL语句/00SQL语句.md)则仍然使用yashan语法进行解析。
+本章节主要介绍mysql模式按MySQL语法进行解析的SQL语句，本章节未提及的yashan模式同名[SQL语句](../../../开发手册/SQL参考手册/SQL语句/00SQL语句.md)则仍然使用yashan语法进行解析。
 
 - [ALTER DATABASE](ALTER DATABASE)
 - [ALTER TABLE](ALTER TABLE)

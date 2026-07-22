@@ -92,6 +92,7 @@ rename_clause).
 
 该语句用于修改表空间的数据文件。
 
+
 存算一体分布式集群部署中，仅允许对通过CREATE TABLESPACE语句创建的表空间新增/删除数据文件，若修改表空间数据文件时出现节点故障，恢复措施见[用户表空间管理](../../../数据库管理/存储管理/逻辑空间管理/表空间管理/用户表空间管理)章节描述。
 
 #### add (datafile|tempfile)
@@ -102,11 +103,11 @@ rename_clause).
 
 <span id="filespecification" name="filespecification"></span>
 
-file\_specification的描述请参考[CREATE TABLESPACE](./CREATE TABLESPACE)。
+file\_specification的描述请参考[CREATE TABLESPACE](./CREATE TABLESPACE.md#filespecification)。
 
 当不指定file\_specification时，系统按如下规则自动创建一个数据文件：
 
-- 文件名称由表空间名称以及数据文件在表空间内的序号组合生成，如：tablespace_name1，tablespace_name2...，且统一转换为大写。
+- 文件名称由表空间名称以及数据文件在表空间内的序号组合生成，例如tablespace_name1，tablespace_name2...，且统一转换为大写。
 - 文件的默认大小为8192个BLOCK，文件路径为系统默认的数据文件路径。
 - 对于非MEMORY MAPPED表空间，默认文件开启自动扩展，next为8192个块，maxsize为64MB个块。
 - 如果没有显式的规定extent分配方式，extent的默认分配方式为系统自动分配。
@@ -191,12 +192,18 @@ ALTER TABLESPACE lsc_tb ADD DATABUCKET '?/local_fs/lscfile_add3' MAXSIZE 1G;
 
 readonly表示只读，readwrite表示可读写。
 
-注意databucket修改为只读后不支持任何形式的写入操作，但用户执行的dml语句（非Bulkload操作）不受影响，执行Bulkload操作时由于需要生成SCOL数据，若表空间下没有可写入的databucket则会报错。
+databucket修改为只读后不支持任何形式的写入操作，但用户执行的dml语句（非Bulkload操作）不受影响，执行Bulkload操作时由于需要生成SCOL数据，若表空间下没有可写入的databucket则会报错。共享集群/分布式集群部署下不允许指定为readonly。
 
 示例（单机部署）
 
 ```sql
 ALTER TABLESPACE lsc_tb ALTER DATABUCKET '?/local_fs/lscfile_add3' READONLY;
+```
+
+示例（共享集群/分布式集群部署）
+
+```sql
+ALTER TABLESPACE lsc_tb ALTER DATABUCKET '+DG0/local_fs/lscfile_add3' READONLY;
 ```
 
 <span id="dropdatabucketclause" name="dropdatabucketclause"></span>
@@ -213,6 +220,12 @@ ALTER TABLESPACE lsc_tb ALTER DATABUCKET '?/local_fs/lscfile_add3' READONLY;
 
 ```sql
 ALTER TABLESPACE lsc_tb DROP DATABUCKET '?/local_fs/lscfile_add3';
+```
+
+示例（共享集群/分布式集群部署）
+
+```sql
+ALTER TABLESPACE lsc_tb DROP DATABUCKET '+DG0/local_fs/lscfile_add3';
 ```
 
 <span id="shrinkclause" name="shrinkclause"></span>
@@ -250,7 +263,7 @@ ALTER TABLESPACE system SHRINK SPACE;
 
 表空间脱机功能的使用规则如下：
 
-- 不允许操作内置表空间，包括SYSTEM/SYSAUX/UNDO/SWAP/TEMPORARY等。
+- 不允许操作内置表空间和本地缓存表空间。
 
 - 脱机的表空间及其数据文件仍为数据库的一部分，因此不能创建与之同名的表空间或数据文件。
 
@@ -320,7 +333,7 @@ ALTER TABLESPACE yashan ONLINE;
 该语句用于表空间或数据文件重命名，限制如下：
 
 - 不允许将某个表空间重命名为当前已存在的表空间名称。
-- 不允许使用该语句对内置表空间进行重命名。
+- 不允许使用该语句对内置表空间、本地缓存表空间进行重命名。
 - 不允许使用该语句对OFFLINE的表空间进行重命名。
 - 不允许使用该语句对正在使用的SWAP表空间进行重命名，如需对此进行重命名，先修改DEFAULT_SWAP_TABLESPACE配置参数，再进行重命名操作。
 - 存算一体分布式集群部署中不允许对表空间或数据文件重命名。

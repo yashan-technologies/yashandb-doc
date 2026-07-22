@@ -162,5 +162,20 @@ Use the built-in ODBC Data Source Administrator in Windows to configure the Yash
 3. Click [OK] to save the data source information. If modifications are needed later, click [Configure] to modify the current data source information.
 
 4. Click [Test Connection], and if the connection is normal, the installation is complete.
-   
+
    The user can now start using the YashanDB ODBC driver to develop their own client program.
+
+## Step 5: Check Log Status
+
+> **caution**:
+>
+> During tracing, logs continuously expand and degrade performance of all ODBC applications. Global tracing should only be enabled during temporary troubleshooting and **must be disabled** at all other times.
+
+1. Access the ODBC Data Source Administrator and switch to the [Tracing] tab.
+
+   - 64-bit: [Control Panel > System and Security > Administrative Tools > ODBC Data Source Administrator (64-bit)]
+   - 32-bit: [Control Panel > System and Security > Administrative Tools > ODBC Data Source Administrator (32-bit)]
+
+2. Confirm that the [Start Tracing Now] button is clickable (i.e., tracing is currently disabled). If the button shows [Stop Tracing Now] (indicating tracing is active), click [Stop Tracing Now] to disable it.
+
+  ![](./image/log.png)

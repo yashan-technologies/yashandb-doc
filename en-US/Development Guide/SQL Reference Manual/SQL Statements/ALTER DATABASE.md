@@ -55,7 +55,7 @@ Statement Definition
 **[standby\_database\_clauses](#standbydatabaseclauses)::=**
 
 ```ebnf
-= CONVERT TO PHYSICAL STANDBY
+= CONVERT TO (PHYSICAL|SNAPSHOT) STANDBY
 |SWITCHOVER
 |FAILOVER [RESET ID integer]
 |(RECOVER ((MANAGED STANDBY DATABASE (([UNTIL SCN integer][DISCONNECT FROM SESSION])|CANCEL))|(TO LOGICAL STANDBY ((KEEP IDENTITY)|db_name))))
@@ -169,7 +169,11 @@ ALTER DATABASE TEMPFILE '?/dbfiles/swap' AUTOEXTEND OFF;
 
 #### AUTOEXTEND ON
 
-Enables auto-extension for a specific data file, where NEXT is used to specify the size of the next space to be extended in Bytes. If not specified, the default value is 8K blocks; MAXSIZE specifies the maximum space for auto-extension, UNLIMITED means no limit, and if not specified, the default is 64M blocks.
+Enables auto-extension for a specific data file.
+
+* NEXT size_clause: Specifies the size of each automatic extension for the data file, in Bytes. The value range is [512,32768] BLOCK sizes. If omitted, the default is 8M BLOCK sizes.
+
+* MAXSIZE UNLIMITED/size_clause: Specifies the maximum capacity that the data file can expand to, in Bytes. UNLIMITED means unlimited. If omitted, the default is 64M BLOCK sizes.
 
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
 
@@ -445,7 +449,13 @@ This statement is used to switch between the primary and standby databases. For 
 
 #### CONVERT TO PHYSICAL STANDBY
 
-Switches from the primary database to the standby database.
+Converts a database to Physical Standby.
+
+This statement has two usage scenarios:
+
+- **Old primary downgrade**: After failover, downgrade the failed old primary to physical standby. In this scenario, the role of the target database must be PRIMARY.
+
+- **Snapshot Standby conversion**: Convert Snapshot Standby back to Physical Standby. In this scenario, the role of the target database must be SNAPSHOT_STANDBY, and the conversion process will automatically perform Flashback on the target node to restore its data to the state before converting to Snapshot Standby.
 
 ***Example***
 
@@ -453,10 +463,43 @@ Switches from the primary database to the standby database.
 ALTER DATABASE CONVERT TO PHYSICAL STANDBY;
 ```
 
-> **Note**: 
+> **Note**:
 >
-> - The role of the database must be PRIMARY, and the executing instance must be in MOUNT state.
+> - The executing instance must be in MOUNT state.
+>
 > - In YAC/Distributed Cluster Deployment, only instance 1 and if that instance is MASTER_ROLE can perform this operation.
+
+#### CONVERT TO SNAPSHOT STANDBY
+
+Converts a Physical Standby to Snapshot Standby, enabling read-write operations.
+
+Snapshot Standby is a special standby mode that allows opening a Physical Standby in read-write mode for:
+
+- Executing testing, verification, and report generation on the standby database.
+
+- Isolating production environment for problem reproduction on the standby database.
+
+- Avoiding the need to set up additional test environments.
+
+Only standbys can be converted to snapshot standbys, and the following requirements must be met:
+
+Prerequisites:
+
+- The standby must be in MOUNT stage before conversion.
+- At least 3 Standby Redo files are configured.
+- Evaluate the size of the data for practice and ensure that the standby has sufficient storage space.
+
+Usage Constraints:
+
+- Only Physical Standby can be converted to Snapshot Standby.
+- After conversion, you need to execute `ALTER DATABASE OPEN` again to use the database.
+
+Snapshot Standby Characteristics:
+
+- Snapshot Standby does not support tablespace operations (add/delete tablespace, modify data files, etc.).
+- Snapshot Standby does not support online Redo operations (add/delete/clear Redo files, etc.).
+- Snapshot Standby does not support backup and recovery operations.
+- Snapshot Standby stops receiving redo logs from the primary database and no longer performs redo apply.
 
 #### SWITCHOVER
 
@@ -589,7 +632,7 @@ After constructing the logical standby database in this way, it is necessary to 
 This statement is used to manually register archiving. The functionality constraints of this SQL include:
 
 * After RESTORE DATABASE and when the database is not open, this SQL can be used to manually register archiving.
-* After recovery or creation of completeness, the operation object must be the standby database, and the configuration parameter SANDBOX_STANDBY must be TRUE.
+* After database recovery or creation is complete, this operation must be performed on the standby database.
 * The specified archive path can be an absolute path or a filename. When using a filename, the default path is the archive path (configuration parameter ARCHIVE_LOCAL_DEST).
 
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
@@ -851,7 +894,7 @@ This statement is used to add a new database instance to a YAC. The syntax and r
 
 > **Caution**:
 >
-> For [YAC instance expansion](../../../Installation and Upgrade/Scalability/Scaling for YAC Deployment/Cluster Instances Scaling), it is recommended to use the *yasboot* tool for a one-click command. **It is not recommended** to execute this statement separately to add database instances.
+> For [YAC instance expansion](../../../Installation and Upgrade/Scalability/Scaling for YAC Deployment/Cluster Instance Scaling), it is recommended to use the *yasboot* tool for a one-click command. **It is not recommended** to execute this statement separately to add database instances.
 
 The execution of this statement must follow the rules below:
 
@@ -870,7 +913,7 @@ This statement is used to add a new database instance to a YAC. The instance id 
 
 > **Caution**:
 >
-> For [YAC instance expansion](../../../Installation and Upgrade/Scalability/Scaling for YAC Deployment/Cluster Instances Scaling), it is recommended to use the *yasboot* tool for a one-click command. **It is not recommended** to execute this statement separately to delete database instances.
+> For [YAC instance expansion](../../../Installation and Upgrade/Scalability/Scaling for YAC Deployment/Cluster Instance Scaling), it is recommended to use the *yasboot* tool for a one-click command. **It is not recommended** to execute this statement separately to delete database instances.
 
 The execution of this statement must follow the rules below:
 

@@ -33,6 +33,8 @@ The YashanDB JDBC driver has the following methods for the ResultSet interface:
 | getInt(String columnLabel)                                                           | int                 |
 | getLong(int columnIndex)                                                             | long                |
 | getLong(String columnLabel)                                                          | long                |
+| getNClob(int columnIndex)                                                            | NClob               |
+| getNClob(String columnLabel)                                                         | NClob               |
 | getSQLXML(int columnIndex)                                                           | SQLXML              |
 | getSQLXML(String columnLabel)                                                        | SQLXML              |
 | getFloat(int columnIndex)                                                            | float               |
@@ -67,10 +69,15 @@ The YashanDB JDBC driver has the following methods for the ResultSet interface:
 | getRow()                                                                             | int                 |
 | getType()                                                                            | int                 |
 | getConcurrency()                                                                     | int                 |
+| getFetchDirection()                                                                  | int                 | 
+| getFetchSize()                                                                       | int                 | 
+| getWarnings()                                                                        | int                 | 
 | getStatement()                                                                       | Statement           |
 | getRowId(int columnIndex)                                                            | RowId               |
 | getRowId(String columnLabel)                                                         | RowId               |
 | isClosed()                                                                           | boolean             |
+| getNCharacterStream(int columnIndex)                                                 | java.io.Reader      |
+| getNCharacterStream(String columnLabel)                                              | java.io.Reader      |
 | getTime(int columnIndex)                                                             | java.sql.Time       |
 | getTime(String columnLabel)                                                          | java.sql.Time       |
 | getTime(int columnIndex, Calendar cal)                                               | java.sql.Time       |
@@ -98,6 +105,8 @@ The YashanDB JDBC driver has the following methods for the ResultSet interface:
 | rowUpdated()                                                                         | boolean             |
 | rowInserted()                                                                        | boolean             |
 | rowDeleted()                                                                         | boolean             |
+| clearWarnings()                                                                      | void                |
+| setFetchSize(int rows)                                                               | void                |
 | updateNull(int columnIndex)                                                          | void                |
 | updateNull(String columnLabel)                                                       | void                |
 | updateByte(int columnIndex, byte x)                                                  | void                |
@@ -143,6 +152,7 @@ The YashanDB JDBC driver has the following methods for the ResultSet interface:
 | moveToInsertRow()                                                                    | void                |
 | moveToCurrentRow()                                                                   | void                |
 | refreshRow()                                                                         | void                |
+| setFetchDirection(int direction)                                                     | void                | 
 
 ## Example
 

@@ -1,6 +1,6 @@
 ## 功能简介
 
-如果在[OCIDefineByPos](OCIDefineByPos)或OCIDefineByPos2中选择OCI_DYNAMIC_FETCH模式，则需调用OCIDefineDynamic函数设置相应的附加属性。
+如果在[OCIDefineByPos](OCIDefineByPos)或[OCIDefineByPos2](OCIDefineByPos2)中选择OCI_DYNAMIC_FETCH模式，则需调用OCIDefineDynamic函数设置相应的附加属性。
 
 目前仅支持回调函数返回OCI_CONTINUE，仅支持\*piecep赋值为OCI_ONE_PIECE。
 

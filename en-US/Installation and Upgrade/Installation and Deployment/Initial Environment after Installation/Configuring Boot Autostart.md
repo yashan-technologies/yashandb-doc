@@ -1,45 +1,3 @@
-The YashanDB installed via [command line](../YashanDB Installation via CLI/00YashanDB Installation via CLI) does not default to configuring the daemon process to start automatically at boot. After the server restarts for various reasons, the installation user must log into the database installation server and manually execute the following commands to start the database:
-
-::: tabs
-
-== Standalone Deployment, ISC Distributed Cluster Deployment 
-
-```shell
-# Manually start the yasom and yasagent processes
-$ yasboot process yasom start -c yashandb -t /home/yashan/install/hosts.toml
-$ yasboot process yasagent start -c yashandb -t /home/yashan/install/hosts.toml
-
-# The database can only be started after the yasom and yasagent processes are started
-$ yasboot cluster start -c yashandb
-
-# Start the daemon process as needed
-$ yasboot monit start --cluster yashandb
-```
-
-== YAC Deployment / Distributed Cluster Deployment
-
-```shell
-# If VIP or I/O Fencing based on SCSI persistent reservations is needed, start the *ycsrootagent* process (must specify the path under $YASCS_HOME)
-$ echo $YASCS_HOME
-/data/yashan/yasdb_data/ycs/ce-1-1
-
-$ sudo ycsrootagent start -H /data/yashan/yasdb_data/ycs/ce-1-1 &
-
-# Manually start the yasom and yasagent processes
-$ yasboot process yasom start -c yashandb -t /home/yashan/install/hosts.toml
-$ yasboot process yasagent start -c yashandb -t /home/yashan/install/hosts.toml
-
-# The database can only be started after the yasom and yasagent processes are started
-$ yasboot cluster start -c yashandb
-# If NVMe information loss in Distributed Cluster causing startup failure, you can execute the following command to restore configuration, then restart the database
-$ yasboot nvme rebuild -c yashandb --cn --dn
-
-# Start the daemon process as needed
-$ yasboot monit start --cluster yashandb
-```
-
-:::
-
 To simplify operations and maintenance, it is recommended to configure the daemon process to start automatically at boot on each server. After the daemon process starts, it will launch other processes of YashanDB, thereby indirectly achieving the automatic startup of the database and related services:
 
 ::: tabs
@@ -55,7 +13,7 @@ To simplify operations and maintenance, it is recommended to configure the daemo
 |Process |Applicable Scenarios |Process Description |
 |----------|----------|--------------------------------------|
 | monit process | General | Used to monitor database-related processes, including ycsm, yasom, and yasagent processes. |
-| ycsrootagent process | [SCAN](../../../Database Administration/Cluster Management/SCAN Management) enabled, [VIP](../../../Database Administration/Cluster Management/VIP Management) enabled or [I/O Fencing functionality based on SCSI persistent reservations](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) | Provides corresponding services for I/O Fencing functionality based on SCSI persistent reservations. <br/> This process cannot be managed by YAC node start/stop commands and cannot be monitored by the yascsm process. During installation, *yasboot* will automatically attempt to start *ycsrootagent* with sudo; if this process encounters exceptions or if the server restarts, it needs to be manually started with sudo (requires root privilege). |
+| ycsrootagent process | [SCAN](../../../Database Administration/Cluster Management/SCAN Management) enabled, [VIP](../../../Database Administration/Cluster Management/VIP Management) enabled or [I/O Fencing functionality based on SCSI persistent reservations](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) | Provides corresponding services for reservation-based IO fencing. <br/> This process cannot be managed by YAC node start/stop commands and cannot be monitored by the yascsm process. During installation, *yasboot* will automatically attempt to start *ycsrootagent* with sudo; if this process encounters exceptions or if the server restarts, it needs to be manually started with sudo (requires root privilege). |
 
 :::
 

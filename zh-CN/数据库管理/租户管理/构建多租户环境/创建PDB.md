@@ -38,9 +38,7 @@
 
     > **Note**:
     >
-    > - 使用yasboot命令创建PDB时，暂无法指定其语法模式，只能创建yashan模式的PDB。
-    >
-    > - 若部署时为非容器数据库（未指定--enable-pluggable-database）但后续修改配置将其转换为容器数据库，例如从v23.4或更低版本升级至v23.5及以上场景，则无法使用yasboot进行PDB相关操作。
+    > 若部署时为非容器数据库（未指定--enable-pluggable-database）但后续修改配置将其转换为容器数据库，例如从v23.4或更低版本升级至v23.5及以上场景，则无法使用yasboot进行PDB相关操作。
 
 ## 操作步骤
 
@@ -158,7 +156,7 @@
 1. 以安装用户登录数据库安装服务器。
 
 
-2. 执行[ycsctl add pdb](../../../工具手册/ycsctl/集群管理命令.md#addpdb)命令，向容器数据库集群中添加PDB。
+2. 执行[ycsctl add pdb](../../../工具手册/ycsctl/ycsctl使用指导/数据库资源管理命令.md#addpdb)命令，向容器数据库集群中添加PDB。
 
    ```shell
    $ ycsctl add pdb -db yashandb -pdb pdb1

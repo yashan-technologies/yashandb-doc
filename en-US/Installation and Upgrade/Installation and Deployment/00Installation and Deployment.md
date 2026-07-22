@@ -39,4 +39,4 @@ Both command line and graphical installation of YashanDB are based on the [yasbo
 
 ## Installing the Database Client
 
-YashanDB provides client installation programs for Windows and Linux environments (the *yasql* command line client tool) for remote connection and operation of YashanDB. Please obtain the corresponding software package and follow the guidance for [YashanDB Client Installation](YashanDB Client Installation/00YashanDB Client Installation) to execute the client installation configuration.
+YashanDB provides client installation programs for Windows, Linux, and macOS environments (the *yasql* command line client tool) for remote connection and operation of YashanDB. Please obtain the corresponding software package and follow the guidance for [YashanDB Client Installation](YashanDB Client Installation/00YashanDB Client Installation) to execute the client installation configuration.

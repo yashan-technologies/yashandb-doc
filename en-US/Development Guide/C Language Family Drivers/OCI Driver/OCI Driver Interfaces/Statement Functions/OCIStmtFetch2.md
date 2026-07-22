@@ -1,6 +1,6 @@
 ## Functionality Overview
 
-The OCIStmtFetch2 function is used to fetch row information from a query.
+OCIStmtFetch2 is an extended version of OCIStmtFetch function, used to fetch row information from a query. The main difference from OCIStmtFetch is the support for the fetchOffset parameter, enabling absolute and relative positioning fetch.
 
 ## Function Declaration
 

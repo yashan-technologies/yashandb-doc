@@ -71,6 +71,8 @@ Data Definition Language is used to manipulate objects and object attributes in 
 
 [CREATE PROFILE](CREATE PROFILE)
 
+[CREATE PROPERTY GRAPH](CREATE PROPERTY GRAPH)
+
 [CREATE RESTORE POINT](CREATE RESTORE POINT)
 
 [CREATE ROLE](CREATE ROLE)
@@ -122,6 +124,8 @@ Data Definition Language is used to manipulate objects and object attributes in 
 [DROP PROCEDURE](DROP PROCEDURE)
 
 [DROP PROFILE](DROP PROFILE)
+
+[DROP PROPERTY GRAPH](DROP PROPERTY GRAPH)
 
 [DROP RESTORE POINT](DROP RESTORE POINT)
 

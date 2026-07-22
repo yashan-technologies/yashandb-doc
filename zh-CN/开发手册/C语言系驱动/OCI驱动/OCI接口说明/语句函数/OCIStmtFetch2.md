@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCIStmtFetch2函数用于从查询中获取行信息。
+OCIStmtFetch2函数是OCIStmtFetch函数的扩展版本，用于从查询中获取行信息。与OCIStmtFetch的主要区别在于支持fetchOffset参数，可以实现绝对定位和相对定位抓取。
 
 ## 函数声明
 

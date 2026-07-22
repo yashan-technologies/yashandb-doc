@@ -12,7 +12,7 @@ func Open(driverName, dataSourceName string) (*DB, error)
 | :------------- | :------------------------------------------------------- |
 | driverName     | 数据库驱动名称。YashanDB的Go驱动名称为 `yasdb`。     |
 | dataSourceName | 数据源名称。配置连接数据库的参数。                       |
-| *DB            | 数据库连接对象，代表一个具有零到多个数据库连接的连接池。 |
+| *DB            | 数据库连接对象，表示一个具有零到多个数据库连接的连接池。 |
 | error          | 错误信息，若连接成功，返回error值为nil。                 |
 
 示例

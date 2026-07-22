@@ -69,21 +69,21 @@ $ yasboot cluster status -b group -c yashandb -d
 
 > **Warn**:
 >
-> 未指定--restore时，clean操作将停止所有服务器上的数据库进程（指定--purge还会同时删除数据），并从yasom信息中删除，即yasom无法再管理该数据库集群。
+> --restore选项是关键参数，请先按需明确需指定与否再执行本命令。
 
 |  选项| 含义|
 | --------------- | ------------------------------------------- |
 | *-c, --cluster* | YashanDB的集群名（必传参数）             |
-| *-f,--force*    | 强制清理标志， 不使用此参数时提示二次确认|
-| *-r,--restore*  | 执行数据库恢复操作的前期准备，删除各个节点/dbfiles、/local_fs目录下的全部内容，并将数据库启动至NOMOUNT阶段 |
-| *-w, --nowait*  | 运行后不等待执行命令结果                 |
-| *--purge*    | 清理集群并且删除所有节点的数据，默认为false                |
-| *--with-arch*   | 删除归档日志（--restore为true时生效），默认为false                |
+| *-r, --restore*  | 标识当前操作是否为恢复数据库的准备工作<br/>* 指定该选项表示是，该操作会删除各个节点/dbfiles、/local_fs目录下的全部内容，并将目标数据库启动至NOMOUNT阶段<br />* 不指定该选项表示否，该操作将停止所有服务器上的数据库进程（指定--purge还会同时删除数据），并从yasom信息中删除，即yasom无法再管理该数据库集群 |
+| *--with-arch*   | 删除归档日志，默认为不删除<br />仅在指定--restore时生效 |
+| *-p, --password* | 数据库sys用户对应的密码<br />仅在指定--restore时生效<br/>若已配置[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认已开启）则无需指定密码           |
+| *--purge*    | 清理集群并且删除所有节点的数据，默认为不清理<br />不能与--restore同时指定 |
+| *-f, --force*   | 清理操作是否进行二次确认，省略则默认需确认              |
 | *-d, --child*   | 展示任务以及子任务信息                   |
 | *--disable*     | 屏蔽任务进度条展示  |
-| *-p, --password* | 数据库sys用户对应的密码，--restore为true时生效<br/>若已配置[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认已开启）则无需指定密码           |
+| *-w, --nowait*  | 运行后不等待执行命令结果                 |
 | *--wait-timeout* | 命令执行超时时间（隐藏参数）                  |
-| *-h,--help*        | 查看当前命令的帮助信息 |
+| *-h,--help*        | 查看当前命令的帮助信息 ||
 
 示例
 
@@ -98,6 +98,8 @@ $ yasboot cluster clean -c yashandb --restore --with-arch
 ## cluster stop
 
 本命令用于停止所有服务器上的YashanDB服务。
+
+当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，本命令会同时关闭所有PDB。
 
 |  选项| 含义|
 | ----------------- | ----------------------- |
@@ -123,6 +125,8 @@ $ yasboot cluster stop -c yashandb -f
 
 本命令用于启动所有服务器上的YashanDB服务。
 
+当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，本命令会同时启动随根容器启动的PDB（即创建时未指定--policy或指定为automatic的PDB）。
+
 |  选项| 含义|
 | ------------------ | ---------------------------------------------------- |
 | *-c, --cluster*    | YashanDB的集群名（必传参数）                         |
@@ -146,6 +150,8 @@ $ yasboot cluster start -c yashandb -m nomount
 ## cluster restart
 
 本命令用于重启所有服务器上的YashanDB服务。
+
+当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，本命令会关闭所有PDB，但只会重新启动其中随根容器启动的PDB（即创建时未指定--policy或指定为automatic的PDB）。
 
 |  选项| 含义|
 | ------------------ | ----------------------- |
@@ -254,6 +260,7 @@ $ yasboot cluster join -t SE --config join_demo.toml
 | *--logic-stdby-file-size* | 主备共享集群的不兼容版本滚动升级场景中，主集群的每个实例会自动创建3个STANDBY LOG文件用于存储升级过程中逻辑备库的redo日志<br />该参数用于指定主集群master实例上3个STANDBY LOG文件的总大小（其他实例始终使用最小值），默认为2048M，取值不得超过10G |
 | *--rolling-sync-timeout* | 主备共享集群的不兼容版本滚动升级场景中，升级任务的超时时间，默认为2小时，超过该值会中断升级 |
 | *--continue*                 | 不兼容版本之间滚动升级失败场景中若提示“please execute 'yasboot cluster upgrade --rolling --continue' to continue upgrade”，可指定该参数继续升级       |
+| *--wallet-password* | 数据库钱包密码                 |
 | *-w, --nowait*               | 运行后不等待执行命令结果                                     |
 | *-d, --child*                | 展示任务以及子任务信息                                       |
 | *--disable*                  | 屏蔽任务进度条展示                                           |

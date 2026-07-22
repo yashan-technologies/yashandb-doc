@@ -1,6 +1,6 @@
 ## Functionality Introduction
 
-The OCILogon2 function is used to obtain a user session that is already connected.
+OCILogon2 is an extended version of OCILogon function, used to obtain a user session that is already connected. The main difference from OCILogon is the addition of the mode parameter, which supports specifying the operation mode.
 
 ## Function Declaration
 

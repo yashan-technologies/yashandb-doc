@@ -8,7 +8,7 @@ JDBC API包含多个核心接口和类，它们协同工作来完成数据库操
 
 - **DriverManager**：驱动管理器，负责加载JDBC驱动并建立数据库连接。
 
-- **Connection**：代表与数据库的连接会话，用于创建Statement对象。
+- **Connection**：表示与数据库的连接会话，用于创建Statement对象。
 
 - **Statement**：用于执行静态SQL语句并返回结果。
 

@@ -6,7 +6,7 @@ For an introduction to session mode principles, please refer to [Session Mode Co
 
 By default, YashanDB uses shared thread session mode, where the REACTOR dispatch threads in the thread pool select idle threads from the thread pool to assign to waiting connections for access requests. The number of REACTOR dispatch threads is controlled by the configuration parameter MAX_REACTOR_CHANNELS. The default value is 1, which means the system configures 1 REACTOR dispatch thread by default to allocate worker threads for access requests.
 
-In standalone and YAC/Distributed Cluster Deployment support switching to exclusive thread session mode; ISC Distributed Cluster Deployment must use shared cluster session mode, and shared thread session mode parameters must be configured through CN nodes.
+In standalone and YAC/Distributed Cluster Deployment support switching to exclusive thread session mode; ISC Distributed Cluster Deployment must use YAC session mode, and shared thread session mode parameters must be configured through CN nodes.
 
 ## Modify Session Management Parameters
 

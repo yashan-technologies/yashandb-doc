@@ -17,7 +17,7 @@ Please log in as root user or a user with sudo privileges to **all servers** to 
 
     ```shell
     # groupadd YASDBA
-    # usermod -a -G YASDBA yashan
+    # usermod -aG YASDBA yashan
     ```
 
 3. (Optional) Configure the installation user for passwordless sudo.

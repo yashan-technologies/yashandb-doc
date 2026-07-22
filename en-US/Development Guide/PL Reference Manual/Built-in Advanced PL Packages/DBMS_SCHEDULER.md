@@ -25,7 +25,7 @@ The CREATE_JOB procedure is used to create a new scheduled job. Once successfull
 | :------------------ | :----------------------------------------------------------- |
 | job_name            | The name of the scheduled job, which can be in the schema.job_name format and must comply with YashanDB's [object naming conventions](../../SQL Reference Manual/Basic SQL Elements/Identifiers). |
 | job_type            | The type of job_action. 'PLSQL_BLOCK' represents an anonymous block, while 'STORED_PROCEDURE' represents a stored procedure. |
-| job_action          | The PL/SQL text to be executed by the scheduled job, which can be a specific anonymous block or stored procedure, must end with a semicolon, and should match the job_type. |
+| job_action          | The PL text to be executed by the scheduled job, which can be a specific anonymous block or stored procedure, must end with a semicolon, and should match the job_type. |
 | number_of_arguments | Reserved field, use default value.                               |
 | start_date          | The time at which the scheduled job begins execution; NULL means it executes immediately. |
 | repeat_interval     | Text expression used to calculate the next execution time of the scheduled job; NULL means the scheduled job executes only once. According to date/time arithmetic rules, the input interval for repeat_interval is in days, e.g., SYSDATE+1 means the next execution time is one day after the current time. The calculated time must be in the future or NULL. |

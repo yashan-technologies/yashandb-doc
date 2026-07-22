@@ -2,6 +2,8 @@
 
 The OCILobCreateTemporary function is used to create a temporary LOB.
 
+Before calling [OCIDescriptorFree](../Handle and Descriptor Functions/OCIDescriptorFree.md), OCILobCreateTemporary must be called first.
+
 ## Function Declaration
 
 ```c

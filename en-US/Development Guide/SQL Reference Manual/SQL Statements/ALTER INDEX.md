@@ -66,6 +66,8 @@ This statement is used to set the index to an unusable state, which means that s
 >
 > After an index on a temporary table is set to an unusable state, it cannot be restored — please operate with caution. To restore, you must drop the unusable index and then recreate the index with the same name.
 
+For full-text indexes, setting the unusable state will clear the internal data of the corresponding partition of the index.
+
 ***Example*** for Heap tables and TAC tables
 
 ```sql
@@ -76,7 +78,7 @@ ALTER INDEX idx_sales_info_1 UNUSABLE;
 
 ### COALESCE
 
-This statement is used to reorganize the index; RTree indexes cannot be reorganized.
+This statement is used to reorganize the index; RTree indexes and full-text indexes cannot be reorganized.
 
 For partitioned indexes, only actual allocated partitions can be reorganized.
 
@@ -162,6 +164,8 @@ After the index has been in use for a period of time, there may be issues such a
 For indexes set to UNUSABLE, rebuilding will restore them to a valid state.
 
 For REBUILD operations on partitioned indexes, each partition must be executed separately. One-level partitioned indexes can only REBUILD PARTITION, and two-level partitioned indexes can only REBUILD SUBPARTITION.
+
+For full-text indexes, the rebuild operation will re-perform segmentation on the base table data and construct new index data.
 
 An exclusive lock will be acquired on the index base table during this operation, but if ONLINE is specified, this operation will not block concurrent DML operations.
 

@@ -1,7 +1,7 @@
 ```ebnf
-to_vector = TO_VECTOR "(" expr [ "," number_of_dimensions [ "," format ]  [ "," storage_format ] ] ")".
+to_vector = TO_VECTOR "(" expr [ "," number_of_dimensions [ "," format ]  ] ")".
 
-vector = VECTOR "(" expr [ "," number_of_dimensions [ "," format ] [ "," storage_format ] ] ")".
+vector = VECTOR "(" expr [ "," number_of_dimensions [ "," format ] ] ")".
 ```
 
 TO_VECTOR函数用于将字符串类型的向量值转换为向量类型。
@@ -24,7 +24,7 @@ VECTOR函数与TO_VECTOR函数含义相同。
 
 配置向量值的数据类型，支持配置为FLOAT32或FLOAT64，缺省时表示数据类型FLOAT32。
 
-示例（单机HEAP表）
+示例（HEAP表）
 
 ```sql
 SELECT TO_VECTOR('[34.6, 77.8]') FROM dual;

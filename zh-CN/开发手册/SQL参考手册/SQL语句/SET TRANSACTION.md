@@ -8,7 +8,7 @@ SET TRANSACTION用于设置事务的隔离级别，事务的隔离级别有：
 
 存算一体分布式集群部署中的事务隔离级别默认为READ COMMITTED，用户无法执行本语句。
 
-对dblink远端数据库进行事务操作时，只支持READ COMMITTED事务隔离级别。
+对DBLink远端数据库进行事务操作时，只支持READ COMMITTED事务隔离级别。
 
 语句定义
 ----

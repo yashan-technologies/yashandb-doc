@@ -299,11 +299,13 @@ This is used to specify the range of archive log files to be restored, following
 
 ### FROM TAG
 
-Specifies the backup set used for archive log recovery, which must be an archive log backup set existing in the catalog.
+Specifies the backup set used for archive log recovery, which must be an archive log backup set or full database backup set existing in the catalog.
+
 
 When the recovery range is specified as ALL, the backup set must be specified via FROM TAG.
 
-In other scenarios, FROM TAG can be omitted. When omitted, *yasrman* will automatically obtain a suitable archive log backup set from the catalog. It will scan these backup sets in the order of their generation until it finds a backup set that contains the archive logs within the recovery range, and then proceed with the recovery.
+
+In other scenarios, FROM TAG can be omitted. When omitted, *yasrman* will automatically obtain a suitable archive log backup set or full database backup set from the catalog. It will scan these backup sets in the order of their generation until it finds a backup set that contains the archive logs within the recovery range, and then then proceed with the recovery.
 
 ### SKIP VALIDATE
 

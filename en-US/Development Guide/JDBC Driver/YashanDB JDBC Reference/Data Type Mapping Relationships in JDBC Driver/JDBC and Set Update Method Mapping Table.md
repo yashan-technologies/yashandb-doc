@@ -60,18 +60,18 @@ This article will introduce the mapping between JDBC data types and Set Update d
 
 | **YashanDB Data Types** | **mysql mode Data Types** | set<br/>Binary<br>Stream | set<br/>RowId | set<br/>NCharacter<br>Stream | set<br/>NString | set<br/>Array | set<br/>SQL<br/>XML | set<br/>Ref | set<br/>URL |
 | --- | --- | --- | --- | --- | --- | --- |---| --- | --- |
-| CHAR | CHAR | Y | Y | N | Y | N | Y | N | N |
-| VARCHAR | VARCHAR | Y | Y | N | Y | N | Y | N | N |
-| NCHAR | NCHAR | Y | Y | N | Y | N | Y | N | N |
-| NVARCHAR | NVARCHAR | Y | Y | N | Y   | N | Y | N | N |
-| BOOLEAN | BOOLEAN | N | N | N | Y | N | N | N | N |
-| TINYINT | TINYINT | N | N | N | Y | N | N | N | N |
-| SMALLINT | SMALLINT | N | N | N | Y | N | N | N | N |
-| INTEGER | INTEGER | N | N | N | Y | N | N | N | N |
-| BIGINT | BIGINT | N | N | N | Y | N | N | N | N |
-| FLOAT | FLOAT | N | N | N | Y | N | N | N | N |
-| DOUBLE | DOUBLE | N | N | N | Y | N | N | N | N |
-| NUMBER | NUMBER | N | N | N | Y | N | N | N | N |
+| CHAR | CHAR | Y | Y | Y | Y | N | Y | N | N |
+| VARCHAR | VARCHAR | Y | Y | Y | Y | N | Y | N | N |
+| NCHAR | NCHAR | Y | Y | Y | Y | N | Y | N | N |
+| NVARCHAR | NVARCHAR | Y | Y | Y | Y   | N | Y | N | N |
+| BOOLEAN | BOOLEAN | N | N | Y | Y | N | N | N | N |
+| TINYINT | TINYINT | N | N | Y | Y | N | N | N | N |
+| SMALLINT | SMALLINT | N | N | Y | Y | N | N | N | N |
+| INTEGER | INTEGER | N | N | Y | Y | N | N | N | N |
+| BIGINT | BIGINT | N | N | Y | Y | N | N | N | N |
+| FLOAT | FLOAT | N | N | Y | Y | N | N | N | N |
+| DOUBLE | DOUBLE | N | N | Y | Y | N | N | N | N |
+| NUMBER | NUMBER | N | N | Y | Y | N | N | N | N |
 
 (5)
 
@@ -83,7 +83,7 @@ This article will introduce the mapping between JDBC data types and Set Update d
 | TIME                   | TIME                         | Y | Y   | Y   | N | N | N | N | N |
 | BLOB                   |BLOB/LONGBLOB/MEDIUMBLOB/TINYBLOB                        | Y | Y   | Y   | N | N | N | N | N |
 | CLOB                   |TEXT/LONGTEXT/MEDIUMTEXT/TINYTEXT                         | Y | Y   | Y   | N | Y | Y | Y | Y |
-| NCLOB                  |TEXT/LONGTEXT/MEDIUMTEXT/TINYTEXT                         | Y | Y   | Y   | N | Y | Y | Y | Y |
+| NCLOB                  |TEXT/LONGTEXT/MEDIUMTEXT/TINYTEXT                         | Y | Y   | Y   | N   | Y | Y | Y | Y |
 | OBJECT                 | OBJECT                 | N | N   | N   | N | N | N | N | N |
 | REF                    | REF                    | N | N   | N   | N | N | N | N | N |
 | ARRAY                  | ARRAY                  | N | N   | N   | N | N | N | N | N |
@@ -93,6 +93,7 @@ This article will introduce the mapping between JDBC data types and Set Update d
 | INTERVAL YEAR TO MONTH | INTERVAL YEAR TO MONTH | Y | Y   | Y   | N | N | N | N | N |
 | BIT                    | BIT                    | Y | Y | Y | Y | Y | Y | Y | Y |
 | JSON                   | JSON                   | Y | Y | Y | N | N | N | N | N |
+| XML                    | XML                    | Y | Y | Y | N | N | N | N | N |
 
 (6)
 
@@ -114,6 +115,7 @@ This article will introduce the mapping between JDBC data types and Set Update d
 | INTERVAL YEAR TO MONTH | INTERVAL YEAR TO MONTH            | N             | N | N | N | N | N | N | N            |
 | BIT                    | BIT                               | N             | N | N | Y | N | N | N | N            |
 | JSON                   | JSON                              | N             | N | N | N | N | N | N | N            |
+| XML                    | XML                               | N             | N | N | N | N | N | N | N            |
 
 (7)
 
@@ -135,24 +137,26 @@ This article will introduce the mapping between JDBC data types and Set Update d
 | INTERVAL YEAR TO MONTH | INTERVAL YEAR TO MONTH            | N | N | N | Y | N |
 | BIT                    | BIT                               | N | N | N | Y | N |
 | JSON                   | JSON                              | Y | N | Y | Y | N |
+| XML                    | XML                               | Y | N | Y | Y | N |
 
 (8)
 
 | **YashanDB Data Types** | **mysql mode Data Types** | set<br/>Binary<br/>Stream | set<br/>RowId | set<br/>NCharacter<br/>Stream | set<br/>NString | set<br/>Array | set<br/>SQL<br/>XML | set<br/>Ref | set<br/>URL |
 |------------------------|------------------------|---------------------------|---------------| --- |-----------------| --- |---| --- | --- |
-| RAW                    | BINARY/VARBINARY                    | Y                         | N             | N | Y               | N | N | N | N |
-| DATE                   | DATE                   | N                         | N             | N | Y               | N | N | N | N |
-| TIMESTAMP              | TIMESTAMP              | N                         | N             | N | Y               | N | N | N | N |
-| TIME                   | TIME                   | N                         | N             | N | Y               | N | N | N | N |
-| BLOB                   | BLOB                   | Y                         | N             | N | Y               | N | N | N | N |
-| CLOB                   | CLOB                   | N                         | N             | N | Y               | N | N | N | N |
-| NCLOB                  | NCLOB                  | N                         | N             | N   | Y               | N | N | N | N |
+| RAW                    | BINARY/VARBINARY                    | Y                         | N             | Y | Y               | N | N | N | N |
+| DATE                   | DATE                   | N                         | N             | Y | Y               | N | N | N | N |
+| TIMESTAMP              | TIMESTAMP              | N                         | N             | Y | Y               | N | N | N | N |
+| TIME                   | TIME                   | N                         | N             | Y | Y               | N | N | N | N |
+| BLOB                   | BLOB                   | Y                         | N             | Y | Y               | N | N | N | N |
+| CLOB                   | CLOB                   | N                         | N             | Y | Y               | N | N | N | N |
+| NCLOB                  | NCLOB                  | N                         | N             | Y   | Y               | N | N | N | N |
 | OBJECT                 | OBJECT                 | N                         | N             | N | N               | N | N | N | N |
 | REF                    | REF                    | N                         | N             | N | N               | N | N | N   | N |
 | ARRAY                  | ARRAY                  | N                         | N             | N | N               | N   | N | N | N |
-| ROWID                  | ROWID                  | N                         | Y             | N | Y               | N | N | N | N |
-| UROWID                 | UROWID                 | Y                         | N             | N | Y               | N | N | N | N |
-| INTERVAL DAY TO SECOND | INTERVAL DAY TO SECOND | N                         | N             | N | Y               | N | N | N | N |
-| INTERVAL YEAR TO MONTH | INTERVAL YEAR TO MONTH | N                         | N             | N | Y               | N | N | N | N |
-| BIT                    | BIT                    | N                         | N             | N | Y               | N | N | N | N |
-| JSON                   | JSON                   | Y                         | N             | N | Y               | N | N | N | N |
+| ROWID                  | ROWID                  | N                         | Y             | Y | Y               | N | N | N | N |
+| UROWID                 | UROWID                 | Y                         | N             | Y | Y               | N | N | N | N |
+| INTERVAL DAY TO SECOND | INTERVAL DAY TO SECOND | N                         | N             | Y | Y               | N | N | N | N |
+| INTERVAL YEAR TO MONTH | INTERVAL YEAR TO MONTH | N                         | N             | Y | Y               | N | N | N | N |
+| BIT                    | BIT                    | N                         | N             | Y | Y               | N | N | N | N |
+| JSON                   | JSON                   | Y                         | N             | Y | Y               | N | N | N | N |
+| XML                    | XML                    | Y                         | N             | Y | Y               | N | N | N | N |

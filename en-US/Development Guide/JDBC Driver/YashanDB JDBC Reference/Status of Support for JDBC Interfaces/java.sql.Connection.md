@@ -37,7 +37,7 @@ The YashanDB JDBC driver has the following methods for the connection interface 
 | getHoldability()          | int             |  -         |
 | setSavepoint()            | Savepoint       |  -         |
 | setSavepoint(String name)                | Savepoint       |  -         |
-| Struct            | createStruct(String typeName, Object[] attributes)  |  -         |
+| createStruct(String typeName, Object[] attributes) | Struct |  -         |
 | rollback(Savepoint savepoint)            | void            |  -         |
 | isValid(int timeout)      | boolean         |  -         |
 | setSchema(String schema)                 | void            |  -         |
@@ -50,7 +50,7 @@ The YashanDB JDBC driver has the following methods for the connection interface 
 | createSQLXML()            | SQLXML          |  -         |
 | releaseSavepoint(Savepoint savepoint)  | void        |  -         |
 
-The YashanDB JDBC driver has the following methods for the connection interface (ISC Distributed Cluster Deployment):
+The YashanDB JDBC driver has the following methods for the connection interface (Storage-Computing Integrated Distributed Cluster Deployment):
 
 |Method |Return Type |Notes |
 |-------------|--------------------|-----------------|
@@ -84,7 +84,7 @@ The YashanDB JDBC driver has the following methods for the connection interface 
 | createBlob()             | Blob            |  -    |
 | setSavepoint()           | Savepoint       |  -    |
 | setSavepoint(String name)               | Savepoint       |  -    |
-| Struct      | createStruct(String typeName, Object\[\] attributes) |  -    |
+| createStruct(String typeName, Object\[\] attributes)     | Struct |  -    |
 | rollback(Savepoint savepoint)           | void            |  -    |
 | createSQLXML()           | SQLXML          |  -    |
 | setHoldability(int holdability)         | void            |  -    |
@@ -98,7 +98,7 @@ YashanDB JDBC driver YasConnection extension interface functionality:
 |---------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | setClientPrepare(boolean clientPrepare) | void    | Indicates whether to enable direct execution for bound parameter scenarios; by default, it is disabled. The JDBC client will first send a prepare command to the server and then send the bound parameters. If enabled, the SQL statement and the parameters to bind will be sent to the server in one go, reducing interaction times.<br />Example:<br />Connection conn = getConnection("sales", "sales");<br/>((YasConnection)conn).setClientPrepare(true); |
 | getClientPrepare()                      | boolean | Whether direct execution is enabled.   |
-|registerTAFCallback(YasFailover yasFailover, Object ctxt)|void |Registers the implementing class of the TAF callback function. If a callback function is registered, the failoverRetries and failoverDelay parameters will not take effect, and no reconnection attempts will occur upon TAF link failure. For details, see [TAF Related Interfaces](../../YashanDB JDBC User Guide/Transparent Application Failover)|
+|registerTAFCallback(YasFailover yasFailover, Object ctxt)|void |Registers the implementing class of the TAF callback function. If a callback function is registered, the failoverRetries and failoverDelay parameters will not take effect, and no reconnection attempts will occur upon TAF link failure. For details, see [TAF Related Interfaces](../../YashanDB JDBC User Guide/Transparent Application Failover.md)|
 | createArray(String typeName, Object[] elements) |Array  | Create an Array object based on the Array Name, to replace the `createArrayOf` interface. |
 | getDefaultFetchSize()    | int     | -      |
 | setDefaultFetchSize(int fetchSize)      | void    | -      |

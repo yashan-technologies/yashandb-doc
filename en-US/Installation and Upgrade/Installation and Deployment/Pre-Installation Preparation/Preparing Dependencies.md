@@ -33,7 +33,7 @@ The dependencies required for database operation and maintenance tools are shown
 >
 > - Only YAC Deployment and Distributed Cluster Deployment requires *mpathpersist* and *sshpass*:
 >
->       During the installation process of YAC and Distributed Cluster, the [fenceScsiCheck script](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage) will automatically be invoked to check the storage and other devices/environments (Whether detection errors occur or not will not block the installation). This script requires *mpathpersist* and *sshpass*.
+>       During the installation process of YAC and Distributed Cluster, the [fenceResvCheck script](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage) will automatically be invoked to check the storage and other devices/environments (Whether detection errors occur or not will not block the installation). This script requires *mpathpersist* and *sshpass*.
 >
 >   - *mpathpersist*: When the server uses DM-Multipath software to manage storage devices, The script requires *mpathpersist*. Typically, the multipath-tools package is installed along with mpathpersist. You can check if the tool is available by running `mpathpersist --help`.
 >       

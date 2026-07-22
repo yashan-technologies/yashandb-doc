@@ -9,7 +9,7 @@
 | OPEN\_MODE | VARCHAR(16) | 启动模式<br>\*   READ\_ONLY：只读模式<br>\*   READ\_WRITE：读写模式<br>\*   MOUNTED：mount状态 |
 | PROTECTION\_MODE | VARCHAR(32) | 保护模式<br>\*   MAXIMUM PERFORMANCE：最大性能<br>\*   MAXIMUM AVAILABILITY：最大可用<br>\*   MAXIMUM PROTECTION：最大保护 |
 | PROTECTION\_LEVEL | VARCHAR(32) | 保护级别<br>\*   UNPROTECTED：数据库没有OPEN<br>\*   MAXIMUM PERFORMANCE：最大性能生效中<br>\*   MAXIMUM AVAILABILITY：最大可用生效中，并且redo已经同步到备库<br>\*   RESYNCHRONIZATION：最大可用生效中，但是redo没有同步到备库<br>\*   MAXIMUM PROTECTION：最大保护生效中，且redo同步正常<br>\*   SYNCHRONIZATION BLOCKING：最大保护生效中，但是redo同步不正常，事务提交将阻塞 |
-| DATABASE\_ROLE | VARCHAR(16) | 数据库角色<br>\*   PRIMARY：主库<br>\*   STANDBY：物理备库<br>\*   LOGICAL STANDBY：逻辑备库 |
+| DATABASE\_ROLE | VARCHAR(16) | 数据库角色<br>\*   PRIMARY：主库<br>\*   STANDBY：物理备库<br>\*   LOGICAL STANDBY：逻辑备库<br>\*   SNAPSHOT_STANDBY：快照备库<br>\*   SNAPSHOT_PREPARE：快照备库转换准备阶段 |
 | BLOCK\_SIZE | INTEGER | 数据库数据块大小（单位：字节） |
 | CURRENT\_SCN | BIGINT | 数据库当前SCN |
 | STATUS | VARCHAR(32) | 数据库状态<br>\*   NORMAL：正常<br>\*   NEED REPAIR：备库状态异常，需要重新build<br>\*   REDO MISMATCH：备库有部分日志和主库不匹配，需要检查和修复<br/>\*   ABNORMAL：异常状态，不能执行写操作 |
@@ -32,6 +32,7 @@
 | FLASHBACK\_ON | VARCHAR(8) | 是否开启全库闪回功能<br/>*  YES：开启<br/>*  NO：关闭 |
 | CDB | VARCHAR(8) | 是否为多租户数据库<br/>* YES：是<br/>* NO：否 |
 | RECOVERY\_REDO\_SIZE           | BIGINT | 执行数据库恢复时需要恢复的redo大小 |
+| HAS_GEK                        | VARCHAR(8) | 是否有全局密钥<br/>*  YES：是<br/>*  NO：否  |
 
 
 

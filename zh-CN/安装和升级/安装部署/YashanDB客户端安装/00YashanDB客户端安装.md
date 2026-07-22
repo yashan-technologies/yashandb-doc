@@ -16,8 +16,14 @@ YashanDB客户端提供以下功能：
 
     yasldr是YashanDB提供的客户端导入工具，可远程操作，用于执行CSV文件形式的数据导入，可用于异构数据库之间的数据迁移或备份恢复。
 
-- C驱动接口
+- [C驱动](../../../开发手册/C语言系驱动/C驱动/00C驱动.md)接口
 
     可以使用YashanDB提供的C驱动接口，基于C语言开发连接到YashanDB的应用程序，执行各项数据库操作。
 
-客户端支持安装在Windows和Linux平台，具体安装操作请查阅[Windows客户端安装](Windows客户端安装)和[Linux客户端安装](Linux客户端安装)。
+客户端支持安装在以下平台：
+
+- Windows：具体安装操作请查阅[Windows客户端安装](Windows客户端安装)。
+
+- Linux：具体安装操作请查阅[Linux客户端安装](Linux客户端安装)。
+
+- macOS：具体安装操作请查阅[macOS客户端安装](macOS客户端安装)。

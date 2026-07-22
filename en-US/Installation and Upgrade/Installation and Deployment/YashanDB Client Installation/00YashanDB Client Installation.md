@@ -16,8 +16,14 @@ The YashanDB client provides the following functionality:
 
     The *yasldr* tool is a client import tool provided by YashanDB, capable of remote operation, used to execute data imports from CSV files. It can be used for data migration or backup restoration between heterogeneous databases.
 
-- C driver interfaces
+- [C driver](../../../Development Guide/C Language Family Drivers/C Driver/00C Driver) interfaces
 
     You can use the C driver interface provided by YashanDB to develop applications in the C language that connect to YashanDB and perform various database operations.
 
-The client supports installation on both Windows and Linux platforms. For specific installation procedures, please refer to [Windows Client Installation](./Windows Client Installation) and [Linux Client Installation](./Linux Client Installation).
+The client supports installation on the following platforms:
+
+- Windows: For specific installation operations, see [Windows Client Installation](./Windows Client Installation).
+
+- Linux: For specific installation operations, see [Linux Client Installation](./Linux Client Installation).
+
+- macOS: For specific installation operations, see [macOS Client Installation](./macOS Client Installation).

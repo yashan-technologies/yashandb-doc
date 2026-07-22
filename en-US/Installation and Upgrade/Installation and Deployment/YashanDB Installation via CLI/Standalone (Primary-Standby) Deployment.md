@@ -127,6 +127,52 @@ table_type = "HEAP"     # Main business table types, mysql mode can only be HEAP
 ```
 :::
 
+### Branch Mode
+
+YashanDB instances deployed in branch mode will enable the branch database feature, supporting the creation and management of multiple branches within the database. This is suitable for development testing, version management, and other scenarios.
+
+Branch mode **only supports single-node deployment in yashan mode** and does not support CDB Mode.
+
+If you decide to use this mode for installation, you need to add the `--enable-branch` option to the corresponding command in [Step 1: Generate Configuration File] of the example installation process, and also specify the `--disk-found-path`, `--system-data`, and `--data` parameters, for example:
+
+```shell
+$ ./bin/yasboot package se gen --cluster yashandb --recommend-param \
+-u yashan -p yashan_password --ip 192.168.1.2 --port 22 \
+--install-path /data/yashan/yasdb_home  \
+--data-path /data/yashan/yasdb_data \
+--log-path /data/yashan/log \
+--begin-port 1688 \
+--disk-found-path /dev/yfs \
+--system-data /dev/yfs/sys0 \
+--data /dev/yfs/data0 \
+--enable-branch
+```
+
+Subsequent steps are identical.
+
+After specifying the **--enable-branch** option, the relevant changes in the generated configuration file are as follows (The yashandb.toml file name comes from the cluster name specified in the sample installation command. If you specify a different name, the file name here will accordingly be different.):
+
+::: tabs
+
+== yashandb.toml
+
+```toml
+...
+enable_branch = true       # Identify the deployed database as enabled with branch functionality
+...
+
+[[group]]
+  ...
+  [[group.diskgroup]]           # Data disk group configuration
+    ...
+  [group.systemdiskgroup]       # System disk group configuration
+    ...
+
+  [[group.node]]
+    ...
+```
+:::
+
 ### Multiple Network Segments
 
 Please refer to the [network planning](../Pre-Installation Preparation/Preparing the Networks) documentation to understand o ur definition and division recommendations for YashanDB public and private networks . 
@@ -229,6 +275,21 @@ $ ./bin/yasboot package se gen --cluster yashandb --recommend-param \
 --mode mysql
 ```
 
+    == Branch Mode
+
+```shell
+$ ./bin/yasboot package se gen --cluster yashandb --recommend-param \
+-u yashan -p yashan_password --ip 192.168.1.2 --port 22 \
+--install-path /data/yashan/yasdb_home  \
+--data-path /data/yashan/yasdb_data \
+--log-path /data/yashan/log \
+--begin-port 1688 \
+--disk-found-path /dev/yfs \
+--system-data /dev/yfs/sys0 \
+--data /dev/yfs/data0 \
+--enable-branch
+```
+
     :::
 
     
@@ -269,6 +330,9 @@ $ ./bin/yasboot package se gen --cluster yashandb --recommend-param \
 | Parameters under [group.config]            | These parameters are all critical [database creation parameters](../../../Tools Guide/yasboot/Database Creation Parameters). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.config]       | These parameters are all [database configuration parameters](../../../Reference Manual/Configuration Parameters) for the instance deployed on this node. Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.config.SEED]       | Non-CDB mode does not have this type of parameters.<br>These parameters are used to define the attributes of the PDB seed, inheriting the CDB root attributes by default. If you need to customize the PDB creation template, please adjust the parameter option values here. |
+| Parameters under [group.config] ENABLE_BRANCH | This parameter does not exist in non-branch mode<br>Identifies whether the current database is enabled with branch functionality. It is automatically set to TRUE during deployment and manual modification is not allowed. |
+| Parameters under [group.diskgroup] | This type of parameters does not exist in non-branch mode<br>These parameters are the data disk group configuration and can be manually adjusted. |
+| Parameters under [group.systemdiskgroup] | This type of parameters does not exist in non-branch mode<br>These parameters are the system disk group configuration and can be manually adjusted.<br>System disk configuration cannot be adjusted after installation. Please complete the allocation unit size, redundancy, number of failure groups, and disk grouping configuration according to your needs in this step. |
 | Parameters under [group.node.mysql_config] | These parameters are all [system variables](../../../Reference Manual of mysql Mode/System Variables/List of System Variables In mysql Mode) under mysql mode (ignore in yashan mode). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 
     :::
@@ -518,7 +582,7 @@ $ ./bin/yasboot package se gen --cluster yashandb \
 
 |Parameter Item                  |Adjustment Description                          |
 | ------------------------------------------ | ------------------------------------------------------------ |
-| hostid and LISTEN_ADDR under [om]  | yasom service host identifier, IP address and listening port<br>Please check to ensure the host identifier and IP address are for the primary database node<br>Please check to ensure the listening port number is consistent with the actually opened port number, and can be modified to the actual value |
+| hostid and LISTEN_ADDR under [om]  | yasom service host identifier, IP address and listening port<br>Please check to ensure the listening port number is consistent with the actually opened port number, and can be modified to the actual value |
 | All LISTEN_ADDR under [host.yasagent]     | yasagent service IP address and listening port<br>Please check to ensure the listening port number is consistent with the actually opened port number, and can be modified to the actual value            |
 
     == yashandb.toml

@@ -45,7 +45,7 @@ Statement-level statistics are related to SQL and can be accessed through the V$
 | PHYSICAL_WRITE_REQUESTS  | BIGINT  | The number of physical write I/O requests issued by SQL  |
 | PHYSICAL_WRITE_BYTES     | BIGINT  | The number of bytes written to disk by SQL    |
 | USER_IO_WAIT_TIME        | BIGINT  | User I/O wait time (unit: microseconds)      |
-| PLSQL_EXEC_TIME          | BIGINT  | PL/SQL execution time (unit: microseconds)   |
+| PLSQL_EXEC_TIME          | BIGINT  | PL execution time (unit: microseconds)   |
 | CPU_TIME                 | BIGINT  | CPU time spent on parsing/executing/retrieving (unit: microseconds) |
 | ELAPSED_TIME             | BIGINT  | Total time spent on parsing/executing/retrieving (unit: microseconds) |
 

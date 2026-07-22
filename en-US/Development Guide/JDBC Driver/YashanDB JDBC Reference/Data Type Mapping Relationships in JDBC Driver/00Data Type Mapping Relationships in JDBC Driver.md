@@ -39,6 +39,6 @@ YashanDB JDBC driver will convert YashanDB data types and Java data types. The c
 | TIMESTAMP WITH TIME ZONE       | TIMESTAMP WITH TIME ZONE          | YasTypes.TIMESTAMP_TZ  | java.sql.Types.<br>TIMESTAMP\_WITH\_TIMEZONE | java.time.OffsetDateTime             | Y     |
 | TIMESTAMP WITH LOCAL TIME ZONE | TIMESTAMP WITH LOCAL TIME ZONE    | YasTypes.TIMESTAMP_LTZ | java.sql.Types.TIMESTAMP                     | javal.sql.<br>Timestamp              | Y     |
 | BIT                            | BIT                               | YasTypes.BIT           | java.sql.Types.BIT                           | BIT(1):boolean<br>BIT(2~64):byte\[\] | Y     |
-| CURSOR                         | CURSOR                            | YasTypes.CURSOR        | java.sql.Types.REF_CURSROR                   | java.sql.ResultSet                   | Y     |
-| CURSOR                         | CURSOR                            | YasTypes.REF_CURSOR    | java.sql.Types.REF_CURSROR                   | java.sql.ResultSet                   | Y     |
+| CURSOR                         | CURSOR                            | YasTypes.CURSOR        | java.sql.Types.REF_CURSOR                   | java.sql.ResultSet                   | Y     |
+| CURSOR                         | CURSOR                            | YasTypes.REF_CURSOR    | java.sql.Types.REF_CURSOR                   | java.sql.ResultSet                   | Y     |
 | JSON                           | JSON                              | YasTypes.JSON          | java.sql.Types.OTHER                         | \--                                  | Y     |

@@ -18,7 +18,7 @@ If scaling fails, you need to execute the command `yasboot node/group remove --c
     
     ::: tabs
     == Clean up node
-If the scale-out operation for [standby database](./Scaling for Standalone Deployment/Standbys Scaling), [YAC instance](./Scaling for YAC Deployment/Cluster Instances Scaling), [distributed cluster node](./Scaling for Distributed Cluster Deployment/CN Node Scaling) fails, execute the following command to clean up residual data caused by the failed scale-out.
+If the scale-out operation for [standby database](./Scaling for Standalone Deployment/Standbys Scaling), [YAC instance](./Scaling for YAC Deployment/Cluster Instance Scaling), [distributed cluster node](./Scaling for Distributed Cluster Deployment/CN Node Scaling) fails, execute the following command to clean up residual data caused by the failed scale-out.
 ```shell
 $ yasboot node remove --clean --force -c yashandb
 ```

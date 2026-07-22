@@ -92,6 +92,7 @@ rename_clause).
 
 This statement is used to modify the data files of a tablespace.
 
+
 In ISC Distributed Cluster Deployment, adding/removing data files is only allowed for tablespaces created by the CREATE TABLESPACE statement. If a node failure occurs when modifying a data file of a tablespace, the recovery measures can be found in the [User Tablespace Management](../../../Database Administration/Storage Management/Logical Space Management/Tablespace Management/General Tablespace Management) chapter.
 
 #### add (datafile|tempfile)
@@ -102,7 +103,7 @@ In YAC/Distributed Cluster Deployment, when local temporary tablespaces or local
 
 <span id="filespecification" name="filespecification"></span>
 
-For the description of file_specification, please refer to [CREATE TABLESPACE](CREATE TABLESPACE).
+For the description of file_specification, please refer to [CREATE TABLESPACE](./CREATE TABLESPACE.md#filespecification).
 
 When file_specification is not specified, the system automatically creates a data file according to the following rules:
 
@@ -185,18 +186,24 @@ This statement is used to modify the read/write properties of the databucket. Th
 
 ##### bucket_name
 
-Described as related to bucket_name in the [bucket_clause](CREATE TABLESPACE.md#bucketclause) of CREATE TABLESPACE.
+Described as related to bucket_name in the [bucket_clause](./CREATE TABLESPACE.md#bucketclause) of CREATE TABLESPACE.
 
 ##### readonly|readwrite
 
 readonly indicates read-only, while readwrite indicates read/write.
 
-Note that once the databucket is changed to read-only, it does not support any form of write operation, but DML statements executed by users (excluding Bulkload operations) are not affected. During a Bulkload operation, if there are no writable databuckets under the tablespace, an error will occur due to the need to generate SCOL data.
+Once the databucket is changed to read-only, it does not support any form of write operation, but DML statements executed by users (excluding Bulkload operations) are not affected. During a Bulkload operation, if there are no writable databuckets under the tablespace, an error will occur due to the need to generate SCOL data. It is not allowd to change to read-only in YAC/Distributed Cluster Deployment.
 
 ***Example*** for Standalone Deployment
 
 ```sql
 ALTER TABLESPACE lsc_tb ALTER DATABUCKET '?/local_fs/lscfile_add3' READONLY;
+```
+
+***Example*** for YAC/Distributed Cluster Deployment
+
+```sql
+ALTER TABLESPACE lsc_tb ALTER DATABUCKET '+DG0/local_fs/lscfile_add3' READONLY;
 ```
 
 <span id="dropdatabucketclause" name="dropdatabucketclause"></span>
@@ -213,6 +220,12 @@ Described in the [alter_databucket_clause](#alterdatabucketclause).
 
 ```sql
 ALTER TABLESPACE lsc_tb DROP DATABUCKET '?/local_fs/lscfile_add3';
+```
+
+***Example*** for YAC/Distributed Cluster Deployment
+
+```sql
+ALTER TABLESPACE lsc_tb DROP DATABUCKET '+DG0/local_fs/lscfile_add3';
 ```
 
 <span id="shrinkclause" name="shrinkclause"></span>
@@ -250,7 +263,7 @@ Adjust the tablespace created by the user to an offline state. After the tablesp
 
 The usage rules for the tablespace offline functionality are as follows:
 
-- Operations on built-in tablespaces are not allowed, including SYSTEM, SYSAUX, UNDO, SWAP, TEMPORARY, etc.
+- Built-in tablespaces and local cache tablespaces cannot be operated on.
 
 - An offline tablespace and its data files remain part of the database. Therefore, it is not possible to create a tablespace or data file with the same name.
 
@@ -320,7 +333,7 @@ ALTER TABLESPACE yashan ONLINE;
 This statement is used to rename a tablespace or a data file, with the following restrictions:
 
 - It is not allowed to rename a tablespace to an existing tablespace name.
-- It is not allowed to use this statement to rename built-in tablespaces.
+- It is not allowed to use this statement to rename built-in tablespaces or local cache tablespaces.
 - It is not allowed to rename an OFFLINE tablespace using this statement.
 - It is not allowed to rename a SWAP tablespace that is currently in use; to rename it, first modify the DEFAULT_SWAP_TABLESPACE configuration parameter, and then perform the rename operation.
 - In ISC Distributed Cluster Deployment, renaming of tablespaces or data files is not allowed.

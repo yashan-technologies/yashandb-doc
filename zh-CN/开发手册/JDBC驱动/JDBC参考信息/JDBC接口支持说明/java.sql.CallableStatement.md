@@ -17,10 +17,18 @@ YashanDB JDBC驱动对CallableStatement接口有如下方法：
 |-------------------------------------------------------|---------------------|
 | registerOutParameter(int parameterIndex, int sqlType) | void                |
 | registerOutParameter(int parameterIndex, int sqlType, int scale) | void |
-| registerOutParameter(String parameterIndex, int sqlType, int scale) | void |
 | registerOutParameter(String parameterName, int sqlType) | void |
 | registerOutParameter(String parameterName, int sqlType, int scale) | void |
+| registerOutParameter(int parameterIndex, SQLType sqlType) | void | 
+| registerOutParameter(int parameterIndex, SQLType sqlType, int scale) | void | 
+| registerOutParameter(String parameterName, SQLType sqlType) | void | 
+| registerOutParameter(String parameterName, SQLType sqlType, int scale) | void | 
+| registerOutParameter(int parameterIndex, SQLType sqlType, String typeName) | void | 
+| registerOutParameter(String parameterName, SQLType sqlType, String typeName) | void | 
+| registerOutParameter(String parameterName, int sqlType, String typeName) | void | 
+| registerOutParameter(int parameterIndex, int sqlType, String typeName) | void | 
 | setNull(String parameterName, int sqlType) | void |
+| setNull(String parameterName, int sqlType, String typeName) | void |
 | setBoolean(String parameterName, boolean x) | void |
 | setByte(String parameterName, byte x) | void |
 | setShort(String parameterName, short x) | void |
@@ -113,7 +121,6 @@ YashanDB JDBC驱动对CallableStatement接口有如下方法：
 | getBlob (int parameterIndex)                          | Blob                |
 | getBlob (String parameterName) | Blob |
 | getGeneratedKeys()                                    | ResultSet           |
-| getRef (String parameterName) | Ref |
 | wasNull()                                             | boolean             |
 | getBoolean(String parameterName) | boolean |
 | getSQLXML(int parameterIndex)                         | SQLXML              |

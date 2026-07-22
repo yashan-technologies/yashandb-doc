@@ -99,7 +99,7 @@ CONVERTTOBLOB函数用于从源数据CLOB或NCLOB中提取数据，将该数据�
 | amount | 每次转换的字符数，使用`DBMS_LOB.LOBMAXSIZE`表示转换整个CLOB或NCLOB数据。 |
 | dest_offset | * 作为入参时，表示目标BLOB中开始写入的字节偏移量，指定为1表示从起始位置开始。<br />* 作为出参时，表示写入操作结束后目标BLOB中新的字节偏移量。 |
 | src_offset | * 作为入参时，表示源数据中开始读取转换的字符偏移量，指定为1表示从起始位置开始。<br />* 作为出参时，表示读取操作结束后源数据中紧跟读取末尾的字符偏移量。 |
-| blob_csid | 目标字符集ID，可选取值包括：<br>0：表示源数据与目标数据的字符集一致<br/>1：ASCII<br/>31：ISO88591<br/>852：GBK<br/>854：GB18030<br/>873：UTF-8<br/>2000：UTF-16 |
+| blob_csid | 目标字符集ID，可选取值包括：<br/>852：GBK<br/>871：UTF-8<br/>OCI_UTF16ID：UTF-16<br/>2000：AL16UTF16 |
 | lang_context | * 作为入参时，表示当前转换的上下文信息。<br />* 作为出参时，表示转换完成时的上下文信息。 |
 | warning      | 警告信息，表示转换过程中发生了异常。目前，唯一可能的警告是不可转换字符，即源字符无法正确转换为目标字符。该信息定义为常量值`DBMS_LOB.WARN_INCONVERTIBLE_CHAR`。                                                            |
 

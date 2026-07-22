@@ -58,11 +58,11 @@ YStream仅支持解析归档模式下生成的redo和归档日志，使用YStrea
 
 - YStream服务的默认解析范围是数据库中的所有表，如需自定义配置解析范围则需在创建后执行DBMS_YSTREAM_ADM.ADD_TABLES进行指定：
 
-    - 如需将存量表添加到某个Ystream服务的解析范围中，不建议在服务处于STARTED或RUNNING状态时操作。否则，必须确保执行DBMS_YSTREAM_ADM.ADD_TABLES前目标表未开启[表级附加日志](../SQL参考手册/SQL语句/ALTER TABLE.md#addsupplementalloggingclause)并且在执行DBMS_YSTREAM_ADM.ADD_TABLES后再立即手动开启该表的表级附加日志，开启后Ystream服务才会开始对该表进行解析。
+    - 如需将存量表添加到某个YStream服务的解析范围中，不建议在服务处于STARTED或RUNNING状态时操作。否则，必须确保执行DBMS_YSTREAM_ADM.ADD_TABLES前目标表未开启[表级附加日志](../SQL参考手册/SQL语句/ALTER TABLE.md#addsupplementalloggingclause)并且在执行DBMS_YSTREAM_ADM.ADD_TABLES后再立即手动开启该表的表级附加日志，开启后YStream服务才会开始对该表进行解析。
 
     - 若某个YStream服务的当前解析范围为所有表，在其STARTED或RUNNING状态无法通过DBMS_YSTREAM_ADM.ADD_TABLES指定具体的解析对象（即缩小解析范围），需先停止服务再执行DBMS_YSTREAM_ADM.ADD_TABLES。
 
-- 若YStream服务启动于备库/备集群上（即在备库/备集群上执行的DBMS_YSTREAM_ADM.START），应等待备库回放Ystream系统表日志直至在备库/备集群上查询到YStream服务已被成功启动（[V$YSTREAM_SERVER](../../参考手册/系统视图/动态视图/V$YSTREAM_SERVER.md)视图的STATUS字段为STARTED），再用YStream API客户端开始解析，否则可能报YStream服务状态错误。
+- 若YStream服务启动于备库/备集群上（即在备库/备集群上执行的DBMS_YSTREAM_ADM.START），应等待备库回放YStream系统表日志直至在备库/备集群上查询到YStream服务已被成功启动（[V$YSTREAM_SERVER](../../参考手册/系统视图/动态视图/V$YSTREAM_SERVER.md)视图的STATUS字段为STARTED），再用YStream API客户端开始解析，否则可能报YStream服务状态错误。
 
 - YStream API客户端连接YStream服务必须一对一，并且客户端只能连接启动对应YStream服务的数据库节点，同一个YStream服务不能同时连接多个YStream API客户端。
 
@@ -87,11 +87,13 @@ YStream支持解析HEAP表和TAC表的DDL、DML及主键约束，支持的DDL范
 | ALTER TABLE DROP PRIMARY KEY                       | -                          | ALTER TABLE YDS.TEST DROP PRIMARY KEY                        |
 | ALTER TABLE DROP CONSTRAINT primary_key_constraint | -                          | ALTER TABLE YDS.TEST DROP CONSTRAINT PK（约束名为`PK`的约束为主键约束） |
 
-此外，对于使用了部分特殊功能的表，Ystream解析还存在以下约束：
+此外，对于使用了部分特殊功能的表，YStream解析还存在以下约束：
 
 - 对于包含自增列（mysql模式独有）的HEAP表，仅在对端是YashanDB（mysql模式）或MySQL数据库时才能同步，否则可能同步失败。
 
 - 对于包含身份列的HEAP表，YStream无法解析该表数据。
+
+- 对于包含虚拟列的HEAP表，YStream仅支持解析DDL，无法解析DML。
 
 - 包含加密列的HEAP表、加密HEAP表均不会记录附加日志，因此YStream无法解析加密表。
 

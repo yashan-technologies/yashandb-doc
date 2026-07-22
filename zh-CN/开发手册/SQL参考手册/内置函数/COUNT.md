@@ -1,5 +1,5 @@
 ```ebnf
-count = COUNT "(" ("*"|([DISTINCT|ALL] expr)) ")" [keep_clause|OVER "(" analytic_clause ")"].
+count = COUNT "(" ("*"|([DISTINCT|UNIQUE|ALL] expr)) ")" [keep_clause|OVER "(" analytic_clause ")"].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 
@@ -18,13 +18,13 @@ COUNT函数按给定参数[expr](../通用SQL语法/expr)统计记录行数，�
 
 表示统计所有的行，包括空行。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 表示将表达式结果进行重复过滤，统计的是所有不重复的非空行。
 
+DISTINCT与UNIQUE完全等价。
 
 目前，YashanDB无法对LOB类型的数据进行去重。
-
 
 **ALL**
 

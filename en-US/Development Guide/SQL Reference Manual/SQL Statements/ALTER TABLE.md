@@ -9,7 +9,7 @@
 - [Modifying identity columns](#altertableidentity)
 - Enabling and disabling row movement ([row movement](#rowmovementclause))
 - Enabling and disabling supplemental logging ([supplemental logging](#supplementaltablelogging))
-- Enabling and disabling redo logging ([nologging](#loggingclause))
+- Enabling and disabling redo logging ([LOGGING/NOLOGGING](#loggingclause))
 - Enabling and disabling parallel ([parallel](#parallelclause))
 - Space shrinking ([shrink space](#shrinkspaceclause))
 - Enabling and disabling LSC table background data transformation options ([data transformer](#enablexfmrclause))
@@ -17,9 +17,13 @@
 - Enabling or disabling MCOL functionality on LSC tables ([MCOL ability](#mcolabilityclause))
 - Forcing transformations on LSC tables ([force xfmr](#forcexfmrclause))
 
-Among them, according to the storage features of LSC tables, only the partition-related properties (excluding partition indexes) can be modified (including adding partitions and deleting partitions, etc.).
+The usage constraints of ALTER TABLE are as follows:
 
-It is not allowed to perform `ALTER TABLE` operations on [AC objects](../Basic SQL Elements/Schema Objects) and the source tables of AC objects.
+- According to the storage features of LSC tables, only the partition-related properties (excluding partition indexes) can be modified (including adding partitions and deleting partitions, etc.).
+
+- In YAC/Distributed Cluster Deployment, ALTER TABLE on the LSC table can only be performed on the master instance (the instance with INSTANCE_ROLE = MASTER in the GV$INSTANCE view).
+
+- It is not allowed to perform ALTER TABLE on [AC objects](../Basic SQL Elements/Schema Objects) and the source tables of AC objects.
 
 Statement Definition
 ----
@@ -140,7 +144,7 @@ Statement Definition
 **[add\_column\_clause](#addcolumnclause)::=**
 
 ```ebnf
-= ADD [COLUMN] "(" column_definition {"," column_definition} ")" [lob_clauses].
+= ADD [COLUMN] "(" column_definition|virtual_column_definition {"," column_definition|virtual_column_definition} ")" [lob_clauses].
 ```
 
 **[column\_definition](#columndefinition)::=**
@@ -149,6 +153,14 @@ Statement Definition
 = column dataType [identity_clause] [(DEFAULT default_expr | inline_constraint | column_encryption_clause)
 {" " (DEFAULT default_expr | inline_constraint | column_encryption_clause)}]. 
 ```
+
+**virtual_column_definition::=**
+
+```ebnf
+= column_name [datatype] [VISIBLE|INVISIBLE] [GENERATED ALWAYS] AS "(" column_expression ")" [VIRTUAL].
+```
+
+For the syntax specifications of virtual columns, refer to [virtual_column_definition](CREATE TABLE.md#virtualcoldef).
 
 **[identity_clause](#identityclause)::=**
 
@@ -301,7 +313,7 @@ Statement Definition
 **[update\_index\_clause](#updateindexclause)::=**
 
 ```ebnf
-= [UPDATE | INVALIDATE] GLOBAL INDEXES.
+= (UPDATE | INVALIDATE) [GLOBAL] INDEXES.
 ```
 
 **[drop\_table\_subpartition](#droptablepartition)::=**
@@ -313,7 +325,7 @@ Statement Definition
 **[truncate\_table\_partition](#truncatetablepartition)::=**
 
 ```ebnf
-= TRUNCATE PARTITION (partname {"," partname}) [truncate_part_clause].
+= TRUNCATE PARTITION (partname {"," partname}) [truncate_part_clause] [update_index_clause].
 ```
 
 **[truncate\_part\_clause](#truncatepartclause)::=**
@@ -325,7 +337,7 @@ Statement Definition
 **[truncate\_table\_subpartition](#truncatetablepartition)::=**
 
 ```ebnf
-= TRUNCATE SUBPARTITION (subpartname {"," subpartname}) [truncate_part_clause].
+= TRUNCATE SUBPARTITION (subpartname {"," subpartname}) [truncate_part_clause] [update_index_clause].
 ```
 
 **[set\_partition\_clause](#setpartitionclause)::=**
@@ -701,10 +713,11 @@ This clause allows multiple capabilities to be enabled or disabled simultaneousl
 
 > **Note**: 
 >
-> 1. TRANSFORM and COMPACT involve physical space changes. After transformation tasks are executed, the previous data before transformation will be retained for a period to meet long query needs. Once the maximum retention time is reached, this data will be cleaned up. Users can execute immediate cleaning using the [force xfmr clause](#forcexfmrclause) as needed, provided there is no impact on business.
-> 2. When there are no AC objects in the system, opening the BUILD AC switch will not create AC data files.
+> - TRANSFORM and COMPACT involve physical space changes. After transformation tasks are executed, the previous data before transformation will be retained for a period to meet long query needs. Once the maximum retention time is reached, this data will be cleaned up. Users can execute immediate cleaning using the [force xfmr clause](#forcexfmrclause) as needed, provided there is no impact on business.
+>
+> - When there are no AC objects in the system, opening the BUILD AC switch will not create AC data files.
 
-***Example*** for LSC tables
+***Example*** for LSC tables in Standalone Deployment or ISC Distributed Cluster Deployment
 
 ```sql
 ALTER SYSTEM SET DATA_TRANSFORMER_ENABLED = TRUE SCOPE=SPFILE;
@@ -720,7 +733,7 @@ ALTER TABLE orders_info DISABLE COMPACT;
 
 This statement is used to modify the mutable lifecycle of LSC tables. For its meaning, refer to the corresponding statement description in [CREATE TABLE](CREATE TABLE).
 
-This statement does not apply to ISC Distributed Cluster Deployment.
+This statement only applies to Standalone Deployment.
 
 ***Example*** for Standalone Deployment LSC tables
 
@@ -740,9 +753,11 @@ This statement is used to enable or disable the overall functionality of mutable
 
 Disabling MCOL functionality will cause data inserted or modified in the LSC table to immediately become non-mutable data upon commit. If the business does not have high transactional requirements, it is recommended to disable this module functionality.
 
-If MCOL functionality is to be disabled for a specific LSC table, ensure that the table's background data transformation capability (ENABLE TRANSFORM) is already enabled.
+This statement does not apply to YAC/Distributed Cluster Deployment.
 
-***Example*** for LSC tables
+In Standalone Deployment or ISC Distributed Cluster Deployment, if MCOL functionality is to be disabled for a specific LSC table, ensure that the table's background data transformation capability (ENABLE TRANSFORM) is already enabled.
+
+***Example*** for LSC tables in Standalone Deployment or ISC Distributed Cluster Deployment
 
 ```sql
 ALTER TABLE orders_info ENABLE MCOL order by;
@@ -766,7 +781,7 @@ Forced conversion has the following three modes:
 - COMPACT: Forces the stable data of the LSC table to merge.
 - CLEAN: Forces the deletion of all deletable data in the LSC (i.e., data that has met deferred deletion conditions after completion of transformation tasks).
 
-***Example*** for LSC tables
+***Example*** for LSC tables in Standalone Deployment or ISC Distributed Cluster Deployment
 
 ```sql
 ALTER TABLE sales_info ALTER SLICE ALL STABLE;
@@ -784,31 +799,31 @@ This statement is not applicable to ISC Distributed Cluster Deployment.
 
 ##### LOGGING
 
-This statement is used to set the table to logging properties, meaning all operations on this table are logged.
+This statement is used to set the table to LOGGING properties, meaning all operations on this table are logged.
 
-- If this statement is executed on a table that is already set to logging properties, it will return success directly.
-- If executed on a table with nologging properties, the system will perform a full checkpoint, write data to disk, modify flushback, and finally change the table's logging properties.
+- If this statement is executed on a table that is already set to LOGGING properties, it will return success directly.
+- If executed on a table with NOLOGGING properties, the system will perform a full checkpoint, write data to disk, modify flushback, and finally change the table's LOGGING properties.
 
 ##### LOGGING ASYNC
 
-This statement is used to convert the table to logging properties asynchronously. A new thread is started to complete the conversion of the table mode, allowing the main thread to continue working without blocking.
+This statement is used to convert the table to LOGGING properties asynchronously. A new thread is started to complete the conversion of the table mode, allowing the main thread to continue working without blocking.
 
 Note that when the client returns success, it does not guarantee that the conversion has been successful; it only confirms that the thread has successfully started. Subsequent conversions may still fail. The results of the conversion are recorded in the [runtime logs](../../../Database Administration/Operation Monitoring/Log Management/Runtime Log Management).
 
-While converting a table to logging properties asynchronously, the following constraints apply:
+While converting a table to LOGGING properties asynchronously, the following constraints apply:
 
 - No DML operations can be executed on the table being converted.
 - No DDL operations can be executed on the table being converted, except for DROP.
 
 ##### NOLOGGING
 
-This statement is used to set the table to nologging properties. If executed on a table that is already set to nologging properties, it will return success directly. If it is executed on a table set to logging properties, it will change its properties to nologging. This property should only be enabled in data migration scenarios.
+This statement is used to set the table to NOLOGGING properties. If executed on a table that is already set to NOLOGGING properties, it will return success directly. If it is executed on a table set to LOGGING properties, it will change its properties to NOLOGGING. This property should only be enabled in data migration scenarios.
 
 The execution of this statement comes with the following constraints:
 
-- Temporary tables cannot be set to nologging properties.
-- Tables with columns of UDT or built - in UDT (such as XMLTYPE, ST_GEOMETRY, BOX2D) cannot be set to nologging properties.
-- In primary/standby environments, tables cannot be set to nologging properties.
+- Temporary tables cannot be set to NOLOGGING properties.
+- Tables with columns of UDT or built - in UDT (such as XMLTYPE, ST_GEOMETRY, BOX2D) cannot be set to NOLOGGING properties.
+- In primary/standby environments, tables cannot be set to NOLOGGING properties.
 
 
 
@@ -843,12 +858,12 @@ Tables specified as NOLOGGING have the following characteristics:
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
 
 ```sql
--- Execute the following statement to enable logging
+-- Execute the following statement to enable LOGGING
 ALTER TABLE area LOGGING;
 
--- Attempting to set the table to nologging will throw an error in primary/standby environments
+-- Attempting to set the table to NOLOGGING will throw an error in primary/standby environments
 ALTER TABLE area NOLOGGING;
-YAS-02328 table nologging is not allowed when standby exists
+YAS-02328 table NOLOGGING is not allowed when standby exists
 ```
 
 <span id="parallelclause" name="parallelclause"></span>
@@ -892,6 +907,8 @@ This statement is used to add columns to the table. When adding multiple columns
 A new column is added to the table, defining data types (DataType), default values (DEFAULT), inline constraints (inline_constraint), etc.
 
 When adding a column defined with the NOT NULL constraint to a table that is not null, a default value must also be provided; otherwise, an error will be raised.
+
+Modification of the properties of a virtual column is not allowed.
 
 ###### DataType
 
@@ -1083,6 +1100,8 @@ This modifies the data type of the column field to one recognized by YashanDB [d
 LSC tables do not allow the modification of column field data types. The rules for modifying data types of column fields in HEAP and TAC tables are as follows:
 
 - **Columns with foreign key constraints**: Data types of the corresponding columns in both the child and parent tables may not be modified.
+
+- **Data columns on which virtual columns depend**: Modifying their data types is not allowed; attempting to do so will return an error message.
 - **Columns with indexes**:
   
     - If the table is empty (i.e., contains no data), it is allowed to modify its data type to any type except LOB, JSON, or UDT, but the modified result must still comply with [the rules for index columns](./CREATE INDEX.md#indexexpr).
@@ -1459,8 +1478,6 @@ YEAR  MONTH BRANCH PRODUCT      QUANTITY      AMOUNT SALSPERSON
 
 <span id="updateindexclause" name="updateindexclause"></span>
 
-
-
 ##### update\_index\_clause
 
 Specifies how to handle global indexes (Global Index) when a partition is deleted, defaulting to INVALIDATE.
@@ -1542,6 +1559,13 @@ If a partition table defined as a parent table has foreign key constraints from 
 
 When the recycle bin is enabled, deleted data will by default enter the recycle bin; specifying this keyword means the data will be permanently deleted without entering the recycle bin. This statement applies only to HEAP tables.
 
+##### update\_index\_clause
+
+Specifies how to handle global indexes (Global Index) when the data in the specified partition is deleted, defaulting to INVALIDATE.
+
+*   INVALIDATE GLOBAL INDEXES: All global indexes will be invalidated and become unavailable.
+*   UPDATE GLOBAL INDEXES: The global indexes remain valid and available.
+
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
 
 ```sql
@@ -1568,6 +1592,10 @@ This statement is used to delete all data from specified subpartitions. Specify 
 This statement also deletes the local index data (Local Index) corresponding to the subpartitions.
 
 ##### truncate\_part\_clause
+
+Described in the same way as the truncate_table_partition statement.
+
+##### update\_index\_clause
 
 Described in the same way as the truncate_table_partition statement.
 

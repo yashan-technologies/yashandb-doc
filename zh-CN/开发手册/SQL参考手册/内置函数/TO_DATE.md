@@ -1,5 +1,5 @@
 ```ebnf
-to_date = TO_DATE "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format][","nls_calendar] ")".
+to_date = TO_DATE "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format [","nls_calendar]] ")".
 ```
 
 TO\_DATE函数将[expr](../通用SQL语法/expr)的值转换为DATE类型数据，返回值格式为DATE类型数据的默认格式。

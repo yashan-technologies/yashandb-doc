@@ -1,4 +1,4 @@
-## Function Purpose
+## Functionality Overview
 
 Returns a list of column names from a specified table.
 

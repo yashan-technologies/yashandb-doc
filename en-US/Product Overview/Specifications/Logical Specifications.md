@@ -77,7 +77,7 @@ Syntax
 |Specification Name |Specification Type |Specification Value |
 |-----------------------| ------------ |---------------------------------------------------------------------------------------------------|
 | Length of a Single SQL Statement    | Maximum Value       | 2MB - 1 (including spaces and special characters) |
-| yasql Single Line Character Count  | Maximum Value       | 65534                                          |
+| yasql Single Line Character Count  | Maximum Value       | 4000                                          |
 | Input Length of Constant Strings in SQL Statement | Maximum Value | 65534                                          |
 | Output Length of String Type       | Maximum Value       | 65534                                          |
 | Number of Tables Participating in JOIN in SQL Statement | Maximum Value | 128                                           |
@@ -97,6 +97,7 @@ Syntax
 | Number of Stages Required to Execute a Single SQL Statement | Maximum Value | 128<br> Maximum number of stages for executing a single SQL statement is influenced by MAX_PARALLEL_WORKERS configuration parameter<br> Reference formula: MIN(MAX_PARALLEL_WORKERS, 128) |
 | Aggregation Function Materialized Area | Maximum Value   | 32KB<br> When the result of an aggregation function is variable-length data, it will be buffered in the aggregation materialized area, which is limited to 32K |
 | Row Length Specification of Table Function | Maximum Value | 32KB                                           |
+| User Bind Param Count    | Maximum Value       | 32000                                           |
 
 Context
 -----

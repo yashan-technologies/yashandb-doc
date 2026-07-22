@@ -18,7 +18,7 @@ Indicates the input vector type data or vector-formatted CHAR/VARCHAR/CLOB type 
 - When a certain expr input is NULL, the function returns NULL.
 
 
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
 CREATE TABLE table_cosine_test (c_VECTOR VECTOR(4),c_VECTOR_32 VECTOR(4,float32),c_VECTOR_64 VECTOR(4,float64),c_char char(50),c_varchar varchar(50),c_varchar_32000 varchar(32000),c_varchar_65534 varchar(65534),c_clob clob);

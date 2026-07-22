@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCILobGetLength2函数用于获取LOB的长度，且仅适用于大于4GB的LOB。
+OCILobGetLength2函数是OCILobGetLength函数的扩展版本，用于获取LOB的长度。与OCILobGetLength的主要区别在于使用oraub8类型的lenp参数替代ub4类型，仅适用于大于4GB的LOB。
 
 ## 函数声明
 

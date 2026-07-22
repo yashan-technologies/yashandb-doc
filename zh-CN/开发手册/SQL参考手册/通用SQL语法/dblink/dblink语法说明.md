@@ -5,32 +5,42 @@
 = "@" dblink_name.
 ```
 
-该语法用于YashanDB（源端）对远端数据库（目的端）的表操作，目的端可以为同构数据库（YashanDB）或异构数据库（Oracle）。
+该语法用于YashanDB（源端）对远端数据库（目的端）的表操作，目的端可以为同构数据库（YashanDB）或异构数据库（Oracle、达梦数据库、金仓数据库）。
 
 dblink_name指在[CREATE DATABASE LINK](../../SQL语句/CREATE DATABASE LINK.md)时所创建的远端数据库名称。
 
 ## 使用说明
 
-使用dblink功能时，崖山数据库会启动[沙箱进程](yex_server沙箱进程管理.md)进行相关数据操作。
+使用DBLink功能时，崖山数据库会启动[沙箱进程](yex_server沙箱进程管理.md)进行相关数据操作。
 
-- 通过dblink操作远端数据库的表时，需满足如下要求：
+- 通过DBLink操作远端数据库的表时，需满足如下要求：
   >**Note**:
   >
   > 在存算一体分布式集群部署中，操作远端表时采用列存，除下表所列数据类型要求外，还应**遵循列存的[数据类型](../../数据类型/00数据类型.md)支持范围**。
 
-  |  目的端为Oracle| 目的端为YashanDB|
-  |--------------------|--------------------------------------|
-  |远端表字段需为下列数据类型：<br/>SMALLINT<br/>INT<br/>FLOAT/BINARY_FLOAT<br/>BINARY_DOUBLE<br/>NUMBER/DECIMAL<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>NCHAR<br/>VARCHAR2<br/>NVARCHAR2<br/>RAW<br/>BLOB（源端为存算一体分布式集群部署时，不适用）<br/>CLOB（源端为存算一体分布式集群部署时，不适用）<br/>NCLOB（源端为存算一体分布式集群部署时，不适用）  |远端表字段需为下列数据类型：<br/>TINYINT<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/BINARY_FLOAT<br/>DOUBLE/BINARY_DOUBLE<br/>NUMBER<br/>BIT<br/>BOOLEAN<br/>DATE<br/>TIME<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>RAW<br/>ROWID（源端为存算一体分布式集群部署时，不适用）  |
+  |  目的端为Oracle| 目的端为YashanDB|  目的端为达梦数据库|  目的端为金仓数据库|
+  |--------------------|--------------------------------------|--------------------------------------|--------------------------------------|
+  |远端表字段需为下列数据类型：<br/>SMALLINT<br/>INT<br/>FLOAT/BINARY_FLOAT<br/>BINARY_DOUBLE<br/>NUMBER/DECIMAL<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>NCHAR<br/>VARCHAR2<br/>NVARCHAR2<br/>RAW<br/>BLOB（源端为存算一体分布式集群部署时，不适用）<br/>CLOB（源端为存算一体分布式集群部署时，不适用）<br/>NCLOB（源端为存算一体分布式集群部署时，不适用）  |远端表字段需为下列数据类型：<br/>TINYINT<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/BINARY_FLOAT<br/>DOUBLE/BINARY_DOUBLE<br/>NUMBER<br/>BIT<br/>BOOLEAN<br/>DATE<br/>TIME<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>RAW<br/>ROWID（源端为存算一体分布式集群部署时，不适用）  |远端表字段需为下列数据类型：<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/DOUBLE<br/>NUMBER/DECIMAL<br/>CHAR<br/>VARCHAR<br/>VARCHAR2<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>TEXT<br/>BLOB（源端为存算一体分布式集群部署时，不适用）<br/>CLOB（源端为存算一体分布式集群部署时，不适用）  |远端表字段需为下列数据类型：<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/DOUBLE<br/>NUMBER/DECIMAL<br/>CHAR<br/>VARCHAR<br/>VARCHAR2<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>TEXT<br/>BLOB（源端为存算一体分布式集群部署时，不适用）  |
 
 - 在存算一体分布式集群部署中，无法对远端数据库的表进行INSERT、UPDATE、DELETE、SEQUENCE、PROCEDURE以及FUNCTION操作。
 
-- 在使用dblink的场景下，不支持通过[二阶段提交（Two-phase Commit）](../../../../概念手册/附：术语表.md#2para)保证所有资源同时提交或回滚某个事务。
+- 在使用DBLink的场景下，不支持通过[二阶段提交（Two-phase Commit）](../../../../概念手册/附：术语表.md#2para)保证所有资源同时提交或回滚某个事务。
 
-- 对dblink远端数据库进行事务操作时，只支持READ COMMITTED事务隔离级别。
+- 对DBLink远端数据库进行事务操作时，只支持READ COMMITTED事务隔离级别。
 
 - 暂未适配临时表，如若对远端临时表进行操作，结果可能与预期不符。
 
 ## 配置沙箱进程运行参数
+
+### DBLINK_CHECK_HEARTBEAT_TIME
+
+沙箱进程后台线程定期检测远端数据库连接状态的间隔时间，单位为分钟。默认值为10，取值必须为正整数或0，有效值域范围为[1,UINT64_MAX]。
+
+当远端数据库为Oracle数据库时，该值的设定需参考目标数据库的IDLE_TIME参数相关配置，建议将DBLINK_CHECK_HEARTBEAT_TIME参数设置为小于IDLE_TIME参数的值。否则，一旦会话空闲时间超出IDLE_TIME参数值，Oracle便会清理空闲的连接，进而影响DBLink的正常使用。
+
+若调整该值为0不会报错，但实际生效仍采用最小值1。
+
+当该参数值为UINT64_MAX或当前时间加上参数值超出TIMESTAMP类型上限（9999-12-31 23:59:59.999999）时，将不会进行后台线程检测。
 
 ### DBLINK_ROWARRAY_SIZE
 
@@ -62,6 +72,12 @@ dblink_name指在[CREATE DATABASE LINK](../../SQL语句/CREATE DATABASE LINK.md)
 
 若调整该值为小于最小值的整数不会报错，但实际生效仍采用最小值。
 
+<span id="max_dblink_objects" name="max_dblink_objects"></span>
+
+### MAX_DBLINK_OBJECTS
+
+当前进程可同时使用的DBLink对象数量上限。默认值为1024，取值必须为正整数或0，有效值域范围为[1024,16384]。
+
 ## 查询远端表
 
 对远端表进行[SELECT](../../SQL语句/SELECT.md)操作时，存在如下约束：
@@ -77,7 +93,7 @@ dblink_name指在[CREATE DATABASE LINK](../../SQL语句/CREATE DATABASE LINK.md)
 conn sys/********
 create table table_test(c1 int);
 
--- 创建dblink，并访问远端表
+-- 创建DBLink，并访问远端表
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 select * from table_test@link_test;
@@ -112,7 +128,7 @@ C1           C2
 conn sys/********
 create table table_test(c1 int, c2 int);
 
--- 创建dblink，并访问远端表
+-- 创建DBLink，并访问远端表
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 select * from table_test@link_test;
@@ -141,7 +157,7 @@ insert into table_test@link_test values(1,2);
 conn sys/********
 create table table_test(c1 int, c2 int);
 
--- 创建dblink
+-- 创建DBLink
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 
@@ -168,7 +184,7 @@ update table_test@link_test set c1=1,c2=2;
 conn sys/********
 create table table_test(c1 int);
 
--- 创建dblink
+-- 创建DBLink
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 
@@ -233,7 +249,7 @@ create or replace package body pkg_test as
 end pkg_test;
 /
 
--- 创建dblink
+-- 创建DBLink
 conn sales/sales
 create database link link_test connect to oradb identified by oradb using 'oracle:192.168.1.3:1521/orainst';
 

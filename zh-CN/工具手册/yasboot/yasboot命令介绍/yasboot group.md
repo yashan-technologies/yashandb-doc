@@ -229,11 +229,12 @@ $ yasboot group add -t yashandb_add.toml -c yashandb
 
 ## group remove
 
-本命令用于对存算一体分布式集群部署中的DN节点组进行缩容。
+本命令用于对共享集群的备集群、存算一体分布式集群部署中的DN节点组进行缩容。
 
 |  选项| 含义|
 |-----------------|-------------------------------------------|
 | *-c, --cluster* | YashanDB的集群名                              |
+| *--ce*                | 共享集群的标识，表示删除共享集群的备集群         |
 | *--group-ids*   | 组ID（可以通过yasboot cluster status命令查看，nodeid中短横线前的数值为group-id，例如`1-1:1`的组ID为1），支持多个，使用逗号分隔 |
 | *-f, --force*   | 跳过确认直接执行命令                                |
 | *--purge*   | 删除缩容节点的data数据                             |

@@ -6,7 +6,7 @@ PDB-related information can be queried using the following methods:
 | [GV$PDBS](../../../Reference Manual/System Views/Dynamic Performance Views/GV$PDBS)/[V$PDBS](../../../Reference Manual/System Views/Dynamic Performance Views/V$PDBS)                                       | Can view container ID, name, container type, running status, data file storage path, and syntax mode for all PDBs (including PDB seed). |
 |  [*yasql*](../../../Tools Guide/yasql/User Guide for yasql.md#show_pdbs)         | Can view container ID, name, and running status for all PDBs (including PDB seed). |
 | [*yasboot*](../../../Tools Guide/yasboot/Introduction to yasboot Command/yasboot pdb) | Can view the running status, primary/standby role, and listening address information for the specified PDB. |
-| [*ycsctl*](../../../Tools Guide/ycsctl/Node Management Commands)                                                   | Only applicable to the CDB in YAC/Distributed Cluster Deployment.  <br/>Can view the running status and primary/standby role information for the specified PDB. |
+| [*ycsctl*](../../../Tools Guide/ycsctl/User Guide for ycsctl/Database Resource Management Commands.md)                                                   | Only applicable to the CDB in YAC/Distributed Cluster Deployment.  <br/>Can view the running status and primary/standby role information for the specified PDB. |
 
 ## Through Dynamic Views
 

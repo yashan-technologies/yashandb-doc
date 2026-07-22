@@ -17,9 +17,9 @@ yasldr工具默认开启容错特性，以便跳过错误数据继续执行导�
     
 #### 导入过程中为什么会报`the table is corrupted`的错误？
     
-当参数nologging设置为true时，如果导入过程中有数据违反了目标表的约束条件，导入工具无法容错，会报错显示the table is corrupted。
+当参数NOLOGGING设置为TRUE时，如果导入过程中有数据违反了目标表的约束条件，导入工具无法容错，会报错显示the table is corrupted。
     
-请将nologging设置为false再导入，或保证数据满足目标表的约束条件后再重新导入。
+请将NOLOGGING设置为FALSE再导入，或保证数据满足目标表的约束条件后再重新导入。
 
 #### 导入过程中为什么会报`dead lock detected`的错误？
 

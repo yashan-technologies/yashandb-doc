@@ -49,7 +49,7 @@ YFSCMD >  cd +DG2
 
 Use `mkdir` to create a directory. The new directory must not have the same name as any other file or directory in the same level.
 
-Note: The subdirectories under the root directory `+` are virtual directories for the disk group and cannot be created here using `mkdir`. Directories can only be created here by creating a disk group.
+The subdirectories under the root directory `+` are virtual directories for the DiskGroup and cannot be created here using `mkdir`. Directories can only be created here by creating a DiskGroup.
 
 ```bash
 YFSCMD >  mkdir data1
@@ -84,7 +84,7 @@ YFSCMD >  cp data2 data3.dat
 cp OK: YFS:+DG2/data2 --> YFS:+DG2/data3.dat
 ```
 
-> **Note**: 
+> **Note**:
 >
 > Unlike typical file systems where objects with the same name can be created by default, the second parameter of the `cp` command must explicitly specify the new name.
 
@@ -99,24 +99,62 @@ data2
 data3.dat
 ```
 
-### Delete
+<span id="snapshot" name="snapshot"></span>
 
-Use the `rm` command to delete files or directories.
+### Create file snapshot
 
-By default, non-empty directories cannot be deleted, but the `-r` parameter can be specified to recursively delete non-empty directories.
+You can create snapshots for any YFS file using the `snapshot` command. A snapshot only saves the state of the file at a certain point in time (list of storage allocation units), without copying the actual data.
 
-The subdirectories under the root directory `+` are virtual directories for the disk group and cannot be deleted with `rm`. Only by deleting the disk group can the corresponding virtual directory be removed.
+> **Note**:
+>
+> Only YashanDB v27.1.1 and above versions that are newly installed fully support snapshot functionality. If upgraded from an older version to YashanDB v27.1.1 or above, existing DiskGroups will not be able to use the corresponding functionality.
 
 ```bash
-YFSCMD >  rm data1
-Delete +DG2/data1
+YFSCMD > snapshot +DG0/datafile
 ```
+
+A single file can only record one snapshot version; creating multiple times will still only associate with the last created snapshot. When deleting a file, if the file has a snapshot, the snapshot will be automatically deleted.
+
+<span id="reset" name="reset"></span>
+
+### Flash Back a File via a Snapshot
+
+For files that have a snapshot, use the `reset` command to quickly restore them to the state at the time of the snapshot.
+
+> **Note**:
+>
+> Only YashanDB v27.1.1 and above versions that are newly installed fully support file reset functionality. If upgraded from an older version to YashanDB v27.1.1 or above, existing DiskGroups will not be able to use the corresponding functionality.
+
+```bash
+YFSCMD > reset +DG0/clone_file
+```
+
+It can only flashback to the most recently created snapshot, and the snapshot version cannot be specified. After the flashback, the original file shares storage AU data with the snapshot file.
+
+### Create cloned files
+
+YFS has file cloning capability, and you can create an instant copy of a source file as a clone within the same disk group by executing the `cp -C` command.
+
+> **Note**:
+>
+> Only YashanDB v27.1.1 and above versions that are newly installed fully support file cloning functionality. If upgraded from an older version to YashanDB v27.1.1 or above, existing DiskGroups will not be able to use the corresponding functionality.
+
+```bash
+YFSCMD > cp -C data data_clone
+cp OK: YFS:+DG2/data --> YFS:+DG2/data_clone
+```
+
+When creating a cloned file, the file data is not immediately copied; instead, it only shares storage allocation units with the source file. Only when a write operation is performed on the source file or the cloned file will the cloned file copy the data, which is the Copy-on-Write (COW) mechanism.
+
+When creating a cloned file, it will automatically create a snapshot for it once. To manually create a new version of the snapshot, please refer to [Create file snapshot](#snapshot).
+
+You can use a snapshot to quickly flashback a cloned file to the version at the time the snapshot was created. For detailed operations, please refer to [Flash Back a File via a Snapshot](#reset).
 
 ### Rename
 
 Use `mv` to rename files or directories. The second parameter must explicitly specify the new name.
 
-The subdirectories under the root directory `+` are virtual directories for the disk group and cannot be renamed.
+The subdirectories under the root directory `+` are virtual directories for the DiskGroup and cannot be renamed.
 
 ```bash
 YFSCMD >  mv data2 data1
@@ -124,6 +162,21 @@ mv: YFS:+DG2/data2 --> YFS:+DG2/data1.
 YFSCMD >  ls
 data1
 data3.dat
+```
+
+### Delete
+
+Use the `rm` command to delete files or directories.
+
+By default, non-empty directories cannot be deleted, but the `-r` parameter can be specified to recursively delete non-empty directories.
+
+The subdirectories under the root directory `+` are virtual directories for the DiskGroup and cannot be deleted with `rm`. Only by deleting the DiskGroup can the corresponding virtual directory be removed.
+
+When deleting a file, the associated snapshot is also automatically deleted.
+
+```bash
+YFSCMD >  rm data1
+Delete +DG2/data1
 ```
 
 ## Manage via C API
@@ -231,7 +284,7 @@ Open a file. Only YFS files can be opened; attempting to open a directory or non
 |Parameter |Description |
 | ----------- | ----------- |
 | conn      | Pointer to the connection object |
-| fileName  | Absolute path of the file, supports only YFS path, format: `+ disk group name/directory/filename` |
+| fileName  | Absolute path of the file, supports only YFS path, format: `+ DiskGroup name/directory/filename` |
 | fd        | Pointer to the file descriptor |
 
 ***Example***

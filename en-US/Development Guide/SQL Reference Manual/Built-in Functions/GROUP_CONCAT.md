@@ -1,18 +1,18 @@
 ```ebnf
-group_concat = GROUP_CONCAT "(" [DISTINCT] string {"," string} [order_by_clause [SEPARATOR sep_character]] ")".
+group_concat = GROUP_CONCAT "(" [DISTINCT|UNIQUE] string {"," string} [order_by_clause [SEPARATOR sep_character]] ")".
 ```
 
 The GROUP_CONCAT function adds aggregation functionality to the [CONCAT](CONCAT) function, which means it performs the CONCAT operation on multiple rows within each group for a GROUP BY aggregation. The return value of the function is of CLOB type.
 
 This function does not support vectorization calculation.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Filters out duplicate strings that appear within the same group.
 
+DISTINCT and UNIQUE are completely equivalent.
 
 DISTINCT does not support LOB data.
-
 
 **string**
 

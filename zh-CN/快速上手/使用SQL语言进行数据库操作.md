@@ -41,7 +41,7 @@
    SQL> 
    ```
 
-YashanDB客户端工具还支持部署在Linux服务器上，请参考[YashanDB客户端安装](../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)进行操作。
+YashanDB客户端工具还支持部署在Linux、macOS设备上，请参考[YashanDB客户端安装](../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)进行操作。
 
 ### 方案二：通过YDC工具连接数据库
 

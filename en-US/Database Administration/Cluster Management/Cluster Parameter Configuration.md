@@ -6,13 +6,13 @@ This chapter will introduce the configuration parameters exposed by YCS and thei
 
 ### Managing Node-Level Parameters
 
-The [ycsctl get](../../Tools Guide/ycsctl/Node Management Commands) command can be used to view the configuration parameter values on the current node.
+The [ycsctl get](../../Tools Guide/ycsctl/User Guide for ycsctl/Node Management Commands.md) command can be used to view the configuration parameter values on the current node.
 
 ```shell
 $ ycsctl get AUTO_START
 ```
 
-The [ycsctl set](../../Tools Guide/ycsctl/Node Management Commands) command can be used to modify the configuration parameter values on the current node (except for read-only parameters).
+The [ycsctl set](../../Tools Guide/ycsctl/User Guide for ycsctl/Node Management Commands.md) command can be used to modify the configuration parameter values on the current node (except for read-only parameters).
 
 ```shell
 $ ycsctl set LOG_LEVEL DEBUG
@@ -30,7 +30,7 @@ Cluster-level parameters can only be modified offline. The specific operation pr
     $ yasfs &
     ```
 
-3. Execute the [ycsctl set_ycr](../../Tools Guide/ycsctl/Cluster Management Commands) command to modify cluster configuration parameters.
+3. Execute the [ycsctl set_ycr](../../Tools Guide/ycsctl/User Guide for ycsctl/Cluster Configuration Commands) command to modify cluster configuration parameters.
    
     ```shell
     $ ycsctl set_ycr NETWORK_HB_TIMEOUT 50
@@ -393,9 +393,9 @@ The name of the YCS parameter file is `yascs.ini`, which cannot be modified and 
 
 *   Default Value: 0
 
-*   Value Range/Format: [0|1]
+*   Value Range/Format: [0|1|2]
 
-*   Parameter Description: The I/O fencing type for YACs; 0 indicates a transit I/O protection algorithm, while 1 indicates I/O fencing based on SCSI persistent reservation. Please refer to [IO Fencing](IO Fencing/00IO Fencing) for the principles, hardware requirements, and configuration methods of different I/O fencing methods, and carefully read and prepare before adjusting this configuration item.
+*   Parameter Description: The I/O Fencing type of YAC. 0 indicates no configuration, 1 indicates the in-transit I/O protection algorithm, and 2 indicates reservation-based I/O Fencing (supporting SCSI persistent reservation and NVMe reservation). Please refer to [IO Fencing](IO Fencing/00IO Fencing) for the principles, hardware requirements, and configuration methods of different I/O fencing methods, and carefully read and prepare before adjusting this configuration item.
 
 *   Immediate Effect of Changes: No
 

@@ -16,14 +16,13 @@ This statement is used to create a new DiskGroup.
 
 Prerequisites for creating a DiskGroup are as follows:
 
-
 - The I/O fencing mode used by YAC has been confirmed. This can be viewed using the `ycsctl show fence` command.
 
 - The storage device has been [prepared](../../Installation and Upgrade/Installation and Deployment/Pre-Installation Preparation/Preparing the Servers.md#Storage) according to requirements, and the hardware devices planned for each FailureGroup must meet the [fault isolation standard](../../Product Concepts/YAC Infrastructure/Yashan File System.md#FailureGroup).
 
 - The storage device has been [configured](../../Installation and Upgrade/Installation and Deployment/Pre-Installation Preparation/Configuring the Storage Devices) according to requirements (e.g., partitioning, mounting, etc.), and the disks must be bound under the same parent directory as the existing disk (e.g., `/dev/yfs`).
 
-- If [SCSI I/O Fencing](../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) is used, it is recommended to first run the [fenceScsiCheck](../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage) script to verify that the disks meet the requirements before creating the DiskGroup.
+- If [reservation-based IO fencing](../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) is used, it is recommended to first run the [fenceResvCheck](../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage) script to verify that the disks meet the requirements before creating the DiskGroup.
 
 
 
@@ -251,7 +250,7 @@ The size_clause is the same as the [size_clause](../../Development Guide/SQL Ref
 
 ### dgname
 
-Specifies the name of an existing data DiskGroup. `SYSTEM` cannot be specified, meaning that ALTER DISKGROUP operations cannot be performed on the system DiskGroup.
+Specifies the name of an existing data DiskGroup. 
 
 ### DISMOUNT|MOUNT
 
@@ -271,6 +270,15 @@ If files in the DiskGroup are already open and not yet closed, the DiskGroup can
 >
 > Forcefully DISMOUNTING a DiskGroup may cause database anomalies and data loss, **please exercise caution with this operation**.
 
+***Example*** for YAC Deployment
+
+```shell
+-- Unmount DiskGroup
+YFSCMD > exec ALTER DISKGROUP DG2 DISMOUNT;
+-- Mount DiskGroup
+YFSCMD > exec ALTER DISKGROUP DG2 MOUNT;
+```
+
 <span id="add_disk_clause" name="add_disk_clause"></span>
 
 ### add_disk_clause
@@ -279,34 +287,37 @@ This statement is used to add disks to the FailureGroup within the DiskGroup.
 
 The prerequisites for adding disks (i.e., preparations for new disks) are as follows:
 
-
-
 - The I/O fencing mode used by YAC has been confirmed. This can be viewed using the `ycsctl show fence` command.
 
 - The storage device has been [prepared](../../Installation and Upgrade/Installation and Deployment/Pre-Installation Preparation/Preparing the Servers.md#Storage) according to requirements, and the hardware devices planned for each FailureGroup must meet the [fault isolation standard](../../Product Concepts/YAC Infrastructure/Yashan File System.md#FailureGroup).
 
 - The storage device has been [configured](../../Installation and Upgrade/Installation and Deployment/Pre-Installation Preparation/Configuring the Storage Devices) according to requirements (e.g., partitioning, mounting, etc.), and the disks must be bound under the same parent directory as the existing disk (e.g., `/dev/yfs`).
 
-- If [SCSI I/O Fencing](../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) is used, it is recommended to first run the [fenceScsiCheck](../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage) script to verify that the disks meet the requirements before creating the DiskGroup.
-
-
+- If [reservation-based IO fencing](../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) is used, it is recommended to first run the [fenceResvCheck](../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage) script to verify that the disks meet the requirements before creating the DiskGroup.
 
 The usage rules for adding disks are as follows:
 
-
-
 - This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
 
-- The target DiskGroup to be operated on has been mounted.
-
-
-- If the number of disks in the target DiskGroup exactly meets the redundancy requirements (for example, the redundancy level is NORMAL and the number of disks is 4), and some disks are in an offline state, this operation cannot be performed at this time.
+- The target DiskGroup to be operated on has been mounted, and none of its existing disks are in offline state.
 
 - If the specified FailureGroup name already exists, disks are added to the existing FailureGroup.
 
 - If the specified FailureGroup name does not exist, or no FailureGroup name is specified, a new FailureGroup is created, and disks are added to it.
 
+- It is necessary to ensure that after adding the disks, the number of FailureGroups meets the redundancy requirements of the DiskGroup, and the number of disks in each FailureGroup is the same. If the number fails to meet the requirements, YFS will block the add operation (the operation will not succeed).
+
 Other details are consistent with those described in [CREATE DISKGROUP](#CREATEDG).
+
+***Example*** for YAC Deployment
+
+```shell
+-- Add disks to existing FaultGroups
+YFSCMD > exec ALTER DISKGROUP DG2 ADD FAILGROUP FG_1 DISK '/dev/DISK_NAME13' NAME DISK13,'/dev/DISK_NAME14' NAME DISK14 FAILGROUP FG_2 DISK '/dev/DISK_NAME23' NAME DISK23,'/dev/DISK_NAME24' NAME DISK24;
+
+-- Add new FaultGroup(s) and add disks
+YFSCMD > exec ALTER DISKGROUP DG2 ADD FAILGROUP FG_3 DISK '/dev/DISK_NAME31' NAME DISK31,'/dev/DISK_NAME32' NAME DISK32,'/dev/DISK_NAME33' NAME DISK33,'/dev/DISK_NAME34' NAME DISK34 FAILGROUP FG_4 DISK '/dev/DISK_NAME41' NAME DISK41,'/dev/DISK_NAME42' NAME DISK42,'/dev/DISK_NAME43' NAME DISK43,'/dev/DISK_NAME44' NAME DISK44;
+```
 
 <span id="drop_disk_clause" name="drop_disk_clause"></span>
 
@@ -316,12 +327,9 @@ This statement is used to delete one or more disks from the DiskGroup. It can al
 
 The usage rules for this operation are as follows:
 
-
-
 - This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
 
-- The target DiskGroup to be operated on has been mounted.
-
+- The target DiskGroup to be operated on has been mounted, and none of its existing disks are in offline state.
 
 - Only **empty disk(s)** are allowed to be deleted.
 
@@ -339,6 +347,15 @@ Specify to delete several disks.
 
 Specify to delete all disks in several FailureGroups.
 
+***Example*** for YAC Deployment
+
+```shell
+-- Delete all disks from FailureGroup
+YFSCMD > exec ALTER DISKGROUP DG2 DROP DISKS IN FAILGROUP FG_3, FG_4;
+-- Delete specified disks
+YFSCMD > exec ALTER DISKGROUP DG2 DROP DISK DISK13, DISK14;
+```
+
 <span id="rename_disk_clause" name="rename_disk_clause"></span>
 
 ### rename_disk_clause
@@ -347,14 +364,9 @@ This statement is used to rename the disks within a DiskGroup.
 
 The usage rules for this operation are as follows:
 
-
-
 - This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
 
-- The target DiskGroup to be operated on has been mounted.
-
-
-- If the number of disks in the target DiskGroup exactly meets the redundancy requirements (for example, the redundancy level is NORMAL and the number of disks is 4), and some disks are in an offline state, this operation cannot be performed at this time.
+- The target DiskGroup to be operated on has been mounted, and none of its existing disks are in offline state.
 
 #### DISK old_disk_name TO new_disk_name
 
@@ -370,6 +382,15 @@ The disk naming specifications are as follows:
 
 Rename all disks. The new names will be specified by the system, in the format of `DGNAME_DISKID`.
 
+***Example*** for YAC Deployment
+
+```shell
+-- Rename specified disks
+YFSCMD > exec ALTER DISKGROUP DG2 RENAME DISK DISK13 to DISK13NEW, DISK14 to DISK14NEW;
+-- Rename all disks
+YFSCMD > exec ALTER DISKGROUP DG2 RENAME DISKS ALL;
+```
+
 <span id="offline_disk_clause" name="offline_disk_clause"></span>
 
 ### offline_disk_clause
@@ -378,14 +399,11 @@ This statement is used to take one or more disks within the DiskGroup offline. I
 
 The usage rules for this operation are as follows:
 
-
-
-- This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
-
 - The target DiskGroup to be operated on has been mounted.
 
-
 - When taking disk(s) offline, it is necessary to ensure that the number of remaining FailureGroups meets the redundancy requirements of the DiskGroup. If the remaining number fails to meet the requirements, YFS will block the offline operation (the operation will not succeed).
+
+- To perform this operation on the system DiskGroup (named SYSTEM), ensure the system DiskGroup is not in protection state (stat ≠ PROTECT).
 
 #### DISK disk_name
 
@@ -395,22 +413,22 @@ Specify to take several disks offline.
 
 Specify to take all disks in several FailureGroups offline.
 
+***Example*** for YAC Deployment
+
+```shell
+YFSCMD > exec ALTER DISKGROUP DG2 OFFLINE DISK DISK13, DISK14;
+YFSCMD > exec ALTER DISKGROUP DG2 OFFLINE DISKS IN FAILGROUP FG_3, FG_4;
+```
+
 <span id="online_disk_clause" name="online_disk_clause"></span>
 
 ### online_disk_clause
 
-This statement is used to re-online an offline disk in a DiskGroup.
+This statement is used to make an offline disk (stat = OFFLINE) in a DiskGroup online.
 
 The usage rules for this operation are as follows:
 
-
-
-
-
-- This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
-
 - The target DiskGroup to be operated on has been mounted.
-
 
 - A single operation can only re-online one offline disk.
 
@@ -418,13 +436,21 @@ The usage rules for this operation are as follows:
 
 - Each DiskGroup can have up to 64 repair-type operation tasks concurrently (either in progress or queued).
 
+- The online operation performed on the system DiskGroup cannot be resumed from a checkpoint. If the YFS instance undergoes a role change during execution (e.g., the master instance exits and another instance becomes the master), the online operation may be interrupted. It is recommended to query and confirm the status of the target disk. If it is still in offline status, you need to manually execute the corresponding ALTER DISKGROUP command again.
 
+- If the original disk is offline due to hardware failure, the operation varies slightly depending on the DiskGroup type:
+
+    - For system DiskGroup: You must first fix the hardware issue and ensure that **the new disk's path and disk name are exactly the same as the old disk** before completing the repair through the online operation.
+
+    - For data DiskGroup:
+
+        - If both the disk path and name can be ensured to be consistent with the original disk when repairing hardware issues, the repair can be completed through the online operation.
+
+        - If the disk path or name cannot be ensured to be consistent with the original disk when repairing hardware issues, the repair can only be completed through the [REPLACE operation](#replace_disk_clause).
 
 #### disk_name
 
 Specify the name of the disk to be brought online.
-
-
 
 #### POWER integer
 
@@ -438,17 +464,19 @@ Whether to wait for the command execution result after running; default is `NOWA
 
 You can view the status and detailed information of the task using the `show job` command.
 
+***Example*** for YAC Deployment
 
+```shell
+YFSCMD > exec ALTER DISKGROUP DG2 ONLINE DISK DISK13 POWER 10 WAIT;
+```
 
 <span id="replace_disk_clause" name="replace_disk_clause"></span>
 
 ### replace_disk_clause
 
-This statement is used to add a new disk to replace an offline disk in a DiskGroup.
+This statement is used to add a new disk to replace an offline disk (stat = OFFLINE) in a DiskGroup.
 
 The prerequisites for disk replacement (i.e., preparations for the new disk) are as follows:
-
-
 
 - The I/O fencing mode used by YAC has been confirmed. This can be viewed using the `ycsctl show fence` command.
 
@@ -456,20 +484,13 @@ The prerequisites for disk replacement (i.e., preparations for the new disk) are
 
 - The storage device has been [configured](../../Installation and Upgrade/Installation and Deployment/Pre-Installation Preparation/Configuring the Storage Devices) according to requirements (e.g., partitioning, mounting, etc.), and the disks must be bound under the same parent directory as the existing disk (e.g., `/dev/yfs`).
 
-- If [SCSI I/O Fencing](../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) is used, it is recommended to first run the [fenceScsiCheck](../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage) script to verify that the disks meet the requirements before creating the DiskGroup.
-
-
+- If [reservation-based IO fencing](../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) is used, it is recommended to first run the [fenceResvCheck](../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage) script to verify that the disks meet the requirements before creating the DiskGroup.
 
 The usage rules for this operation are as follows:
-
-
-
-
 
 - This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
 
 - The target DiskGroup to be operated on has been mounted.
-
 
 - A single operation can only replace one offline disk.
 
@@ -485,8 +506,6 @@ The usage rules for this operation are as follows:
 >
 > - When replacing a disk, if the disk path of the new disk is mistakenly specified as the original path of the disk named `disk_name`, YFS will not report an error or block the operation. In this case, the operation degrades to simply re-onlineing the target disk. 
 
-
-
 #### disk_name
 
 Specifies the name of the disk to be replaced.
@@ -498,8 +517,6 @@ Specifies the disk path of the new disk.
 #### FORCE|NOFORCE
 
 Whether to forcibly format the disk. The meaning and effect are the same as the FORCE|NOFORCE keywords in CREATE DISKGROUP.
-
-
 
 #### POWER integer
 
@@ -513,7 +530,11 @@ Whether to wait for the command execution result after running; default is `NOWA
 
 You can view the status and detailed information of the task using the `show job` command.
 
+***Example*** for YAC Deployment
 
+```shell
+YFSCMD > exec ALTER DISKGROUP DG2 REPLACE DISK DISK14 WITH '/dev/disk14' POWER 10 WAIT;
+```
 
 <span id="rebalance_modify" name="rebalance_modify"></span>
 
@@ -531,6 +552,15 @@ Specifies the data migration intensity for the current DiskGroup. The valid rang
 
 Cancels all repair-type operation tasks in the current DiskGroup.
 
+***Example*** for YAC Deployment
+
+```shell
+-- Adjust the data migration intensity
+YFSCMD > exec ALTER DISKGROUP DG2 REBALANCE MODIFY POWER 8;
+-- Cancel all repair tasks for the DiskGroup
+YFSCMD > exec ALTER DISKGROUP DG2 REBALANCE CANCEL;
+```
+
 <span id="resize_disk_clause" name="resize_disk_clause"></span>
 
 ### resize_disk_clause
@@ -539,14 +569,11 @@ This statement is used to readjust the capacity of one or more disks in the Disk
 
 The usage rules for this operation are as follows:
 
-
-
 - This operation cannot be performed on the system DiskGroup (named `SYSTEM`).
 
 - The target DiskGroup to be operated on has been mounted.
 
-
-- This operation can only be performed on disks in the normal status (status = NORMAL).
+- This operation can only be performed on disks in the normal status (stat = NORMAL).
 
 - The new disk capacity requirements vary depending on the redundancy level (you can view the DiskGroup redundancy information redundancy through the [show diskgroup command](./Status Inspection Commands)):
 
@@ -583,30 +610,6 @@ If the configured capacity (including the default value) does not meet the requi
 ***Example*** for YAC Deployment
 
 ```shell
--- Unmount DiskGroup
-YFSCMD > exec ALTER DISKGROUP DG2 DISMOUNT;
--- Mount DiskGroup
-YFSCMD > exec ALTER DISKGROUP DG2 MOUNT;
--- Add disks
-YFSCMD > exec ALTER DISKGROUP DG2 ADD FAILGROUP FG_3 DISK '/dev/DISK_NAME13' NAME DISK13,'/dev/DISK_NAME14' NAME DISK14 FAILGROUP FG_4 DISK '/dev/DISK_NAME15' NAME DISK15,'/dev/DISK_NAME16' NAME DISK16;
--- Delete all disks from FailureGroup
-YFSCMD > exec ALTER DISKGROUP DG2 DROP DISKS IN FAILGROUP FG_3, FG_4;
--- Delete specified disks
-YFSCMD > exec ALTER DISKGROUP DG2 DROP DISK DISK13, DISK14;
--- Rename specified disks
-YFSCMD > exec ALTER DISKGROUP DG2 RENAME DISK DISK13 to DISK13NEW, DISK14 to DISK14NEW;
-YFSCMD > exec ALTER DISKGROUP DG2 RENAME DISKS ALL;
--- Take disks offline
-YFSCMD > exec ALTER DISKGROUP DG2 OFFLINE DISK DISK13, DISK14;
-YFSCMD > exec ALTER DISKGROUP DG2 OFFLINE DISKS IN FAILGROUP FG_3, FG_4;
--- Take the specified disk online
-YFSCMD > exec ALTER DISKGROUP DG2 ONLINE DISK DISK13 POWER 10 WAIT;
--- Replace the specified disk
-YFSCMD > exec ALTER DISKGROUP DG2 REPLACE DISK DISK14 WITH '/dev/disk14' POWER 10 WAIT;
--- Adjust the data migration intensity
-YFSCMD > exec ALTER DISKGROUP DG2 REBALANCE MODIFY POWER 8;
--- Cancel all repair tasks for the DiskGroup
-YFSCMD > exec ALTER DISKGROUP DG2 REBALANCE CANCEL;
 -- Readjust the capacity of all disks in DG1
 YFSCMD > exec ALTER DISKGROUP DG1 RESIZE ALL;
 -- Readjust the capacity of some disks in DG1
@@ -617,7 +620,7 @@ YFSCMD > exec ALTER DISKGROUP DG1 RESIZE DISK DISK1 SIZE 300G, DISK2 SIZE 200G;
 
 This statement is used to delete a DiskGroup.
 
-The DiskGroup to be deleted must be in the MOUNT state; otherwise, the deletion will fail, and the state of the DiskGroup can be changed using the ALTER DISKGROUP statement.
+The DiskGroup to be deleted must be in the MOUNTED state; otherwise, the deletion will fail, and the state of the DiskGroup can be changed using the ALTER DISKGROUP statement.
 
 **drop diskgroup::=**
 

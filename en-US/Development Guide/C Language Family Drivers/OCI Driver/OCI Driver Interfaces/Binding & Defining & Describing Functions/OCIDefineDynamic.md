@@ -1,6 +1,6 @@
 ## Functionality Overview
 
-If you select the OCI_DYNAMIC_FETCH mode in [OCIDefineByPos](OCIDefineByPos) or OCIDefineByPos2, you must call the OCIDefineDynamic function to set the corresponding additional attributes.
+If you select the OCI_DYNAMIC_FETCH mode in [OCIDefineByPos](OCIDefineByPos) or [OCIDefineByPos2](OCIDefineByPos2), you must call the OCIDefineDynamic function to set the corresponding additional attributes.
 
 Currently, only the callback function returning OCI_CONTINUE is supported, and the value assigned to *piecep must be OCI_ONE_PIECE.
 

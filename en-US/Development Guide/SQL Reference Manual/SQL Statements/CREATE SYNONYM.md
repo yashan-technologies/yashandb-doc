@@ -42,7 +42,7 @@ This clause is used to specify the name of the object for which a synonym will b
 
 ### object@database_link_object
 
-This clause is used to specify the object for which a synonym will be created, derived from a dblink connection. Currently, the object supports table and view types through dblink connections. At this time, there will be no check to see if the object exists or is valid; an error will only occur when using this synonym.
+This clause is used to specify the object for which a synonym will be created, derived from a DBLink connection. Currently, the object supports table and view types through DBLink connections. At this time, there will be no check to see if the object exists or is valid; an error will only occur when using this synonym.
 
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
 

@@ -2,8 +2,13 @@ Before performing the scaling operations, please carefully read the relevant pre
 
 - It is recommended to [back up](../../Database Administration/Backup and Recovery/00Backup and Recovery) the database before performing scaling operations to ensure that there is a backup set available for recovery.
 
-- When planning the scale of scale-out, ensure that the final configuration after scale-out must not exceed the corresponding [specifications](../../Product Overview/Specifications/Physical Specifications), such as the maximum number of standby databases, maximum number of nodes/node groups, and the [number of instances](../../Development Guide/SQL Reference Manual/SQL Statements/CREATE DATABASE.md#maxinstances) in YACs, etc.
+- When planning the scale of scale-out, ensure that:
 
+    - After scaling out, the final configuration must not exceed the corresponding [specifications](../../Product Overview/Specifications/Physical Specifications), such as the maximum number of standby databases (standby clusters), maximum number of nodes/node groups, and the [number of instances](../../Development Guide/SQL Reference Manual/SQL Statements/CREATE DATABASE.md#maxinstances) in YACs, etc.
+
+    - In YAC Deployment, when expanding a standby cluster, the number of instances in the new standby cluster must not exceed the maximum value of THREAD# in the GV$LOGFILE view (you can execute `SELECT MAX(thread#) AS max_thread# FROM V$LOGFILE;` to check and confirm).
+
+- In YAC Deployment, if you need to expand a single cluster to a primary/standby cluster deployment, you must ensure that the archiving function is enabled (enabled by default) and correctly configure the primary/standby cluster communication address (REPLICATION_ADDR parameter). Both operations require restarting the entire database cluster to take effect. Please perform these operations during off-peak business hours.
 
 - Before scaling, temporarily disable [yasom election](../../High Availability/Configuring Leader Election/Configuring yasom Election), and restore the relevant configuration as needed after scaling is complete.
 

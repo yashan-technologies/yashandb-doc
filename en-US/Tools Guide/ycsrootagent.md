@@ -37,9 +37,9 @@ YAS-00521 process permission is insufficient.
 
 <span id="scsi_clear" name="scsi_clear"></span>
 
-## ycsrootagent scsi {allow|ban|clear}
+## ycsrootagent resv {allow|ban|clear}
 
-In scenarios where automatic detection of whether storage devices support SCSI I/O Fencing is needed, *yasboot* will automatically call the fenceScsiCheck script to invoke relevant subcommands for this command. For manual detection, please directly execute the [fenceScsiCheck script](../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage), **it is not recommended for users to execute this command directly**.
+In scenarios where automatic detection of whether storage devices support reservation-based IO fencing is needed, *yasboot* will automatically call the fenceResvCheck script to invoke relevant subcommands for this command. For manual detection, please directly execute the [fenceResvCheck script](../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage), **it is not recommended for users to execute this command directly**.
 
 The clear subcommand is used to clean up residual persistent reservation information on storage devices and should be **executed cautiously as needed** only upon receiving a clear cleanup prompt or YAS-00341 error code.
 
@@ -56,7 +56,7 @@ The clear subcommand is used to clean up residual persistent reservation informa
 
 ## ycsrootagent pingdisk
 
-In scenarios where automatic detection of whether storage devices support SCSI I/O Fencing is needed, *yasboot* will automatically call the fenceScsiCheck script to invoke this command. For manual detection, please directly execute the [fenceScsiCheck script](../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing.md#fenceScsiCheck_usage), **it is not recommended for users to execute this command directly**.
+In scenarios where automatic detection of whether storage devices support SCSI I/O Fencing is needed, *yasboot* will automatically call the fenceResvCheck script to invoke this command. For manual detection, please directly execute the [fenceResvCheck script](../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing.md#fenceResvCheck_usage), **it is not recommended for users to execute this command directly**.
 
 >**Warn**:
 >

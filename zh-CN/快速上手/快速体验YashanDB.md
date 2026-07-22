@@ -45,7 +45,7 @@
    passwd: all authentication tokens updated successfully.   
    
    # groupadd YASDBA
-   # usermod -a -G YASDBA yashan
+   # usermod -aG YASDBA yashan
    # cd /
    # mkdir data
    # cd data
@@ -127,7 +127,7 @@
    1 row fetched.
    ```
 
-   为了方便您通过远端的Windows或Linux设备访问崖山数据库服务，可参考[YashanDB客户端安装](../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)将数据库客户端工具yasql部署在远端设备上。
+   为了方便您通过远端的Windows、Linux或macOS设备访问YashanDB，可参考[YashanDB客户端安装](../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)将数据库客户端工具yasql部署在远端设备上。
 
 ### 方案二：Docker容器部署试用环境
 
@@ -148,7 +148,7 @@
    passwd: all authentication tokens updated successfully.   
    
    # groupadd YASDBA
-   # usermod -a -G YASDBA yashan
+   # usermod -aG YASDBA yashan
    # cd /
    # mkdir data
    # cd data
@@ -237,7 +237,7 @@
    1 row fetched.
    ```
 
-为了方便您通过远端的Windows或Linux设备访问数据库服务，可参考[YashanDB客户端安装](../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)将数据库客户端工具yasql部署在远端设备上。连接数据库容器时，使用上述命令指定的sys用户密码及主机映射端口进行连接。
+   为了方便您通过远端的Windows、Linux或macOS设备访问YashanDB，可参考[YashanDB客户端安装](../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)将数据库客户端工具yasql部署在远端设备上。
 
 ## 创建数据库测试用户
 

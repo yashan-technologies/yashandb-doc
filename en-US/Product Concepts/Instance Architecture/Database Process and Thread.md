@@ -324,7 +324,7 @@ In the YAC Deployment, the main processes include:
 
 - YCS Client Disk Heartbeat Thread (YCSC_DISK_HB)
 
-   The YCSC_DISK_HB thread is primarily responsible for reading and writing disk heartbeats for the YCS client, handling exceptions and protecting in-flight I/O. This thread starts after a successful handshake between YASDB and YCS and exits when the YASDB process stops.
+   The YCSC_DISK_HB thread is primarily responsible for reading and writing disk heartbeats for the YCS client, handling exceptions and protecting in-transit I/O. This thread starts after a successful handshake between YASDB and YCS and exits when the YASDB process stops.
 
 - YCS Disk Heartbeat Monitoring Thread (YCS_DISK_HB_MON)
 
@@ -376,7 +376,7 @@ In the YAC Deployment, the main processes include:
 
 - YCS Client Disk Heartbeat Thread (YCSC_DHB_PROC)
 
-   The YCSC_DHB_PROC thread is mainly responsible for reading and writing disk heartbeats, handling exceptions and protecting in-flight I/O. This thread starts after a successful handshake between YCS and YASDB and exits when they disconnect or are kicked out of the cluster.
+   The YCSC_DHB_PROC thread is mainly responsible for reading and writing disk heartbeats, handling exceptions and protecting in-transit I/O. This thread starts after a successful handshake between YCS and YASDB and exits when they disconnect or are kicked out of the cluster.
 
 #### YFS Service Related Threads
 

@@ -1,3 +1,3 @@
 initno:-
 
-filename:IO Protection Algorithm,SCSI IO Fencing
+filename:In-Transit IO Protection Algorithm,Reservation-based IO Fencing

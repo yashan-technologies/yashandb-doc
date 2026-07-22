@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCINumberFromInt函数用于将实数（浮点）类型转换为OCI NUMBER类型。
+OCINumberFromReal函数用于将实数（浮点）类型转换为OCI NUMBER类型。
 
 ## 函数声明
 
@@ -22,6 +22,6 @@ sword OCINumberFromReal ( OCIError           *err,
 
 部分参数目前仅支持以下取值：
 
-|  参数| 有效值|
+|  参数   | 有效值   |
 | ---- |----|
-| rnum_length | sizeof({float | double}) |
+| rnum_length | sizeof({float / double}) |

@@ -3,7 +3,7 @@ General Description
 
 The MERGE statement integrates multiple steps of SELECT/UPDATE/INSERT/DELETE operations. It allows you to consolidate records from the source (Source) object to the target (Target) object based on a condition (Condition) in a single statement.
 
-This statement is applicable to standalone HEAP/TAC tables and YAC/Distributed Cluster Deployment.
+This statement is applicable to HEAP/TAC tables in Standalone Deployment and HEAP tables in YAC/Distributed Cluster Deployment.
 
 At least one of merge_update_clause and merge_insert_clause must be defined in the statement.
 

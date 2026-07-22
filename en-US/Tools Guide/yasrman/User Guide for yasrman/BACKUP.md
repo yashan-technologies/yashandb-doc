@@ -29,8 +29,6 @@ PARAMS xbsa_parameter)}.
 
 ### COMPRESSION
 
-
-
 Specifies the compression attributes of the backup set, including the compression algorithm and compression level. If only the `COMPRESSION` keyword is specified (algorithm and level are omitted), the default compression algorithm is ZSTD and the default compression level is LOW.
 
 Each backup set in incremental backups can use different compression algorithms and levels, which does not affect recovery.
@@ -53,11 +51,7 @@ Compression levels include:
 
 - HIGH
 
-
-
 ### ENCRYPTION
-
-
 
 Specifies the encryption attributes of the backup set, including the encryption algorithm and key. If the encryption algorithm is not explicitly specified, the default algorithm is SM4.
 
@@ -73,20 +67,13 @@ The following encryption algorithms are supported:
 - AES256
 - SM4
 
-
 **Key**
 
 The encryption key for encrypted backups is specified via the IDENTIFIED BY keyword, and its constraints follow the same rules as the [database user password rules](../../../Development Guide/SQL Reference Manual/SQL Statements/CREATE USER.md#password).
 
-
-
 ### PARALLELISM
 
-
-
 Specifies the parallel degree for multithreaded backup, with a range of [1,16]; if omitted, the default is 2.
-
-
 
 ### DEST
 
@@ -116,8 +103,6 @@ In YAC/Distributed Cluster Deployment, you can specify a [YFS](../../../Database
 
 ### SECTION SIZE
 
-
-
 This statement is used to specify the file shard size; files exceeding this size will be split into multiple smaller files for backup. The range is [128M,32T], and if omitted, the default is the system-calculated optimal value.
 
 Configuration recommendations are as follows:
@@ -129,8 +114,6 @@ Configuration recommendations are as follows:
 - It is recommended that the shard specification be less than 4G.
 
 If the specified value is not an integer multiple of 1M, it will be rounded down to the nearest 1M alignment.
-
-
 
 ### SKIP VALIDATE
 
@@ -206,19 +189,13 @@ When using incremental backup, backup efficiency is higher and disk space is sav
 
 #### LEVEL integer
 
- 
-
 Used to specify the incremental backup level, it cannot be omitted, and the value can be LEVEL 0 or LEVEL 1.
 
 - LEVEL 0 indicates the first incremental backup (backup scope is equivalent to full backup, but a physical identifier distinguishing it from the full backup is added in the backup summary file).
 
 - LEVEL 1 indicates a non-first incremental backup.
 
- 
-
 #### CUMULATIVE
-
- 
 
 For LEVEL 1 incremental backups, explicitly specifying CUMULATIVE indicates that the incremental backup method is cumulative; otherwise, it is a normal incremental backup.
 
@@ -226,15 +203,9 @@ For LEVEL 1 incremental backups, explicitly specifying CUMULATIVE indicates that
 
 *   Cumulative Incremental Backup: The baseline (LSN) of a cumulative incremental backup is the most recent level 0 incremental backup. To recover from this type of incremental backup set, only one other incremental backup set is required.
 
- 
-
 ### TAG
 
-
-
 Specifies the unique identifier for the backup set, used to distinguish between backup sets. The identifier name maximum length is 64 (including the null terminator '\\0').
-
-
 
 ### backupCommonSpecifier
 
@@ -276,15 +247,11 @@ $ yasrman sys/********@192.168.1.2:1688 -c "backup cluster incremental level 1 c
 
 ### FORCE
 
- 
-
 Specifies whether to force a full backup on a read-only database, such as the standby database in a primary-standby deployment or a database in an abnormal state.
 
 Forced backup does not record system tables. When backing up a standby database, the standby database does not need to be connected to the primary database.
 
 If a backup is executed when the database is in an abnormal state, the FORCE keyword must be specified.
-
- 
 
 ## Tablespace Backup
 
@@ -316,11 +283,7 @@ TBS_NAME indicates the tablespace name that must be manually specified, and this
 
 ### TAG
 
-
-
 Specifies the unique identifier for the backup set, used to distinguish between backup sets. The identifier name maximum length is 64 (including the null terminator '\\0').
-
-
 
 ### backupCommonSpecifier
 
@@ -382,7 +345,6 @@ Specify the range of archive log files to be backed up based on SEQUENCE, SCN, o
 >
 > - In a CDB, when directly connected to the CDB root, archive log ranges can **only** be specified using `ALL`, `UNTIL TIME`, or `UNTIL SCN`. No such restrictions apply when directly connected to a PDB.
 
-
 ### FROM|BETWEEN … AND …|UNTIL
 
 Used in conjunction with SEQUENCE, SCN, or time to specify the start/end points for backup, defined and described the same as in the related description in [BACKUP ARCHIVELOG](../../../Development Guide/SQL Reference Manual/SQL Statements/BACKUP ARCHIVELOG).
@@ -402,11 +364,7 @@ $ yasrman sys/********@192.168.1.2:1688 -c "backup archivelog all tag 'arch_all'
 
 ### TAG
 
-
-
 Specifies the unique identifier for the backup set, used to distinguish between backup sets. The identifier name maximum length is 64 (including the null terminator '\\0').
-
-
 
 ### backupCommonSpecifier
 

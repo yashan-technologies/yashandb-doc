@@ -9,7 +9,7 @@ This view displays the summary information of the database for the current insta
 | OPEN_MODE            | VARCHAR(16) | Startup Mode<br>* READ_ONLY: Read-only mode<br>* READ_WRITE: Read-write mode<br>* MOUNTED: Mount status                               |
 | PROTECTION_MODE      | VARCHAR(32) | Protection Mode<br>* MAXIMUM PERFORMANCE: maximize performance <br>* MAXIMUM AVAILABILITY: maximize availability <br>* MAXIMUM PROTECTION: maximize protection  |
 | PROTECTION_LEVEL     | VARCHAR(32) | Protection Level<br>* UNPROTECTED: Database is not OPEN<br>* MAXIMUM PERFORMANCE: maximize performance is active<br>* MAXIMUM AVAILABILITY: maximize availability is active, and redo has been synchronized to standby database <br>* RESYNCHRONIZATION: maximize availability is active, but redo has not been synchronized to standby database <br>* MAXIMUM PROTECTION: maximize protection is active, and redo synchronization is normal<br>* SYNCHRONIZATION BLOCKING: maximize protection is active, but redo synchronization is abnormal, transaction commits will be blocked |
-| DATABASE_ROLE        | VARCHAR(16) | Database Role<br>* PRIMARY: primary database <br>* STANDBY: physical standby database <br>* LOGICAL STANDBY: logical standby database  |
+| DATABASE_ROLE        | VARCHAR(16) | Database Role<br>* PRIMARY: primary database <br>* STANDBY: physical standby database <br>* LOGICAL STANDBY: logical standby database <br>* SNAPSHOT_STANDBY: snapshot standby database <br>* SNAPSHOT_PREPARE: snapshot standby conversion preparation phase |
 | BLOCK_SIZE           | INTEGER  | Database data block size (unit: bytes)                                                                                               |
 | CURRENT_SCN          | BIGINT   | Current SCN of the database                                                                                                           |
 | STATUS               | VARCHAR(32) | Database Status<br>* NORMAL: Normal<br>* NEED REPAIR: Standby database status is abnormal and needs to be rebuilt<br>* REDO MISMATCH: Some logs of the standby database do not match the primary database, needs to check and repair<br>* ABNORMAL: Abnormal status, write operations cannot be performed |
@@ -32,6 +32,7 @@ This view displays the summary information of the database for the current insta
 | FLASHBACK_ON         | VARCHAR(8) | Whether database flashback functionality is enabled<br/>* YES: Enabled<br/>* NO: Disabled                                       |
 | CDB | VARCHAR(8) | Is this a CDB<br/>* YES<br/>* NO |
 | RECOVERY\_REDO\_SIZE           | BIGINT   | Size of redo to be recovered when performing database recovery |
+| HAS_GEK                        | VARCHAR(8) | Whether there is a global key<br/>* YES: Yes<br/>* NO: No |
 
 
 

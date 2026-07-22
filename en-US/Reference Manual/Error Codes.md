@@ -909,11 +909,17 @@ Other pool shortage scenarios involve internal configurations of YashanDB, pleas
 
 **Action**: Please modify the data file name and retry.
 
-### YAS-00341:ERR_CMM_SCSI_PR_DIRTY
+### YAS-00341:ERR_CMM_RESV_DIRTY
 
-**Message**: scsi device %s has dirty persistent reservation issued by others
+**Message**: device %s has dirty persistent reservation issued by others
 
-**Action**: The device has residual persistent reservation information, please execute the command `sudo ycsrootagent scsi clear -d <device>` to clean after confirming that the operation is safe.
+**Action**: The device has residual reservation information. To clean it up, execute `sudo ycsrootagent resv clear -d <device>` after confirming the operation is safe.
+
+### YAS-00342:ERR_CMM_NVME_COMMAND
+
+**Message**: NVMe command failed for: %s, SCT: %d, SC: %d, DNR: %d
+
+**Action**: NVMe command execution failed. Please contact our technical support for assistance.
 
 ### YAS-00401:ERR_CMM_INIT_TCP_ENV
 
@@ -5257,6 +5263,12 @@ This standby database can only be rebuilt using the BUILD DATABASE statement.
 
 **Action**: Please check the configuration format of the archive cleanup policy and its parameter requirements by referring to [Configuration Parameters](Configuration Parameters).
 
+### YAS-02493:ERR_HA_CONVERT_INCOMPLETE
+
+**Message**: the snapshot standby conversion is incomplete, please complete it first
+
+**Action**: The operation to switch snapshot standby has not been completed. Please continue executing the remaining operations related to switching the snapshot standby. Only after completing the snapshot standby switch can you switch back to the physical standby.
+
 <span id="errno2501" name="errno2501"></span>
 
 ### YAS-02501:ERR_BAK_RUNNING
@@ -6143,9 +6155,9 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 ### YAS-02706:ERR_ANK_TEMP_SPACE_PATH_INCOMPATIBLE
 
-**Message**: Local temporary tablespace contains YFS and local file system at the same time is not allowed
+**Message**: Local tablespace contains YFS and local file system at the same time is not allowed
 
-**Action**: It is not allowed for local temporary tablespaces to simultaneously contain YFS and local file system paths.
+**Action**: It is not allowed for local tablespaces to simultaneously contain YFS and local file system paths.
 
 ### YAS-02707:ERR_ANK_SYNC_LOCAL_SPACE_FAILED
 
@@ -6155,9 +6167,9 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 ### YAS-02708:ERR_ANK_LOCAL_TEMP_SPACE_ON_CLUSTER
 
-**Message**: Local temporary tablespaces can only be used on clusters
+**Message**: Local tablespaces can only be used on clusters
 
-**Action**: Local temporary tablespaces can only be used in clusters.
+**Action**: Local tablespaces can only be used in clusters.
 
 ### YAS-02709:ERR_ANK_OPEN_LOB_RDWR_NO_TRANSACTION
 
@@ -6221,9 +6233,9 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 ### YAS-02719:ERR_ANK_TOO_MANY_LOCAL_TEMPFILE
 
-**Message**: maximum number of local space tempfile count is %u
+**Message**: maximum number of local space datafile count is %u
 
-**Action**: Please do not create more than the maximum number of local temporary files; the maximum number of files in local temporary tablespace is the maximum number of files in the tablespace divided by the number of instances, rounded down.
+**Action**: Please do not create more than the maximum number of local datafile files; the maximum number of files in local tablespace is the maximum number of files in the tablespace divided by the number of instances, rounded down.
 
 ### YAS-02720:ERR_ANK_INVALID_MVIEW_OPERATION
 
@@ -7428,7 +7440,7 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 **Message**: adding tables to an empty whitelist causes whitelist shrinkage, which is not allowed while the ystream server is started. please stop the ystream server and try again
 
-**Action**: The parsing objects of the Ystream server are all tables. It is not possible to execute ADD_TABLES to narrow the scope of parsing objects while the Ystream server is running. Please stop the Ystream server and try again.
+**Action**: The parsing objects of the YStream server are all tables. It is not possible to execute ADD_TABLES to narrow the scope of parsing objects while the YStream server is running. Please stop the YStream server and try again.
 
 ### YAS-02921: ERR_ANK_OFFLINE_DEFAULT_SWAP_SPACE
 
@@ -7440,7 +7452,7 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 **Message**: failed to %s func index, %s
 
-**Action**: Please confirm whether the function on which the function index depends satisfy the constraint conditions.
+**Action**: Please confirm whether the functions on which the function index or virtual column depends satisfy the constraint conditions.
 
 ### YAS-02923: ERR_ANK_INDEX_KEY_NOT_FIND
 
@@ -7477,6 +7489,90 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 **Message**: Only LOCAL bitmap indexes are permitted on partitioned tables
 
 **Action**: When creating a bitmap index on a partitioned table, please use the LOCAL mode.
+
+### YAS-02929: ERR_ANK_SNAPSTBY_NOT_OPER
+
+**Message**: snapshot standby cannot %s
+
+**Action**: This operation cannot be performed on a snapshot standby due to its functional constraints.
+
+### YAS-02930: ERR_ANK_ARCH_FILE_FULL
+
+**Message**: arch index full, please clean archive log
+
+**Action**: The archive slice file index is full. Perform archive cleaning to reclaim archived slice files.
+
+### YAS-02933: ERR_ANK_DELETE_CURRENT_BRANCH_FMT
+
+**Message**: cannot delete current branch
+
+**Action**: Cannot delete the currently used branch. Please switch to another branch before performing the delete operation.
+
+### YAS-02934: ERR_ANK_SWITCH_CONTAINER_FMT
+
+**Message**: %s
+
+**Action**: Special error code used when switching branches, can be ignored.
+
+### YAS-02935: ERR_ANK_RESET_BRANCH_FMT
+
+**Message**: internal error for reset branch
+
+**Action**: Special error code used when resetting a branch, can be ignored.
+
+### YAS-02936: ERR_ANK_FREEZE_CURRENT_BRANCH_FMT
+
+**Message**: cannot freeze current branch
+
+**Action**: Cannot freeze the currently used branch. Please switch to another branch before performing the freeze operation.
+
+### YAS-02937: ERR_ANK_ENABLE_BRANCH_MISMATCH_FMT
+
+**Message**: parameter ENABLE_BRANCH does not match the database type, expect %s
+
+**Action**: The ENABLE_BRANCH parameter does not match the database type. Please check whether the database deployment form and parameter configuration are consistent.
+
+### YAS-02938: ERR_ANK_CLONE_FROM_ROOT_FMT
+
+**Message**: cannot create branch from root
+
+**Action**: Cannot create a branch directly from the root container. Please clone from another branch or create a default branch.
+
+### YAS-02939: ERR_ANK_RESET_NON_BRANCH_FMT
+
+**Message**: cannot reset or restore non-branch container
+
+**Action**: Cannot reset or restore a non-branch container. Please confirm that the currently connected database is a branch database.
+
+### YAS-02940: ERR_ANK_DBMS_OPERATE_NON_BRANCH_FMT
+
+**Message**: DBMS_BRANCH can only operate branch container
+
+**Action**: DBMS_BRANCH advanced package functions can only operate on branches. Please confirm that the current container is a branch.
+
+### YAS-02941: ERR_ANK_RESET_IN_TRANS_FMT
+
+**Message**: cannot reset or restore branch in transaction
+
+**Action**: Cannot reset or restore a branch in a transaction. Please commit or roll back the current transaction before proceeding.
+
+### YAS-02942: ERR_ANK_RENAME_ACTIVE_BRANCH_FMT
+
+**Message**: cannot rename active branch
+
+**Action**: Cannot rename a branch in active status. Please freeze the branch before performing the rename operation.
+
+### YAS-02943: ERR_ANK_CHECKOUT_INVALID_BRANCH_FMT
+
+**Message**: cannot checkout to branch '%s'
+
+**Action**: Cannot switch to the specified branch. Please confirm that the branch name is correct and the branch is in active status.
+
+### YAS-02944: ERR_ANK_SAVE_INFO_FAIL_FMT
+
+**Message**: save container info error
+
+**Action**: An error occurred while saving container information. Please contact our technical support for assistance.
 
 <span id="errno3001" name="errno3001"></span>
 
@@ -7948,9 +8044,9 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 ### YAS-03730: ERR_SPF_BULKLOAD_FAILED
 
-**Message**: append to memory slice failed, the whole transaction has been rolled back
+**Message**: append to memory slice failed by %s, the whole transaction has been rolled back
 
-**Action**: Insertion of cold data failed and rolled back the entire transaction.
+**Action**: Insertion of cold data failed due to the reason provided in the message and rolled back the entire transaction.
 
 ### YAS-03731: ERR_SPF_DISABLE_MCOL_FAILED
 
@@ -8029,6 +8125,8 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 - When "variant" is prompted: The input parameter value exceeds the maximum value allowed by the variable. Please reduce the parameter value.
 
 - When "bind param count" is prompted:The number of binding parameters in the statement exceeds the upper limit of 32,000. Please reduce the number of binding parameters.
+
+- When "result of string concatenation", "overflow indicator", "overflow separator", or "listagg const" is prompted: The use of the LISTAGG function has exceeded its specification limit. Please adjust the usage of the LISTAGG function.
 
 - When the table column name is prompted: The inserted data exceeds the table column definition.
 
@@ -8232,6 +8330,24 @@ If the problem still cannot be solved, please contact our technical support for 
 
 **Action**: Too many connections, please disconnect some connections and then retry.
 
+### YAS-04130:ERR_ANS_LEXER_LABEL_EXPECTED
+
+**Message**: label expected
+
+**Action**: This operation requires a label but it is missing. Please check and add the required label name in the graph query vertex syntax.
+
+### YAS-04131:ERR_ANS_LEXER_PROPERTIES_EXPECTED
+
+**Message**: properties expected
+
+**Action**: This operation requires properties but they are missing. Please check and add the missing property names or key-value pairs in the property graph syntax.
+
+### YAS-04132:ERR_ANS_LEXER_CBRACKET_EXPECTED
+
+**Message**: curly bracket expected
+
+**Action**: This statement requires curly brackets but they are missing. Please check if the syntax is missing any curly brackets and ensure they are paired correctly.
+
 ### YAS-04152:ERR_DPH_TOO_MANY_NODES
 
 **Message**: remote instance too many nodes
@@ -8402,7 +8518,7 @@ If the problem still cannot be solved, please contact our technical support for 
 
 ### YAS-04224:ERR_ANS_PARSER_UNEXPECTED_EXTENT
 
-**Message**: extent clause is not supported for undo and swap tablespace
+**Message**: extent clause is not supported for cache, undo and swap tablespace
 
 **Action**: Please remove the extent clause.
 
@@ -9414,9 +9530,9 @@ If the problem still cannot be solved, please contact our technical support for 
 
 ### YAS-04399:ERR_ANS_VERIFY_FUNCIDX_FUNC
 
-**Message**: only pure functions can be indexed
+**Message**: only pure functions can be %s
 
-**Action**: The entered expression does not conform to the function indexing specification, please re-enter the correct expression.
+**Action**: The entered expression does not conform to the specification for function-based indexes or virtual columns, please re-enter the correct expression.
 
 ### YAS-04400:ERR_ANS_VERIFY_DATA_TYPE_MISMATCH
 
@@ -12718,7 +12834,7 @@ If the problem still cannot be solved, please contact our technical support for 
 
 **Message**: parameter "%s" value on current instance does not match the active instances
 
-**Action**: In YAC/Distributed Cluster Deployment, parameters that must be consistent across multiple instances must be configured identically. This error typically occurs when you attempt to modify such parameters using SCOPE=SPFILE without restarting the entire cluster (e.g., only restarting some instances), resulting in configuration inconsistencies across instances in the shared cluster. If you encounter this error, you may choose one of the following solutions:
+**Action**: In YAC/Distributed Cluster Deployment, parameters that must be consistent across multiple instances must be configured identically. This error typically occurs when you attempt to modify such parameters using SCOPE=SPFILE without restarting the entire cluster (e.g., only restarting some instances), resulting in configuration inconsistencies across instances in the YAC. If you encounter this error, you may choose one of the following solutions:
 
 - Common Solution: Restart the entire cluster to resolve the issue.
 
@@ -14058,37 +14174,37 @@ If the problem still cannot be solved, please contact our technical support for 
 
 ### YAS-06607:ERR_XMLGEN_RESOURCE_INSUFFICIENT
 
-**Message**：xmlgen handle resource insufficient
+**Message**: xmlgen handle resource insufficient
 
 **Action**: There is an insufficient XMLGEN system package handle resource. Please check whether the resources are released properly.
 
 ### YAS-06608:ERR_XMLGEN_UNSUPPORTED_DATATYPE
 
-**Message**：xmlgen package unsupported datatype: %s
+**Message**: xmlgen package unsupported datatype: %s
 
 **Action**: The DBMS_XMLGEN package does not support generating XML data using the current data type.
 
 ### YAS-06609:ERR_XMLGEN_GENERATE_XMLDATA_FAILED
 
-**Message**：failed to generate XML data from sql query results
+**Message**: failed to generate XML data from sql query results
 
 **Action**: Failed to generate XML - formatted data. A common cause might be insufficient system resources. Please try again later.
 
 ### YAS-06610:ERR_XMLGEN_RESOURCE_INITIALIZED_FAILED
 
-**Message**：failed to initialied xmlgen resource, reason: %s
+**Message**: failed to initialied xmlgen resource, reason: %s
 
 **Action**: Initialization of XMLGEN system resources failed. Please check whether the currently executed statements are correct according to the prompts.
 
 ### YAS-06611:ERR_XMLGEN_PROCESSING_ERROR
 
-**Message**：Error occurred in XML processing
+**Message**: Error occurred in XML processing
 
 **Action**: An error occurred in the processing of the DBMS_XMLGEN package. Please check whether the currently executed statements are correct.
 
 ### YAS-06612:ERR_XML_EXCEEDS_MAX_SIZE
 
-**Message**：xml size exceeds the limit 64MB
+**Message**: xml size exceeds the limit 64MB
 
 **Action**: The size of the XML data exceeds the maximum limit of 64MB.
 
@@ -14536,6 +14652,78 @@ If the problem still cannot be solved, please contact our technical support for 
 
 **Action**: The HTTP request body is too large. It is recommended to use the `PUT` or `POST` method to send the data.
 
+### YAS-06874:ERR_PL_SMTP_INIT_FAILED
+
+**Message**: SMTP initialization failed
+
+**Action**: SMTP initialization failed. Check the configuration parameters.
+
+### YAS-06875:ERR_PL_SMTP_REQUEST_FAILED
+
+**Message**: SMTP request failed: %s
+
+**Action**: SMTP request failed. Check the network connection or SMTP server configuration.
+
+### YAS-06876:ERR_PL_SMTP_CONNECT_FAILED
+
+**Message**: SMTP connection failed: %s
+
+**Action**: SMTP connection failed. Check the SMTP server address and port.
+
+### YAS-06877:ERR_PL_SMTP_TIMEOUT
+
+**Message**: SMTP operation timed out: %s
+
+**Action**: SMTP operation timed out. Increase the timeout value or check the network status.
+
+### YAS-06878:ERR_PL_SMTP_IO_ERROR
+
+**Message**: SMTP I/O error: %s
+
+**Action**: SMTP communication error. Check the network connection.
+
+### YAS-06879:ERR_PL_SMTP_TOO_MANY_CONNECTIONS
+
+**Message**: too many open SMTP connections, maximum limit: %d
+
+**Action**: Too many SMTP connections are open. Close unused idle connections.
+
+### YAS-06880:ERR_PL_SMTP_INVALID_CONNECTION
+
+**Message**: invalid SMTP connection
+
+**Action**: Invalid SMTP connection. Re-establish the connection.
+
+### YAS-06881:ERR_PL_SMTP_INVALID_OPERATION
+
+**Message**: invalid SMTP operation
+
+**Action**: Invalid SMTP operation. Check if the operation sequence is correct.
+
+### YAS-06882:ERR_PL_SMTP_TRANSIENT_ERROR
+
+**Message**: SMTP transient error: %u %s
+
+**Action**: A transient error occurred on the server. Try again later.
+
+### YAS-06883:ERR_PL_SMTP_PERMANENT_ERROR
+
+**Message**: SMTP permanent error: %u %s
+
+**Action**: A permanent error occurred on the server. Check the SQL or verify the SMTP server is functioning properly.
+
+### YAS-06884:ERR_PL_SMTP_UNSUPPORTED_SCHEME
+
+**Message**: authentication scheme "%s" not supported
+
+**Action**: The authentication scheme is not supported.
+
+### YAS-06885:ERR_PL_SMTP_NO_SUPPORTED_SCHEME
+
+**Message**: no supported authentication scheme found
+
+**Action**: No supported authentication scheme available.
+
 ### YAS-06900:ERR_PL_INVALID_SECURITY_LEVEL
 
 **Message**: DBMS_SQL.OPEN_CURSOR failed. security_level is outside the valid range of 0 to 2
@@ -14844,7 +15032,7 @@ If the problem still cannot be solved, please contact our technical support for 
 
 ### YAS-07205:ERR_YSPI_INVALID_TYPE_ERROR
 
-**Message**：unexpected column %s type. Expected %s
+**Message**: unexpected column %s type. Expected %s
 
 **Action**: Please check if the types of the table column is correct.
 
@@ -15060,13 +15248,13 @@ If the problem still cannot be solved, please contact our technical support for 
 
 ### YAS-07336:ERR_YEX_DATABASE_LINK_IN_USE
 
-**Message**：database link is in use
+**Message**: database link is in use
 
 **Action**: Please clean up the transactions first, and then close the DBLink.
 
 ### YAS-07337:ERR_YEX_DATABASE_LINK_NOT_OPEN
 
-**Message**：database link is not open
+**Message**: database link is not open
 
 **Action**: The current DBLink connection has not been opened yet.
 
@@ -15850,21 +16038,203 @@ If the problem still cannot be solved, please contact our technical support for 
 
 ### YAS-10009:ERR_ANS_INVALID_DEFAULT_VALUE
 
-**Message**：invalid default value
+**Message**: invalid default value
 
 **Action**: The column default value is illegal. Please check and use a legal column default value.
 
 ### YAS-10010:ERR_ANS_PARSE_INVALID_VALUE_COLUMN
 
-**Message**：invalid user.table.column, table.column, or column specification
+**Message**: invalid user.table.column, table.column, or column specification
 
 **Action**: The input parameter of the VALUE function is incorrect. Please check the statement.
 
 ### YAS-10011:ERR_ANS_VERIFY_INVALID_GROUP_CONST
 
-**Message**：invalid group column
+**Message**: invalid group column
 
 **Action**: Please enter valid grouping columns.
+
+### YAS-10012:ERR_ANS_PARSER_REF_VIRTUAL_ON_VIRTUAL
+
+**Message**: virtual column cannot reference another virtual column
+
+**Action**: Virtual columns are not allowed to reference other virtual columns.
+
+### YAS-10013:ERR_ANS_PARSER_VIRTUAL_COLUMN
+
+**Message**: cannot %s a virtual column
+
+**Action**: This operation is not supported for virtual columns.
+
+### YAS-10014:ERR_ANS_VERIFY_COLUMN_SIZE
+
+**Message**: column %s size is too large(actual: %u, maximum: %u)
+
+**Action**: The length of the inserted or updated data exceeds the maximum length limit of the target column.
+
+### YAS-10015:ERR_ANS_VERIFY_INVALID_COLUMN_EXPR
+
+**Message**: Invalid column expression was specified
+
+**Action**: The specified virtual column expression does not meet the requirements. Please modify it and retry.
+
+### YAS-10016:ERR_ANS_VIRTUAL_COLUMN_TYPE
+
+**Message**: specified data type is not supported for a virtual column
+
+**Action**: Please specify a supported data type for the virtual column.
+
+### YAS-10017:ERR_ANS_DUPLICATE_VIRTUAL_COLUMN_EXPR
+
+**Message**: Duplicate column expression was specified
+
+**Action**: Please remove duplicate expressions from the virtual column expression.
+
+### YAS-10018:ERR_ANS_VIRTUAL_COLUMN_EXISTS
+
+**Message**: A virtual column exists for this expression
+
+**Action**: Virtual columns are not allowed in expressions used for function indexes. Please modify.
+
+### YAS-10019:ERR_ANS_MOD_VIRTUAL_COLUMN_DEPS
+
+**Message**: column to be dropped or modified is used in a virtual column
+
+**Action**: The target column is already used by a virtual column and cannot be deleted or modified. If you still wish to perform the current operation, please delete the corresponding virtual column first.
+
+### YAS-10020:ERR_ANS_VIRTUAL_COLUMN_TABLE_TYPE
+
+**Message**: expression column is not supported for %s
+
+**Action**: Virtual columns cannot be created in tables with columnar indexes, columnar tables, or temporary tables.
+
+### YAS-10021:ERR_ANS_VIRTUAL_COLUMN_ENCRYPT
+
+**Message**: Virtual column cannot be encrypted
+
+**Action**: Encryption cannot be applied to virtual columns.
+
+### YAS-10022:ERR_ANS_VIRTUAL_COLUMN_DEFAULT
+
+**Message**: DEFAULT expression not allowed here
+
+**Action**: Adding a default value is not allowed for virtual columns.
+
+### YAS-10023:ERR_ANS_VERIFY_INVALID_VIRTUAL_COL_COUNT
+
+**Message**: table must have at least one column that is not virtual
+
+**Action**: Each table must have at least one non-virtual column. Please modify the table definition.
+
+<span id="errno11001" name="errno11001"></span>
+
+### YAS-11001:ERR_ANS_PARSE_PATTERN_VERTEX_CONSECUTIVE
+
+**Message**: MATCH clause specifies two consecutive vertex patterns
+
+**Action**: The MATCH clause cannot specify two consecutive vertex patterns. Please check and modify the MATCH clause in the graph query statement.
+
+### YAS-11002:ERR_ANS_PARSE_QUANTIFIED_BOUND_MISSING
+
+**Message**: no value is specified for bounded quantifier
+
+**Action**: No value is specified for the bounded quantifier. Please specify a valid integer bound for the quantifier.
+
+### YAS-11003:ERR_ANS_VERIFY_GRAPH_LABEL
+
+**Message**: label %s not found
+
+**Action**: The specified label %s does not exist. Please check if the label name is correct or if the label has been created.
+
+### YAS-11004:ERR_ANS_VERIFY_GRAPH_COLUMNS_EMPTY
+
+**Message**: COLUMNS clause is empty
+
+**Action**: The COLUMNS clause of GRAPH_TABLE cannot be empty. Please specify at least one output column.
+
+### YAS-11005:ERR_ANS_VERIFY_QUANTITY
+
+**Message**: quantity should be integer const
+
+**Action**: The quantifier value should be an integer constant. Please check the quantifier syntax and use an integer constant.
+
+### YAS-11006:ERR_ANS_VERIFY_ELEMENT_NAME_CONFLICT
+
+**Message**: element name conflict: %s
+
+**Action**: The graph element name %s has a conflict. Please check and modify the duplicate element name.
+
+### YAS-11007:ERR_ANS_VERIFY_PROPERTY_NOT_MATCH
+
+**Message**: property data types(%s, %s) not match
+
+**Action**: The property data types %s and %s do not match. Please check and ensure that the property data types on both sides are consistent.
+
+### YAS-11008:ERR_ANS_VERIFY_GRAPH_TABLE_KEY
+
+**Message**: graph table key error: %s
+
+**Action**: There is an error in the graph table key: %s. Please check the definition and reference of the graph table key.
+
+### YAS-11009:ERR_ANS_VERIFY_GRAPH_NON_TABLE_KEY
+
+**Message**: cannot implicitly infer primary key for non-table object
+
+**Action**: Cannot implicitly infer the primary key for a non-table object. Please explicitly specify the key column.
+
+### YAS-11010:ERR_ANS_VERIFY_GRAPH_IMPLICIT_KEY
+
+**Message**: cannot infer key for graph element table %s
+
+**Action**: Cannot infer the key for graph element table %s. Please specify a primary key or key column for the graph element table.
+
+### YAS-11011:ERR_ANS_VERIFY_REF_TABLE_NOT_EXISTS
+
+**Message**: reference vertex table %s does not exists
+
+**Action**: The referenced vertex table %s does not exist. Please check if the table name is correct or if the table has been created.
+
+### YAS-11012:ERR_ANS_VERIFY_PATTERN_AMBIGUOUS
+
+**Message**: edge pattern %s has same alias with vertex pattern
+
+**Action**: The edge pattern %s has the same alias as the vertex pattern. Please modify the alias to avoid ambiguity.
+
+### YAS-11013:ERR_ANS_VERIFY_GRAPH_COLUMNS_AGGR
+
+**Message**: aggregate function in GRAPH_TABLE must reference columns from the quantifier pattern
+
+**Action**: Aggregate functions in GRAPH_TABLE must reference columns from the quantifier pattern. Please check the reference scope of the aggregate function.
+
+### YAS-11014:ERR_ANS_VERIFY_GRAPH_COLUMNS_SUBQ
+
+**Message**: correlated-subquery is not allowed in GRAPH_TABLE COLUMNS clause
+
+**Action**: Correlated subqueries are not allowed in the COLUMNS clause of GRAPH_TABLE. Please remove the correlated subquery or rewrite the query statement.
+
+### YAS-11015:ERR_ANS_VERIFY_COLUMN_FROM_QUANTIFY
+
+**Message**: columns in GRAPH_TABLE cannot reference the result set from the quantifier pattern %s
+
+**Action**: Columns in GRAPH_TABLE cannot reference the result set from the quantifier pattern. Please check if the columns referenced in the COLUMNS clause are from the quantifier pattern.
+
+### YAS-11016:ERR_ANS_VERIFY_GRAPH_COLUMN_UNCLEAR
+
+**Message**: Variable %s is not declared in the MATCH clause of a GRAPH_TABLE
+
+**Action**: Variable %s is not declared in the MATCH clause of GRAPH_TABLE. Please check if the variable has been defined in the graph pattern.
+
+### YAS-12001:ERR_LLM_INVALID_DIMENSIONS
+
+**Message**: invalid dimensions %d, model expected dimensions %d
+
+**Action**：Please adjust the size of the dimensions or do not specify dimensions.
+
+### YAS-12002:ERR_LLM_DUPLICATED_MODEL_ID
+
+**Message**: duplicated model id %s
+
+**Action**：Please specify unique model IDs.
 
 <span id="errno100001" name="errno100001"></span>
 

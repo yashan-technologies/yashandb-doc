@@ -1,5 +1,5 @@
 ```ebnf
-count = COUNT "(" ("*"|([DISTINCT|ALL] expr)) ")" [keep_clause|OVER "(" analytic_clause ")"].
+count = COUNT "(" ("*"|([DISTINCT|UNIQUE|ALL] expr)) ")" [keep_clause|OVER "(" analytic_clause ")"].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 
@@ -18,13 +18,13 @@ This aggregate function cannot be nested with group_id, grouping, grouping_id, o
 
 Indicates that all rows are counted, including empty rows.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Indicates that the expression results will be filtered for duplicates, counting all unique non-empty rows.
 
+DISTINCT and UNIQUE are completely equivalent.
 
 DISTINCT does not support LOB data.
-
 
 **ALL**
 

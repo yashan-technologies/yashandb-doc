@@ -5,7 +5,9 @@ TRUNCATE TABLE语句用于删除表的所有数据行（索引，AC里的数据�
 
 TRUNCATE操作将会一次性删除表的所有数据，不能回滚（Rollback），也不能通过[flashback\_query\_clause](./SELECT)获得操作之前的数据。
 
-对于被子表定义了外键约束的父表，如子表中已存在数据，则无法TRUNCATE此父表。
+对于被子表定义了外键约束的父表，若子表中已存在数据，则无法TRUNCATE此父表。
+
+在共享集群/分布式集群部署中，只能在主实例（GV$INSTANCE视图中INSTANCE_ROLE=MASTER的实例）上对LSC表执行TRUNCATE TABLE操作。
 
 本文所列REUSE STORAGE选项不适用于存算一体分布式集群部署。
 

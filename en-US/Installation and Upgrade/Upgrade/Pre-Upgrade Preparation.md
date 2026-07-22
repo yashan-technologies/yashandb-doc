@@ -2,6 +2,30 @@
 
 Please confirm with YashanDB technical support whether the currently used database version can be directly upgraded to the target new version, and obtain the installation package for the new version.
 
+<span id="sys-data" name="sys-data"></span>
+
+## Plan System Disk (YAC Deployment)
+
+In YAC Deployment, if you need to perform an offline upgrade from version 23.2.x.x or earlier to version 23.4.x.x or later, this operation must be performed.
+
+1. Plan the system disk on shared storage. For specific operations, please refer to [Disk Partitioning](../Installation and Deployment/Pre-Installation Preparation/Configuring the Storage Devices.md#DiskPartitioning).
+
+2. Create a disk_config.toml file in the tmp_upgrade directory. Refer to [YAC Upgrade Configuration File](../../Tools Guide/yasboot/Configuration Files/YAC Upgrade Configuration File) and edit the file content based on the actual disk planning. Confirm correctness before saving and exiting.
+
+    ```shell
+    $ vi disk_config.toml
+    
+    [[group]]
+        group_id = 1                    # YAC group ID
+        disk_found_path = "/dev/yfs"    # Specify the disk discovery path, which is the directory above the data disk. Disk information can be queried with the yfscmd show disk command.
+        system_data = ["/dev/yfs/sys0", "/dev/yfs/sys1", "/dev/yfs/sys2"]   # Specify the planned system disk paths.
+    
+    [[group]]                           # For primary/standby cluster deployments, modify the standby cluster based on the example of the primary cluster. If not needed, you can delete this.
+        group_id = 2        
+        disk_found_path = "/dev/yfs2"
+        system_data = ["/dev/yfs2/sys0", "/dev/yfs2/sys1", "/dev/yfs2/sys2"]
+    ```
+
 <span id="Validation" name="Validation"></span>
 
 ## Rolling Upgrade Environment Validation
@@ -36,6 +60,20 @@ To perform a [rolling upgrade](./Upgrade Procedure/Rolling Upgrade), ensure the 
 
     If identity columns exist in the current database, use [offline upgrade](./Upgrade Procedure/Offline Upgrade) instead.
 
+- Database contains no virtual columns.
+
+    Check for virtual columns in the database using the following SQL statement:
+
+    ```sql
+    select count(*) from DBA_TAB_COLS where VIRTUAL_COLUMN = 'Y';
+    
+                count(*) 
+    --------------------- 
+                        0
+    ```
+
+    If virtual columns exist in the current database, use [offline upgrade](./Upgrade Procedure/Offline Upgrade) instead.
+    
 - Database contains no LSC tables.
 
     Check for LSC tables in the database using the following SQL statement:
@@ -88,7 +126,6 @@ Please replace the path, installation package name, etc., with actual values.
 
 1. Log in to the database installation server using the installation user.
 
-
 2. Create an empty directory, which will serve as a temporary storage path for the upgrade installation package.
 
     ```shell
@@ -106,30 +143,6 @@ Please replace the path, installation package name, etc., with actual values.
     ```shell
     $ cd tmp_upgrade
     $ tar zxf yashandb-{new version number}-linux-x86_64.tar.gz
-    ```
-
-<span id="sys-data" name="sys-data"></span>
-
-## Plan System Disk (YAC Deployment)
-
-In YAC Deployment, if you need to perform an offline upgrade from version 23.2.x.x or earlier to version 23.4.x.x or later, this operation must be performed.
-
-1. Plan the system disk on shared storage. For specific operations, please refer to [Disk Partitioning](../Installation and Deployment/Pre-Installation Preparation/Configuring the Storage Devices.md#DiskPartitioning).
-
-2. Create a disk_config.toml file in the tmp_upgrade directory. Refer to [YAC Upgrade Configuration File](../../Tools Guide/yasboot/Configuration Files/YAC Upgrade Configuration File) and edit the file content based on the actual disk planning. Confirm correctness before saving and exiting.
-
-    ```shell
-    $ vi disk_config.toml
-    
-    [[group]]
-        group_id = 1                    # YAC group ID
-        disk_found_path = "/dev/yfs"    # Specify the disk discovery path, which is the directory above the data disk. Disk information can be queried with the yfscmd show disk command.
-        system_data = ["/dev/yfs/sys0", "/dev/yfs/sys1", "/dev/yfs/sys2"]   # Specify the planned system disk paths.
-    
-    [[group]]                           # For primary/standby cluster deployments, modify the standby cluster based on the example of the primary cluster. If not needed, you can delete this.
-        group_id = 2        
-        disk_found_path = "/dev/yfs2"
-        system_data = ["/dev/yfs2/sys0", "/dev/yfs2/sys1", "/dev/yfs2/sys2"]
     ```
 
 ## Check hosts.toml File
@@ -281,6 +294,63 @@ If the current environment is Standalone One-Primary/One-Standby Deployment, Pri
     ```
 
 After the upgrade is complete, please restore the relevant configurations as needed. For specific operations, please refer to [*yasom* Election](../../High Availability/Configuring Leader Election/Configuring yasom Election).
+
+## Check and Enable OS Authentication
+
+Before upgrading, please check and ensure that [OS Authentication](../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication.md) is enabled, and that the installation user has been granted OS authentication.
+
+1. Verify OS authentication:
+
+    ```shell
+    $ yasql / as sysdba
+
+    YashanDB SQL Enterprise Edition Release {version_number} x86_64
+
+    Connected to:
+    YashanDB Server Enterprise Edition Release {version_number} x86_64 - Linux
+
+    SQL> SELECT SYS_CONTEXT ( 'USERENV' , 'SESSION_USER' ) FROM DUAL;
+
+    SYS_CONTEXT('USERENV                                             
+    ---------------------------------------------------------------- 
+    SYS      
+    ```
+
+    Only when local password-free login fails do you need to perform subsequent operations to further check and complete the corresponding configuration.
+
+2. Execute the following command to check whether OS authentication is enabled:
+
+    ```shell
+    # Check whether the yasdb_net.ini file exists and the configuration of ENABLE_LOCAL_OSAUTH in the file
+    $ cat $YASDB_DATA/config/yasdb_net.ini
+    ```
+    Only when the file exists and ENABLE_LOCAL_OSAUTH = off is configured in the file does it indicate that the feature is closed. At this time, you need to execute the following operations to complete the configuration:
+    
+    ```shell
+    # Change the value of ENABLE_LOCAL_OSAUTH to on
+    $ vi $YASDB_DATA/config/yasdb_net.ini
+    ```
+    Save and exit, and restart the database to make the configuration take effect.
+
+3. Execute the following command to check whether the installation user has been granted OS authentication:
+
+    ```shell    
+    # Check whether the installation user has been added to the YASDBA group
+    $ groups
+    yashan YASDBA
+    ```
+    If the echo information indicates that the installation user has been added to the YASDBA group, it means the installation user has been granted OS authentication. Otherwise, you need to execute the following operations to complete the configuration: (`groupadd` command and `usermod` command need to be executed by root user or a user with sudo permission)
+    
+    ```shell
+    # Check whether the YASDBA group exists    
+    $ getent group YASDBA
+
+    # Create the YASDBA group if it does not exist
+    $ sudo groupadd YASDBA
+
+    # Add the installation user to the YASDBA group
+    $ sudo usermod -aG YASDBA yashan
+    ```
 
 ## Check Database Instance Status
 

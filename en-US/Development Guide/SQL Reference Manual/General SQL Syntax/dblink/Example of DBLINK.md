@@ -11,9 +11,27 @@ For the link from YashanDB to Oracle database, the system has the following prer
 
    If the YashanDB server lacks the libaio library, when initiating the first remote link to the Oracle database via DBLink, the yex_server sandbox process may experience a core dump while loading the driver (the yasdb process is unaffected). This error only affects the yex_server process during the first link attempt; the system can automatically recover to normal on subsequent link attempts.
 
-Given the above requirements, administrators should take the necessary actions according to the following guidelines for databases that may use YashanDB -> Oracle remote links.
+For the link from YashanDB to DAMENG Database, the system has the following prerequisites:
 
-## Download and Install Oracle Instant Client
+- The DBLink plugin has been installed on the YashanDB server (you can confirm this by checking if the dblink_dm folder exists under the $YASDB_HOME/third path).
+
+- The DAMENG Database OCI driver has been downloaded and installed on the YashanDB server.
+
+   In environments where the DAMENG OCI driver is not installed, attempting to initiate a remote link to the DAMENG Database via DBLink will throw an error due to the lack of necessary components.
+
+For the link from YashanDB to KingbaseES Database, the system has the following prerequisites:
+
+- The DBLink plugin has been installed on the YashanDB server (you can confirm this by checking if the dblink-kingbase folder exists under the $YASDB_HOME/third path).
+
+- The KingbaseES Database DCI driver has been downloaded and installed on the YashanDB server.
+
+   In environments where the KingbaseES DCI driver is not installed, attempting to initiate a remote link to the KingbaseES Database via DBLink will throw an error due to the lack of necessary components.
+
+Given the above requirements, administrators should take the necessary actions according to the following guidelines for databases that may use YashanDB -> heterogeneous database remote links.
+
+## Install Heterogeneous Database Drivers
+
+### Install Oracle Instant Client and libaio Library
 
 1. Log in to the database server as the YashanDB installation user (e.g., yashan).
 
@@ -60,14 +78,92 @@ Given the above requirements, administrators should take the necessary actions a
    $ yasboot process yasagent restart -c yashandb -t hosts.toml
    ```
 
-## Install libaio Library
-
-1. Log in to the database server as the YashanDB installation user (e.g., yashan).
-
-2. Take Centos as an example and install the libaio library using the following command:
+7. Take Centos as an example and install the libaio library using the following command.
 
    ```shell
    yum install libaio
+   ```
+
+### Install DAMENG Database OCI Driver
+
+1. Log in to the database server as the YashanDB installation user (e.g., yashan).
+
+2. According to the YashanDB server environment, download the client installation package for the corresponding DM8 version from the DAMENG Database official website, and obtain the DAMENG OCI driver.
+
+3. Unpack the installation package to a local directory, for example, `/home/dm-instant-client/`.
+
+4. Set the dynamic library dependency path.
+
+   ```shell
+   $ vi ~/.bashrc
+
+   # Add the following information to the file and save it
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/dm-instant-client/lib
+   ```
+
+5. Apply the environment variables.
+
+   ```shell
+   $ source ~/.bashrc
+
+   # Check in the echo output whether the above path already exists
+   $ echo $LD_LIBRARY_PATH
+   ```
+
+6. Refresh the environment variables read by the running YashanDB. This is done by restarting the yasom process and all yasagent processes.
+
+   If the database-related processes have not been started yet, there is no need to perform this operation.
+
+   ```shell
+   # Check if either the yasom process or the yasagent process exists. If so, it needs to be restarted.
+   $ ps -ef | grep -E "yasom|yasagent" | grep -v grep
+
+   # Restart the yasom process
+   $ yasboot process yasom restart -c yashandb
+
+   # Restart the yasagent process on all nodes
+   $ yasboot process yasagent restart -c yashandb -t hosts.toml
+   ```
+
+### Install KingbaseES Database DCI Driver
+
+1. Log in to the database server as the YashanDB installation user (e.g., yashan).
+
+2. According to the YashanDB server environment, download the DCI driver installation package for the corresponding KingbaseES V8 or later version from the KingbaseES Database official website, and obtain the KingbaseES DCI driver.
+
+3. Unpack the installation package to a local directory, for example, `/home/kingbase-dci/`.
+
+4. Set the dynamic library dependency path.
+
+   ```shell
+   $ vi ~/.bashrc
+
+   # Add the following information to the file and save it
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/kingbase-dci/lib
+   ```
+
+5. Apply the environment variables.
+
+   ```shell
+   $ source ~/.bashrc
+
+   # Check in the echo output whether the above path already exists
+   $ echo $LD_LIBRARY_PATH
+   ```
+
+6. Refresh the environment variables read by the running YashanDB. This is done by restarting the yasom process and all yasagent processes.
+
+   If the database-related processes have not been started yet, there is no need to perform this operation.
+
+   ```shell
+   # Check if either the yasom process or the yasagent process exists. If so, it needs to be restarted.
+   $ ps -ef | grep -E "yasom|yasagent" | grep -v grep
+
+   # Restart the yasom process
+   $ yasboot process yasom restart -c yashandb
+
+   # Restart the yasagent process on all nodes
+   $ yasboot process yasagent restart -c yashandb -t hosts.toml
    ```
 
 ## Create DBLink and Perform Operations
@@ -84,9 +180,9 @@ Given the above requirements, administrators should take the necessary actions a
    SQL> 
    ```
 
-2. Create a DBLINK. 
+2. Create a DBLink. 
 
-   Below is an example; you can also refer to [CREATE DATABASE LINK](../../SQL Statements/CREATE DATABASE LINK) for detailed DBLINK link configurations.
+   Below is an example; you can also refer to [CREATE DATABASE LINK](../../SQL Statements/CREATE DATABASE LINK) for detailed DBLink link configurations.
 
    ```sql
    -- Database link between YashanDB and YashanDB
@@ -94,9 +190,15 @@ Given the above requirements, administrators should take the necessary actions a
    
    -- Database link between YashanDB and Oracle, visible to all users
    CREATE PUBLIC DATABASE LINK dblink_oracle CONNECT TO REGRESS identified BY REGRESS USING 'oracle:192.168.1.2:1521/orcl';
+
+   -- Database link between YashanDB and DAMENG Database
+   CREATE DATABASE LINK dblink_dm CONNECT TO DMUSER IDENTIFIED BY DMPWD USING 'dm:192.168.1.3:5236';
+
+   -- Database link between YashanDB and KingbaseES Database
+   CREATE DATABASE LINK dblink_king CONNECT TO KINGUSER IDENTIFIED BY KINGPWD USING 'king:192.168.1.4:54321/TEST';
    ```
 
-3. As an example of using DBLINK to link to a remote Oracle database and perform data operations.
+3. As an example of using DBLink to link to a remote Oracle database and perform data operations.
 
    ```sql
    -- The following is the table definition of the department table on the remote Oracle
@@ -124,11 +226,11 @@ Given the above requirements, administrators should take the necessary actions a
    
    ```
    
-   The maximum number of DBLINK connections that can be concurrently opened by the database service is controlled by the system parameter [DBLINK_CURSOR_COUNT](../../../../Reference Manual/Configuration Parameters.md#dblinkcursorcount). The default value of this parameter is 32, and it can be adjusted according to specific business requirements.
+   The maximum number of DBLink connections that can be concurrently opened by the database service is controlled by the system parameter [DBLINK_CURSOR_COUNT](../../../../Reference Manual/Configuration Parameters.md#dblinkcursorcount). The default value of this parameter is 32, and it can be adjusted according to specific business requirements.
    
-   A DBLINK connection requests system idle memory to cache remote table business data. The system must satisfy the condition: Idle Memory > `DBLINK_CURSOR_COUNT` * 513K. If the system lacks sufficient memory when attempting to open a DBLINK again, the YAS-00101 error will be triggered.
+   A DBLink connection requests system idle memory to cache remote table business data. The system must satisfy the condition: Idle Memory > `DBLINK_CURSOR_COUNT` * 513K. If the system lacks sufficient memory when attempting to open a DBLink again, the YAS-00101 error will be triggered.
 
-4. Display the list of DBLINK created in the database service.
+4. Display the list of DBLink created in the database service.
 
    ```sql
    select * from DBA_DB_LINKS;
@@ -153,7 +255,7 @@ Given the above requirements, administrators should take the necessary actions a
    exec DBMS_SESSION.CLOSE_DATABASE_LINK(dblink_oracle);
    ```
 
-You can learn more about functionality and constraints through [dblink](../../General SQL Syntax/dblink/Syntax Definition of DBLINK).
+You can learn more about functionality and constraints through [Syntax Definition of DBLink](../../General SQL Syntax/dblink/Syntax Definition of DBLink).
 
 
 
@@ -161,7 +263,7 @@ You can learn more about functionality and constraints through [dblink](../../Ge
 
 ### YAS-07315 too many dblink result sets
 
-When executing SQL statements involving dblink remote tables, if the error `YAS-07315: too many dblink result sets` occurs, it indicates that the number of open DBLink remote tables has exceeded the limit configured by the system parameter `DBLINK_CURSOR_COUNT`. 
+When executing SQL statements involving DBLink remote tables, if the error `YAS-07315: too many dblink result sets` occurs, it indicates that the number of open DBLink remote tables has exceeded the limit configured by the system parameter `DBLINK_CURSOR_COUNT`. 
 
 Solutions:
 
@@ -235,15 +337,19 @@ Solutions:
    0 rows fetched.
    ```
 
-If the database service process reports an insufficient memory error during restart, you can either reduce the values of the parameter `DBLINK_CURSOR_COUNT` by adjusting configurations in [Configuration File Adjustment](../../../../Database Administration/Storage Management/Database File Management/Configuration Parameter File and Password File Management.md), or expand memory allocation, then attempt to restart the database service after implementing these changes.
+If the database service process reports an insufficient memory error during restart, you can either reduce the values of the parameter `DBLINK_CURSOR_COUNT` by adjusting configurations in [Configuration File Adjustment](../../../../Database Administration/Storage Management/Database File Management/Configuration Parameter File and Password File Management), or expand memory allocation, then attempt to restart the database service after implementing these changes.
 
 ### YAS-07314 too many connections for dblink %s
 
-This error indicates that the number of accesses to remote tables via a single DBLink has exceeded the system-configured limit. The limit is controlled by the `MAX_DBLINK_CONNS` parameter in the `yex_server.ini` configuration file, which accepts values in the range **[64, 16384]**. To resolve this issue, you can follow the guidelines in [Sandbox Process Management](./yex_server Sandbox Process Management) to modify the parameter value. For more DBLink-related sandbox process parameters, please refer to the [dblink](./Syntax Definition of DBLINK) documentation.
+This error indicates that the number of accesses to remote tables via a single DBLink has exceeded the system-configured limit. The limit is controlled by the `MAX_DBLINK_CONNS` parameter in the `yex_server.ini` configuration file, which accepts values in the range **[64, 16384]**. To resolve this issue, you can follow the guidelines in [Sandbox Process Management](./yex_server Sandbox Process Management) to modify the parameter value. For more DBLink-related sandbox process parameters, please refer to [Syntax Definition of DBLink](./Syntax Definition of DBLink).
+
+### YAS-07318 too many db links
+
+This error indicates that the number of DBLink objects created and currently in use exceeds the system configuration limit. This limit is controlled by the [MAX_DBLINK_OBJECTS](./Syntax Definition of DBLink.md#max_dblink_objects) parameter in the yex_server.ini file, with a value range of [1024, 16384]. To adjust this parameter, refer to [yex_server sandbox process management](./yex_server Sandbox Process Management) for the corresponding operation.
 
 ### YAS-07330 ERR_YEX_TOO_MANY_XACTS
 
-This error indicates that the number of session openning DBLink has exceeded the system-configured limit. The limit is controlled by the `AXS_MAX_XACTS` parameter in the `yex_server.ini` configuration file, which accepts values in the range [10244, 16384]. To resolve this issue, you can follow the guidelines in [Sandbox Process Management](./yex_server Sandbox Process Management) to modify the parameter value. For more DBLink-related sandbox process parameters, please refer to the [dblink](./Syntax Definition of DBLINK) documentation.
+This error indicates that the number of session openning DBLink has exceeded the system-configured limit. The limit is controlled by the `AXS_MAX_XACTS` parameter in the `yex_server.ini` configuration file, which accepts values in the range [10244, 16384]. To resolve this issue, you can follow the guidelines in [Sandbox Process Management](./yex_server Sandbox Process Management) to modify the parameter value. For more DBLink-related sandbox process parameters, please refer to [Syntax Definition of DBLink](./Syntax Definition of DBLink).
 
 ### YAS-07331 transaction branches in same session can not exceed %d
 

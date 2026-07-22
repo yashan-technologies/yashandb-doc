@@ -1,25 +1,30 @@
 ## 通用描述
 
-CREATE TABLE语句用于创建一个表对象，表类型可分为HEAP表、TAC表和LSC表。存算一体分布式集群部署中，本语句还可以指定表对象的分布类型：[分布表](#shardtable)（Sharded Table）或[复制表](#duplicatetable)（Duplicated Table），默认为分布表。
+CREATE TABLE语句用于创建一个表对象，表类型可分为HEAP表、TAC表和LSC表。在存算一体分布式集群部署中，本语句还可以指定表对象的分布类型：[分布表](#shardtable)（Sharded Table）或[复制表](#duplicatetable)（Duplicated Table），默认为分布表。
 
-YashanDB支持通过配置DEFAULT_TABLE_TYPE参数（HEAP|TAC|LSC）指定创建表对象时的默认表类型，且该参数允许在线切换。同时，支持通过[ORGANIZATION](#organizationclause)语法在创建表对象时指定其表类型。表对象创建成功后无法再修改表类型。
+YashanDB提供的表类型如下表所示，表创建成功后将无法再修改其类型，请根据实际业务场景合理选择表类型，例如在分析业务场景中推荐使用LSC表。您可以通过配置DEFAULT_TABLE_TYPE参数指定默认表类型且该参数允许在线切换。同时，也可以在创建表时通过[ORGANIZATION](#organizationclause)语法单独指定其表类型。
 
 |  类型| 存储方式| 存储结构| 适用部署形态|
 | ------------------ | -------- | ---------- | -------------------------------------- |
-| HEAP表                                 | 行存     | 段页式结构 | <li>单机部署</li><li>共享集群/分布式集群部署</li><li>存算一体分布式集群部署</li>  |
-| LSC表   | 列存     | 列存结构   | <li>单机部署</li><li>存算一体分布式集群部署</li>   |
+| HEAP表                                 | 行存     | 段页式结构 | <li>单机部署</li><li>共享集群部署</li><li>分布式集群部署</li><li>存算一体分布式集群部署</li>  |
+| LSC表   | 列存     | 列存结构   | <li>单机部署</li><li>共享集群部署</li><li>分布式集群部署</li><li>存算一体分布式集群部署</li>   |
 | TAC表 | 列存     | 段页式结构 | <li>单机部署</li><li>存算一体分布式集群部署</li>   |
 
-在分析业务场景中，推荐使用LSC表。
+创建业务数据表的前提条件及建议如下：
 
-创建LSC表前，需确保其所在表空间已挂载bucket（数据桶）。通过[CREATE USER](./CREATE USER)语句创建的普通用户默认所属表空间会默认挂载bucket，因此普通用户可直接创建LSC表，而系统用户则因产品架构而异：
+- 在实际生产环境中，建议在创建业务表前先为其合理规划表空间和用户，相关语句请查阅[CREATE TABLESPACE](./CREATE TABLESPACE)和[CREATE USER](./CREATE USER)。
 
-- 单机部署中，由于SYSTEM表空间默认未挂载bucket，系统用户（如SYS）无法直接创建LSC表，需先执行[ALTER TABLESPACE](./ALTER TABLESPACE)语句为SYSTEM表空间挂载bucket再创建LSC表。
-- 存算一体分布式集群部署中，由于系统用户创建的表对象默认在users表空间中且users表空间默认已挂载bucket，无需额外操作即可直接创建LSC表。
+- 创建LSC表前需先确保目标表空间已挂载数据桶（bucket），数据桶信息可通过DBA_DATA_BUCKETS视图查看。YashanDB会默认为内置的USERS表空间挂载数据桶，因此：
 
-> **Note**: 
->
-> 在实际生产环境中，建议在创建业务表前先为其合理规划表空间和用户，相关语句请查阅[CREATE TABLESPACE](./CREATE TABLESPACE)和[CREATE USER](./CREATE USER)。
+    - 对于系统用户sys：
+
+        - 在单机部署、共享集群部署或分布式集群部署中，系统用户的默认表空间为SYSTEM表空间，初始状态未挂载数据桶，需先执行[ALTER TABLESPACE](./ALTER TABLESPACE)语句为其挂载数据桶才能创建LSC表或在创建LSC表时必须手动将新表指定至已挂载数据桶的其他表空间。
+
+        - 存算一体分布式集群部署中，系统用户创建的表默认会存放在USERS表空间，无需额外操作即可直接创建LSC表。
+
+    - 对于通过[CREATE USER](./CREATE USER)语句创建的普通用户：普通用户创建的表默认会存放在USERS表空间，无需额外操作即可直接创建LSC表。
+
+- 在共享集群部署或分布式集群部署中，LSC表与资源亲和功能互斥。资源亲和功能默认开启，如需创建LSC表请先联系我们的技术支持关闭资源亲和功能。
 
 ## 语句定义
 
@@ -37,8 +42,8 @@ YashanDB支持通过配置DEFAULT_TABLE_TYPE参数（HEAP|TAC|LSC）指定创建
 **[relation\_properties](#relationproperties)::=**
 
 ```ebnf
-= (column_definition|out_of_line_constraint) 
-{"," (column_definition|out_of_line_constraint)}.
+= (column_definition|virtual_column_definition|out_of_line_constraint) 
+{"," (column_definition|virtual_column_definition|out_of_line_constraint)}.
 ```
 
 **[object\_table](#objecttable)::=**
@@ -54,6 +59,12 @@ YashanDB支持通过配置DEFAULT_TABLE_TYPE参数（HEAP|TAC|LSC）指定创建
 ```ebnf
 = column_name dataType [VISIBLE|INVISIBLE] [identity_clause] [(DEFAULT default_expr|codec_expr|inline_constraint)
 {" " (DEFAULT default_expr|codec_expr|inline_constraint)}].
+```
+
+**[virtual_column_definition](#virtualcoldef)::=**
+
+```ebnf
+= column_name [datatype] [VISIBLE|INVISIBLE] [GENERATED ALWAYS] AS "(" column_expression ")" [VIRTUAL].
 ```
 
 **[identity_clause](#identityclause)::=**
@@ -544,7 +555,7 @@ YashanDB将分布表的每一个分区（Partition）作为一个Chunk，插入�
 - 如果表上未定义主键列，但存在唯一索引，则分区键为所有唯一索引的公共子集中首个恰当数据类型的字段。
 - 否则，分区键为表的首个恰当数据类型的列字段。
 
-SHARDED为YashanDB存算一体分布式数据库的默认建表方式，即CREATE TABLE=CREATE SHARDED TABLE。
+SHARDED为YashanDB存算一体分布式数据库的默认建表方式，即CREATE TABLE = CREATE SHARDED TABLE。
 
 示例（存算一体分布式集群部署）
 
@@ -910,6 +921,148 @@ entry_date DATE
 
 设置并行度时，YashanDB会自动进行探测，当探测到当前表数据量为大于1G，小于当前DATA_BUFFER_SIZE参数值时，会按一半服务器CPU核数的并行度并发检查约束。
 
+<span id="virtualcoldef" name="virtualcoldef"></span>
+
+#### virtual_column_definition
+
+该语句用于创建虚拟列，虚拟列不存储数据，而是在查询时通过定义的计算表达式动态生成。
+
+- 只允许在HEAP表上创建虚拟列；
+
+- 不允许基于虚拟列创建索引、分区和约束等对象；
+
+- 不允许虚拟列加密，允许基于加密的列创建虚拟列；
+
+- 不允许虚拟列以及虚拟列依赖的实体列上配置脱敏策略，实体列上原有的脱敏策略在创建了虚拟列之后将失效；
+
+- 虚拟列只能查询，不能更新和配置列值，查询虚拟列时会对返回值进行校验；
+
+- 对包含了虚拟列的表插入数据时，如果INSERT语句不指定列名，VALUES必须是全量的列，虚拟列对应的值必须指定为DEFAULT；如果指定列名，要么不指定虚拟列，如果指定虚拟列则对应的值必须是DEFAULT。
+
+**column_name**
+
+列字段的名称，不可省略，且需符合YashanDB的[对象命名规范](../基本SQL元素/标识符)。
+
+**dataType**
+
+指定列字段的数据类型。
+
+- 虚拟列数据类型不能是LOB和用户自定义类型；
+
+- 创建了虚拟列之后，不允许变更虚拟列属性，需要变更数据类型时可以通过删除列`ALTER TABLE DROP column_name`、增加列`ALTER TABLE ADD COLUMN`完成操作；
+
+- 该参数为可选参数，如果不指定则根据表达式推导的类型作为虚拟列的类型；
+
+- 创建虚拟列时会进行表达式的数据类型进行推导验证，当指定的数据类型与表达式推导出来的数据类型不一致时，数据库会自动进行如下转换规则，并记录在虚拟列的`DATA_DEFAULT`中：
+
+    - 指定的目标列类型为NUMBER类型时，通过TO_NUMBER函数转换；
+    - 指定的目标列类型为除NUMBER类型外的数值类型时，通过CAST函数转换；
+    - 表达式推导类型为数值类型，指定的目标列类型为字符类型时，通过TO_CHAR函数转换；
+    - 表达式推导类型为字符类型，指定的目标列类型为日期类型时，通过TO_DATE函数转换，格式与当前会话参数`date_format`一致，且该转换格式永久生效，后续修改会话的日期格式不会影响已有的转换规则；
+    - 表达式推导类型为字符类型，指定的目标列类型为时间类型时，通过TO_TIMESTAMP函数转换，格式与当前会话参数`timestamp_format`一致，且该转换格式永久生效，后续修改会话的时间格式不会影响已有的转换规则；
+    - 表达式推导类型为字符类型，指定的目标列类型为时间类型时，通过TO_TIMESTAMP_TZ函数转换。
+
+- 如果创建虚拟列时虚拟列的数据类型与表达式推导类型属于同一类，查询虚拟列数据时，会对计算结果进行长度和精度进行校验，规则如下：
+
+    - 字符类型：如果查询时计算出来的实际长度大于列定义的长度，返回报错提示；
+    - 数值类型：如果查询时计算出来的有效位数SCALE大于列定义的位数，返回报错提示；如果计算出来的精度PRECISION大于列定义的精度，对数据结果进行截断后打印输出；
+    - 时间类型：如果计算出来的时间精度大于列定义的精度，对数据结果进行截断后打印输出；
+
+> **Note**:
+>
+> 不指定数据类型时，容易发生数据库计算推导的虚拟列类型与业务应用定义不一致出现不兼容的情况，建议虚拟列数据类型与应用端指定为相同的数据类型。
+
+**VISIBLE|INVISIBLE**
+
+该关键字用于指定列字段是否可见，默认为可见（VISIBLE）。
+
+**GENERATED ALWAYS**
+
+该关键字为可选参数，表示该列的值是查询时实时计算生成。
+
+**column_expression**
+
+定义虚拟列的计算表达式。
+
+- 只能基于当前表上的列创建表达式，且不能引用其他虚拟列；
+
+- 支持引用LOB类型的列创建虚拟列，不能引用自定义类型的列创建虚拟列；
+
+- 使用内置函数创建表达式时，该函数必须是一个可以返回确定和不变结果的非聚集函数，例如不能为SYSDATE、USERENV、SUM等函数；
+
+- 使用自定义函数创建表达式时，要求表的所有者必须拥有UDF的执行权限，且UDF必须是确定性的函数；
+
+- 创建虚拟列后，不允许修改表达式，需要变更表达式时可以通过删除列`ALTER TABLE DROP column_name`、增加列`ALTER TABLE ADD COLUMN`完成操作；
+
+- 如果表达式使用了自定义函数，删除自定义函数后查询虚拟列将报错，重建自定义函数后虚拟列恢复可用状态；如果基于虚拟列创建了物化视图，自定义函数发生删除、重建操作后，物化视图需要参考[DBMS_MVIEW](../../PL参考手册/内置高级包/DBMS_MVIEW.md)重新刷新;
+
+- 虚拟列的表达式不能和已有的虚拟列或函数索引的表达式重复。
+
+**VIRTUAL**
+
+该关键字为可选参数，表示该列为虚拟列。
+
+```sql
+--定义虚拟列，由字段进行拼接
+create table tab_virtual_col1(emp_id NUMBER, first_name VARCHAR2(50), last_name VARCHAR2(50), full_name AS (first_name || ' ' || last_name) VIRTUAL);
+insert into tab_virtual_col1 values(1, 'Zhang', 'sam', default);
+insert into tab_virtual_col1(emp_id, first_name, last_name) values(2, 'Li', 'siri');
+
+-- 插入数据时如果指定了虚拟列，对应的列值必须为default
+insert into tab_virtual_col1(emp_id, first_name, last_name, full_name) values(3, 'Tom', 'Jerry', 'Tom Jerry');
+YAS-10007 cannot insert into a virtual column
+
+insert into tab_virtual_col1(emp_id, first_name, last_name, full_name) values(3, 'Tom', 'Jerry', default);
+
+select * from tab_virtual_col1;
+
+     EMP_ID FIRST_NAME                                            LAST_NAME                                             FULL_NAME
+----------- ----------------------------------------------------- ----------------------------------------------------- ----------------------------------------------------------------
+          1 Zhang                                                 sam                                                   Zhang sam
+          2 Li                                                    siri                                                  Li siri
+          3 Tom                                                   Jerry                                                 Tom Jerry
+
+--定义虚拟列指定数值类型，创建语句和插入数据时不校验合理性，查询时报错
+CREATE TABLE tab_virtual_number(real_col number(5), virtual_col number(4) as (real_col + 1) virtual);
+INSERT INTO tab_virtual_number(real_col) VALUES (12345);
+
+select * from tab_virtual_number;
+YAS-00025 value is larger than specified precision allowed for this column
+
+--创建虚拟列指定字符型数据类型，长度小于表达式推导出的类型，创建不报错，查询报错
+drop table if exists tab_virtual_char;
+CREATE TABLE tab_virtual_char (real_col varchar(5), virtual_col char(4) as (upper(real_col)) virtual);
+insert into tab_virtual_char(real_col) values('abcde');
+
+select * from tab_virtual_char;
+YAS-04008 VIRTUAL_COL size exceeding limit 4
+
+drop table tab_virtual_char purge;
+
+-- 创建虚拟列指定数值类型，但精度范围小于被依赖列的精度，查询时按配置精度截断
+CREATE TABLE tab_virtual_number1 (real_col number(5, 2), virtual_col number(5, 1) as (real_col + 1) virtual);
+INSERT INTO tab_virtual_number1(real_col) VALUES (123.45);
+
+select * from tab_virtual_number1;
+
+   REAL_COL VIRTUAL_COL 
+----------- ----------- 
+     123.45       124.5
+
+drop table tab_virtual_number1 purge;
+
+-- 创建虚拟列指定时间类型，查询时进行精度校验并截断
+CREATE TABLE tab_virtual_col_datatype_timestamp (real_col timestamp(4), virtual_col timestamp(2) as (FROM_TZ(real_col, '+09:00')) virtual);
+
+insert into tab_virtual_col_datatype_timestamp(real_col) values(to_timestamp('2025-7-31 12:34:56.1234', 'yyyy-mm-dd hh24:mi:ss.ff4'));
+
+select * from tab_virtual_col_datatype_timestamp;
+
+REAL_COL                                                         VIRTUAL_COL
+---------------------------------------------------------------- ----------------------------------------------------------------
+2025-07-31 12:34:56.1234                                         2025-07-31 03:34:56.12
+```
+
 #### out\_of\_line\_constraint
 
 该语句用于定义表的行外约束项。关于约束项的详细描述请参考通用SQL语法[constraint](../通用SQL语法/constraint)。
@@ -1029,11 +1182,13 @@ SELECT * FROM YAS$PTT_orders_info;
 
 该语句用于指定表所在的表空间。
 
-对于[临时表](#temptable)，只能指定一个temporary类型的表空间，省略则默认为表所属用户所在的表空间（临时表的表空间默认为数据库创建时生成的temporary表空间）。
+- 对于[临时表](#temptable)，只能指定一个temporary类型的表空间，省略则默认为表所属用户所在的表空间（临时表的表空间默认为数据库创建时生成的temporary表空间）。
 
-对于LSC表，为其所指定的表空间必须拥有bucket属性，详见[CREATE TABLESPACE](./CREATE TABLESPACE)描述。其中，系统的缺省表空间（DEFAULT表空间）已默认拥有bucket属性，可以作为LSC表的表空间。
+- 对于LSC表，为其所指定的表空间必须拥有bucket属性，详见[CREATE TABLESPACE](./CREATE TABLESPACE)描述。其中，系统的缺省表空间（DEFAULT表空间）已默认拥有bucket属性，可以作为LSC表的表空间。
 
-存算一体分布式集群部署中，创建分布表时不能使用本语句指定表空间。
+- 无法在本地缓存表空间（共享集群/分布式集群部署中独有）中创建表。
+
+- 存算一体分布式集群部署中，创建分布表时不能使用本语句指定表空间。
 
 ##### TABLESPACE SET tablespace_set\_name
 
@@ -2253,6 +2408,8 @@ ORDER BY (year,month,branch);
 
 该语句用于定义LSC表的可变数据最大生命周期。
 
+该语句不适用于共享/分布式集群部署。
+
 在YashanDB中，对LSC表插入的数据将先作为可变数据（MCOL）存储，满足一定条件后触发后台线程将可变数据转为稳态数据（SCOL，不可变数据）进入数据桶（bucket，对象存储目录）。
 
 此值保证用户插入数据在可变数据区内至少保留1/2 MCOL TTL时间，最多则保留MCOL TTL时间。
@@ -2263,7 +2420,7 @@ ORDER BY (year,month,branch);
 
 生命周期数值，该值须遵循INTERVAL YEAR TO MONTH或INTERVAL DAY TO SECOND数据类型的格式表述，例如`'1' YEAR(9)`、`'30:59.9' MINUTE TO SECOND(6)`，具体请参考[日期时间型](../数据类型/日期时间型)中这两种类型的描述。 
 
-示例（LSC表）
+示例（单机LSC表、存算一体分布式部署LSC表）
 
 ```sql
 -- 创建可变数据生命周期为1个月的LSC表，即在满1个月时，MCOL数据将被转换为SCOL数据
@@ -2289,7 +2446,7 @@ LSC表默认拥有转换、合并和生成AC数据的后台数据转换能力。
 
 在某些情况下，如果希望建表时就设置某些后台数据转换能力，可以使用此语法进行关闭或打开。建表完成后也可再使用[ALTER TABLE](./ALTER TABLE)语句对后台数据转换能力进行开启或关闭。
 
-示例（LSC表）
+示例（单机LSC表、存算一体分布式部署LSC表）
 
 ```sql
 -- 创建一个关闭合并能力的LSC表
@@ -2302,6 +2459,8 @@ create table lsc_compact_disable(x int) disable compact;
 #### mcolability_clause
 
 建表时指定是否开启MCOL，如未指定则根据配置项LSC_MCOL_ENABLED决定是否开启MCOL，配置项默认关闭MCOL。
+
+该语句不适用于共享/分布式集群部署。
 
 MCOL比较偏向于TP业务，拥有良好的并发小事务处理能力，但在数据压缩率以及批量导入和查询性能上不如SCOL。
 

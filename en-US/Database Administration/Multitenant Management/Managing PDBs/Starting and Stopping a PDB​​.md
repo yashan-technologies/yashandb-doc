@@ -71,7 +71,7 @@ PDB can be started using the following methods:
 | [*yasboot*](../../../Tools Guide/yasboot/Introduction to yasboot Command/yasboot pdb)                                                | Can start PDB to any stage and can start batch PDBs, but cannot specify the PDB's open mode. <br/> For the CDB in YAC/Distributed Cluster Deployment, can only start specified PDB from the closed state to any stage, but cannot start from the NOMOUNT or MOUNT stage to the next stage or OPEN stage  |
 | Execute [ALTER PLUGGABLE DATABASE](../../../Development Guide/SQL Reference Manual/SQL Statements/ALTER PLUGGABLE DATABASE) statement in the CDB root | Can start PDB to any stage and can start batch PDBs, but cannot specify the PDB's open mode. |
 | Execute [ALTER DATABASE](../../../Development Guide/SQL Reference Manual/SQL Statements/ALTER DATABASE) statement in the target PDB       | Can adjust the PDB from NOMOUNT stage to MOUNT stage or OPEN stage, but ALTER DATABASE statement only takes effect on the executing PDB. |
-| [*ycsctl*](../../../Tools Guide/ycsctl/Node Management Commands)                                                   | Only applicable to the CDB in YAC/Distributed Cluster Deployment.  <br/>Can start specified PDB from the closed state to any stage, but cannot specify the PDB's open mode and cannot start from the NOMOUNT or MOUNT stage to the next stage or OPEN stage |
+| [*ycsctl*](../../../Tools Guide/ycsctl/User Guide for ycsctl/Database Resource Management Commands.md)                                                   | Only applicable to the CDB in YAC/Distributed Cluster Deployment.  <br/>Can start specified PDB from the closed state to any stage, but cannot specify the PDB's open mode and cannot start from the NOMOUNT or MOUNT stage to the next stage or OPEN stage |
 
 <span id="nomount" name="nomount"></span>
 
@@ -264,7 +264,7 @@ PDB can be closed using the following methods:
 | [*yasboot*](../../../Tools Guide/yasboot/Introduction to yasboot Command/yasboot pdb)                                                | Can close PDB PDBs individually or in batch, but cannot use ABORT closing mode in Standalone Deployment, and cannot specify closing mode in YAC/Distributed Cluster Deployment. |
 | Execute [ALTER PLUGGABLE DATABASE](../../../Development Guide/SQL Reference Manual/SQL Statements/ALTER PLUGGABLE DATABASE) statement in the CDB root | Can close PDB PDBs individually or in batch, but cannot close PDBs in ABORT mode. |
 | Execute [SHUTDOWN](../../../Development Guide/SQL Reference Manual/SQL Statements/SHUTDOWN) statement in the target PDB       | Only takes effect on the executing PDB. |
-| [ycsctl](../../../Tools Guide/ycsctl/Node Management Commands)                                                   | Only applicable to the CDB in YAC/Distributed Cluster Deployment.  <br/>Can close 1 PDB instance at a time, but cannot specify the PDB's closing mode. <br/>Only close the target PDB instance on the executing server. |
+| [ycsctl](../../../Tools Guide/ycsctl/User Guide for ycsctl/Database Resource Management Commands.md)                                                   | Only applicable to the CDB in YAC/Distributed Cluster Deployment.  <br/>Can close 1 PDB instance at a time, but cannot specify the PDB's closing mode. <br/>Only close the target PDB instance on the executing server. |
 
 ::: tabs
 == Using *yasboot*

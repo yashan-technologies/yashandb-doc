@@ -1,5 +1,5 @@
 ```ebnf
-variance = VARIANCE "(" [DISTINCT|ALL] expr ")" [keep_clause].
+variance = VARIANCE "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 ```
@@ -16,9 +16,11 @@ VARIANCE函数的返回值类型有以下几种情况：
 *   当expr的值为字面量、变量、常量时，返回0。
 *   当expr的值为其他类型且无法转换为NUMBER类型时，不执行计算并返回类型转换错误。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 表示过滤掉输入的重复数据后，进行样本方差计算。
+
+DISTINCT与UNIQUE完全等价。
 
 **ALL**
 

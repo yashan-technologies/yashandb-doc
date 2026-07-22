@@ -2,8 +2,6 @@ When the server IP address in the database cluster managed by *yasboot* changes,
 
 The order of executing the IP change is yasom > yasagent > yasdb. If there is no need to update the IP of a particular tool/server, it can be skipped, and the update can proceed to the next tool/server, but the order must not be mixed. For specific operations, refer to [Changing Server IP Address](../../../Installation and Upgrade/Redeployment/Changing Server IP Address.md).
 
-This command is applicable only to Standalone Deployment.
-
 ## ipchange yasom
 
 This command is used to change the IP of the main yasom and restart yasom. After restarting, yasom will listen on the new IP address and the original port.
@@ -57,6 +55,8 @@ Prerequisites for using this command to change the server IP:
 - If changing the IP of yasagent, the IP of each yasagent to be changed must have been updated.
 
 This command is used to change the IP of the database instance, and using this command will automatically shut down the database instance.
+
+This command is only applicable to Standalone Deployment.
 
 |Option |Meaning |
 | ----------------   | -----------------------------  |

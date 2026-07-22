@@ -44,7 +44,7 @@ YashanDB支持丰富多样的查询操作，包括但不限于：
 
 ```ebnf
 = [with_clause]
-SELECT [hint] [DISTINCT] select_list
+SELECT [hint] [DISTINCT|UNIQUE] select_list
 FROM (table_reference|join_clause|"(" join_clause ")")
 {" " (table_reference|join_clause|"(" join_clause ")")}
 [where_clause]
@@ -106,7 +106,7 @@ FROM (table_reference|join_clause|"(" join_clause ")")
 **[table\_reference](#tablereference)::=**
 
 ```ebnf
-= ((query_name|query_containers|subquery)[sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause]) {"," ((query_name|query_containers|subquery) [sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause])}.
+= ((query_name|query_containers|subquery|graph_table_spec)[sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause]) {"," ((query_name|query_containers|subquery|graph_table_spec) [sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause])}.
 ```
 
 **[query_name](#queryname) ::=**
@@ -131,16 +131,252 @@ FROM (table_reference|join_clause|"(" join_clause ")")
 = TABLE "(" collection_expression ")".
 ```
 
-**[sample_clause](#sampleclause)::=**
-
-```ebnf
-= SAMPLE "(" sample_percent ")" [SEED "(" seed_value ")"].
-```
-
 **[query_containers](#querycontainers)::=**
 
 ```ebnf
 = CONTAINERS '(' ([schema'.'] query_name) ')'.
+```
+
+**[graph_table_spec](#graphtablespec)::=**
+
+```ebnf
+= GRAPH_TABLE "(" graph_reference graph_pattern graph_table_columns_clause ")".
+```
+
+<span id="graphtablespec" name="graphtablespec"></span>
+
+**[graph_reference](#graphreference)::=**
+
+```ebnf
+= [schema "."] graph_name.
+```
+
+<span id="graphreference" name="graphreference"></span>
+
+**[graph_pattern](#graphpattern)::=**
+
+```ebnf
+= MATCH path_pattern_list [graph_pattern_where_clause].
+```
+
+<span id="graphpattern" name="graphpattern"></span>
+
+**[path_pattern_list](#pathpatternlist)::=**
+
+```ebnf
+= path_pattern {"," path_pattern}.
+```
+
+<span id="pathpatternlist" name="pathpatternlist"></span>
+
+**[path_pattern](#pathpattern)::=**
+
+```ebnf
+= [path_variable "="] path_expression.
+```
+
+<span id="pathpattern" name="pathpattern"></span>
+
+**[path_expression](#pathexpression)::=**
+
+```ebnf
+= path_term [path_factor].
+```
+
+<span id="pathexpression" name="pathexpression"></span>
+
+**[path_term](#pathexpression)::=**
+
+```ebnf
+= path_factor [path_concatenation].
+```
+
+<span id="pathexpression" name="pathexpression"></span>
+
+**[path_factor](#pathfactor)::=**
+
+```ebnf
+= element_pattern | quantifier_path_primary.
+```
+
+<span id="pathfactor" name="pathfactor"></span>
+
+**[path_concatenation](#pathconcatenation)::=**
+
+```ebnf
+= path_term path_factor.
+```
+
+<span id="pathconcatenation" name="pathconcatenation"></span>
+
+**[element_pattern](#elementpattern)::=**
+
+```ebnf
+= vertex_pattern | edge_pattern.
+```
+
+<span id="elementpattern" name="elementpattern"></span>
+
+**[vertex_pattern](#vertexpattern)::=**
+
+```ebnf
+= "(" [element_variable] [is_label_expression] [element_where_clause] ")".
+```
+
+<span id="vertexpattern" name="vertexpattern"></span>
+
+**[edge_pattern](#edgepattern)::=**
+
+```ebnf
+= full_edge_pattern | abbreviated_edge_pattern.
+```
+
+<span id="edgepattern" name="edgepattern"></span>
+
+**[full_edge_pattern](#fulledgepattern)::=**
+
+```ebnf
+= ( "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-" ">"
+  | "<" "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-"
+  | "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-"
+  | "<" "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-" ">" ).
+```
+
+<span id="fulledgepattern" name="fulledgepattern"></span>
+
+**[abbreviated_edge_pattern](#abbreviatededgepattern)::=**
+
+```ebnf
+= ( "->" | "<-" | "-" | "<->" ).
+```
+
+<span id="abbreviatededgepattern" name="abbreviatededgepattern"></span>
+
+**[element_pattern_filler](#elementpatternfiller)::=**
+
+```ebnf
+= [element_variable] [is_label_expression] [element_where_clause].
+```
+
+<span id="elementpatternfiller" name="elementpatternfiller"></span>
+
+**[element_variable](#elementvariable)::=**
+
+```ebnf
+= identifier.
+```
+
+<span id="elementvariable" name="elementvariable"></span>
+
+**[is_label_expression](#islabelexpression)::=**
+
+```ebnf
+= IS label_expression.
+```
+
+<span id="islabelexpression" name="islabelexpression"></span>
+
+**[quantifier_path_primary](#quantifierpathprimary)::=**
+
+```ebnf
+= element_pattern graph_pattern_quantifier.
+```
+
+<span id="quantifierpathprimary" name="quantifierpathprimary"></span>
+
+**[graph_pattern_quantifier](#graphpatternquantifier)::=**
+
+```ebnf
+= fixed_quantifier | general_quantifier.
+```
+
+<span id="graphpatternquantifier" name="graphpatternquantifier"></span>
+
+**[fixed_quantifier](#fixedquantifier)::=**
+
+```ebnf
+= "(" integer ")".
+```
+
+<span id="fixedquantifier" name="fixedquantifier"></span>
+
+**[general_quantifier](#generalquantifier)::=**
+
+```ebnf
+= "(" [integer] "," integer ")".
+```
+
+<span id="generalquantifier" name="generalquantifier"></span>
+
+**[label_expression](#labelexpression)::=**
+
+```ebnf
+= label_name {"|" label_name}.
+```
+
+<span id="labelexpression" name="labelexpression"></span>
+
+**[label_name](#labelname)::=**
+
+```ebnf
+= identifier.
+```
+
+<span id="labelname" name="labelname"></span>
+
+**[element_where_clause](#elementwhereclause)::=**
+
+```ebnf
+= WHERE condition.
+```
+
+<span id="elementwhereclause" name="elementwhereclause"></span>
+
+**[graph_pattern_where_clause](#graphpatternwhereclause)::=**
+
+```ebnf
+= WHERE condition.
+```
+
+<span id="graphpatternwhereclause" name="graphpatternwhereclause"></span>
+
+**[graph_table_columns_clause](#graphtablecolumnsclause)::=**
+
+```ebnf
+= COLUMNS "(" graph_table_column_definition {"," graph_table_column_definition} ")".
+```
+
+<span id="graphtablecolumnsclause" name="graphtablecolumnsclause"></span>
+
+**[graph_table_column_definition](#graphtablecolumndefinition)::=**
+
+```ebnf
+= value_expression [AS column_name]
+  | all_properties_reference.
+```
+
+<span id="graphtablecolumndefinition" name="graphtablecolumndefinition"></span>
+
+**[all_properties_reference](#allpropertiesreference)::=**
+
+```ebnf
+= element_reference "." "*".
+```
+
+<span id="allpropertiesreference" name="allpropertiesreference"></span>
+
+**[element_reference](#elementreference)::=**
+
+```ebnf
+= element_variable.
+```
+
+<span id="elementreference" name="elementreference"></span>
+
+**[sample_clause](#sampleclause)::=**
+
+```ebnf
+= SAMPLE "(" sample_percent ")" [SEED "(" seed_value ")"].
 ```
 
 **[flashback_query_clause](#flashbackqueryclause)::=**
@@ -376,9 +612,11 @@ BRANCH DEPARTMENT EMPLOYEE_NO   ENTRY_DATE                                      
 
 该语句用于提出给定的方案到优化器（Optimizer），使其按照此方案生成语句的执行计划，详情请查阅[hint](../通用SQL语法/hint)。
 
-##### distinct
+##### DISTINCT|UNIQUE
 
 该语句用于对查询结果进行过滤设置，对查询结果中重复的多条记录只返回一条记录。 
+
+DISTINCT与UNIQUE完全等价。
 
 <span id="selectlist" name="selectlist"></span>
 
@@ -526,7 +764,7 @@ YashanDB支持为查询对象分别定义别名，查询对象可为如下类型
 
 *   [subquery](#query_subquery)：一个子查询的结果
 
-*   [dblink](../通用SQL语法/dblink/dblink语法说明.md)：远端表
+*   [dblink](../通用SQL语法/dblink/DBLink语法说明.md)：远端表
 
 查询对象不能同时存在行存表和列存表，否则返回错误。
 
@@ -737,6 +975,219 @@ Chengdu                                                                   500
 Nanjing                                                                   600
 ```
 
+<span id="querycontainers" name="querycontainers"></span>
+
+###### query_containers
+
+该语句用于在容器数据库中汇聚查询PDB中的表、视图等查询对象。  
+
+在根容器上使用该算子可汇聚所有容器（根容器和所有PDB）中同名查询对象的相关数据，实现全局查询功能，查询结果中将生成伪列CON_ID以区分数据来源。在PDB中使用该算子时，则始终查询本地数据，其效果等同于不使用该算子。
+
+ 
+
+如需查询全局的汇聚数据，需满足以下要求：
+
+- 具备所有查询对象的相应权限。
+
+- PDB中的查询对象应与根容器中的相应对象具有相同的表结构定义。
+
+- 若汇聚查询的列项（select_list）中存在LOB类型列，整个查询结果集将为NULL。
+
+
+
+示例（单机/共享集群/分布式集群部署）
+
+```sql
+-- 获取PDB信息
+show pdbs
+
+               CON_ID CON_NAME                                                         STATUS
+--------------------- ---------------------------------------------------------------- -----------------
+                    1 PDB$SEED                                                         CLOSED
+                    2 PDB1                                                             OPEN
+
+-- 在根容器上全局查询v$parameter视图，获取所有PDB的某个参数配置
+select con_id,name,value from containers(v$parameter) where name ='DB_BLOCK_SIZE';
+
+      CON_ID NAME                                                             VALUE
+------------ ---------------------------------------------------------------- ----------------------------------------------------------------
+           0 DB_BLOCK_SIZE                                                    8192
+           2 DB_BLOCK_SIZE                                                    8192
+```
+
+<span id="graphtablespec" name="graphtablespec"></span>
+
+###### graph_table_spec
+
+`GRAPH_TABLE`是一个表表达式，用于在属性图上执行模式匹配查询。属性图由顶点（Vertex）和边（Edge）组成，查询输入一个属性图，按MATCH子句的图模式进行匹配，将匹配结果输出为普通的关系表形式。
+
+存算一体分布式集群部署中用户无法执行该语句。
+
+**graph_reference**
+
+指定要查询的属性图名称，需已通过[CREATE PROPERTY GRAPH](./CREATE PROPERTY GRAPH)语句创建。格式为`[schema.]graph_name`。
+
+**graph_pattern**
+
+指定图模式匹配规则，由MATCH关键字引导，后接一个或多个路径模式（path_pattern），可选地附加图模式级别的WHERE条件。
+
+**path_pattern_list**
+
+路径模式列表，由一个或多个路径模式组成，路径模式之间以逗号分隔。多个路径模式在同一`GRAPH_TABLE`中可以共享顶点和边变量，以实现复杂的非线性图模式匹配。
+
+**path_pattern**
+
+指定一条路径模式，格式为`[path_var =] path_expression`，支持可选的路径变量声明（`path_var =`），用于为匹配的路径命名。
+
+**path_expression**
+
+由顶点和边模式按顺序连接而成的线性路径表达式。
+
+**element_pattern**
+
+元素模式，用于匹配图中的顶点和边。元素模式包括顶点模式和边模式，两者都可以附加量化修饰符实现可变长度路径匹配。
+
+- **顶点模式（vertex_pattern）**：用圆括号`()`包裹，格式为`( [element_variable] [IS label_expression] [element_where_clause] )`
+
+    - `element_variable`：顶点别名，用于在后续WHERE和COLUMNS子句中引用该顶点
+    - `IS label_expression`：可选的标签表达式，限制只匹配指定标签的顶点；省略时匹配所有顶点。label_expression支持标签的或运算，如`IS person|university`
+    - `element_where_clause`：可选的元素级WHERE条件，形如`WHERE v.name = 'John'`，只过滤该顶点
+
+- **边模式（edge_pattern）**：包括完整写法（full_edge_pattern）和缩写写法（abbreviated_edge_pattern）
+
+    - 完整写法支持以下方向，其中方括号`[]`内可选包含：element_variable、IS标签表达式、element_where_clause：
+
+        | 方向 | 语法 |
+        |------|------|
+        | 出边（右向） | `-[e IS label]->` |
+        | 入边（左向） | `<-[e IS label]-` |
+        | 任意方向（双向） | `-[e IS label]-` 或 `<-[e IS label]->` |
+
+    - 缩写写法仅允许按方向匹配任意边，不允许指定别名、标签和WHERE条件：
+
+        | 方向 | 缩写 |
+        |------|------|
+        | 出边 | `->` |
+        | 入边 | `<-` |
+        | 双向 | `-` |
+        | 双向（等效） | `<->` |
+
+- **元素量化（quantifier）**：指定某个顶点、某个边或某个使用括号包围的路径表达式的重复次数（即量化），量化后的变量在量词外部引用时具有组级别引用（group degree），需配合聚合函数使用。量化支持以下形式：
+
+    - `fixed_quantifier`：固定次数，格式为`(n)`，表示恰好重复 n 次
+    - `general_quantifier`：范围次数，格式为`(n,m)`，表示重复 n 到 m 次（闭区间）；格式`(,m)`表示重复 0 到 m 次
+
+**element_where_clause**
+
+位于顶点或边模式内部的WHERE条件，仅对单个元素进行过滤。例如：`(p IS person WHERE p.name = 'John')`或`-[e IS friend WHERE e.meeting_date > DATE '2000-01-01']->`。
+
+**graph_pattern_where_clause**
+
+位于MATCH子句末尾的整体WHERE条件，对整个图模式的匹配结果进行过滤。可以引用图模式中的任意变量；当引用具有组级别引用的变量时，需放在聚合函数内。
+
+**COLUMNS**
+
+指定图查询返回的列，将图模式匹配结果投影为普通关系表。可包含：
+- 顶点/边属性引用，例如`v.name`、`e.since_date`
+- 任意表达式计算，例如`v.height * 3.281 AS height_in_feet`
+- `v.*`（all_properties_reference）：展开该变量的所有有效属性
+- 聚合函数，目前仅支持`COUNT(*)`
+
+示例（单机/共享集群/分布式集群部署）
+
+```sql
+-- 基本顶点查询：查询所有person标签的顶点
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person)
+    COLUMNS (p.person_id, p.name, p.dob)
+) AS persons
+WHERE persons.name = 'Alice';
+
+-- 边遍历查询：查找单向边
+SELECT result.friend_name, result.meeting_date
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person) -[e IS friend]-> (friend)
+    COLUMNS (p.name AS person_name, friend.name AS friend_name, e.meeting_date)
+) AS result
+WHERE result.person_name = 'Bob';
+
+-- 任意方向边查询：使用无向边匹配
+SELECT person1.name AS person_a, person2.name AS person_b
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (person1) -[e IS friend]- (person2)
+    COLUMNS (person1.name, person2.name)
+) AS connections;
+
+-- 入边查询：使用左向边
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (a) <-[e IS student_of]- (b)
+    COLUMNS (a.name AS university, b.name AS student, e.subject)
+) AS result;
+
+-- 量化模式查询：匹配可变长度路径
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (n IS person) -[f IS friend]->{0,3} (m IS person)
+    WHERE n.name = 'John'
+    COLUMNS (m.name AS reachable_name)
+) AS paths;
+
+-- 带element WHERE条件的查询
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person WHERE p.name = 'John')
+            -[e IS friend WHERE e.meeting_date > DATE '2000-09-15']-
+            (friend)
+    COLUMNS (friend.name)
+) AS result;
+
+-- 使用element WHERE和图模式WHERE结合
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (a IS person) -[e IS friend]- (b IS person)
+    WHERE a.name = 'John' AND e.meeting_date > DATE '2000-09-15'
+    COLUMNS (b.name)
+) AS result;
+
+-- 多标签匹配：使用竖线分隔多个标签
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (v IS person|university)
+    COLUMNS (v.name)
+) AS result;
+
+-- 带聚合函数的量词查询
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person) -[e IS friend]-{2,5} (friend)
+    WHERE p.name = 'Alice'
+    COLUMNS (LISTAGG(e.friendship_id, ', ') AS friendship_ids,
+             COUNT(e.friendship_id) AS path_length)
+);
+
+-- 多路径模式共享变量
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p1 IS person) -[e1 IS friend]- (p2 IS person),
+          (p1) -[e2 IS student_of]-> (u1),
+          (p2) -[e3 IS student_of]-> (u2)
+    WHERE p1.name = 'Mary'
+    COLUMNS (p1.name, p2.name AS friend, u1.name AS univ_1, u2.name AS univ_2)
+) AS result;
+```
+
 <span id="sampleclause" name="sampleclause"></span>
 
 ###### sample_clause
@@ -749,7 +1200,7 @@ SAMPLE用于从表中按比例抽取一个随机样本，后续WHERE条件将基
 
 - **sample_percent**
 
-  指定样本所占的百分比，其值必须为一个[0.000001, 100]区间的常量数值（支持可以隐式转换为数值的其他类型）。此百分比代表采样时每个数据行被选为样本的概率，该概率为统计学上的概念，这意味着系统并不会精确返回基于sample\_percent计算出的行数的记录。
+  指定样本所占的百分比，其值必须为一个[0.000001, 100]区间的常量数值（支持可以隐式转换为数值的其他类型）。此百分比表示采样时每个数据行被选为样本的概率，该概率为统计学上的概念，这意味着系统并不会精确返回基于sample\_percent计算出的行数的记录。
 
 - **SEED seed_value**
   
@@ -793,45 +1244,6 @@ AREA_NO AREA_NAME               DHQ
 05      CentralChina                  Wuhan
 ```
 
-<span id="querycontainers" name="querycontainers"></span>
-
-###### query_containers
-
-该语句用于在容器数据库中汇聚查询PDB中的表、视图等查询对象。  
-
-在根容器上使用该算子可汇聚所有容器（根容器和所有PDB）中同名查询对象的相关数据，实现全局查询功能，查询结果中将生成伪列CON_ID以区分数据来源。在PDB中使用该算子时，则始终查询本地数据，其效果等同于不使用该算子。
-
- 
-
-如需查询全局的汇聚数据，需满足以下要求：
-
-- 具备所有查询对象的相应权限。
-
-- PDB中的查询对象应与根容器中的相应对象具有相同的表结构定义。
-
-- 若汇聚查询的列项（select_list）中存在LOB类型列，整个查询结果集将为NULL。
-
-
-
-示例（单机/共享集群/分布式集群部署）
-
-```sql
--- 获取PDB信息
-show pdbs
-
-               CON_ID CON_NAME                                                         STATUS
---------------------- ---------------------------------------------------------------- -----------------
-                    1 PDB$SEED                                                         CLOSED
-                    2 PDB1                                                             OPEN
-
--- 在根容器上全局查询v$parameter视图，获取所有PDB的某个参数配置
-select con_id,name,value from containers(v$parameter) where name ='DB_BLOCK_SIZE';
-
-      CON_ID NAME                                                             VALUE
------------- ---------------------------------------------------------------- ----------------------------------------------------------------
-           0 DB_BLOCK_SIZE                                                    8192
-           2 DB_BLOCK_SIZE                                                    8192
-```
 
 <span id="flashbackqueryclause" name="flashbackqueryclause"></span>
 
@@ -1386,9 +1798,9 @@ ORDER SIBLINGS BY id DESC;
 
 *   在select\_list中出现的查询列或列数据，必须为分组列或列数据的子集。
 
-    列是子集："SELECT col ,COUNT(\*) FROM table GROUP BY col, col2；"
+    - 列是子集："SELECT col ,COUNT(\*) FROM table GROUP BY col, col2；"
 
-    列数据是子集："SELECT LPAD(col), COUNT(\*) FROM table GROUP BY col；"
+    - 列数据是子集："SELECT LPAD(col), COUNT(\*) FROM table GROUP BY col；"
 
 *   查询列与分组列里出现函数时，函数的参数必须一致。
 
@@ -1398,13 +1810,26 @@ ORDER SIBLINGS BY id DESC;
 *   分组列不能包含或嵌套\*（星号），SEQUENCE，子查询及聚集函数等表达式。
 *   当分组列为数字时，与ORDER BY不同的是，本语句不会将数字释义成列的位置，而是作为字面量处理。
 
+* 分组列是否允许使用select\_list中定义的列别名：
+
+  - yashan模式中，分组列不允许使用别名。
+
+  - mysql模式中，分组列允许使用别名。
+
 ###### HAVING
 
 HAVING子句约束SELECT查询语句中GROUP BY的结果，该约束应用于查询结果中的每个分组，类似WHERE条件应用于select\_list。使用规则如下：
 
 * HAVING子句可以放在GROUP BY子句的前面或后面。
+
 * HAVING后的condition是一个布尔表达式，语法同WHERE子句中的filter\_clause，但是它只能包含分组列、聚集函数（可以与select\_list中的聚集函数不一致）、字面量和子查询（子查询中的列不需要为分组列）。其中存算一体分布式集群部署中不可以使用子查询。
 *   如果没有GROUP BY，直接使用HAVING子句，表示该约束作用于整个查询结果，此时select\_list和condition中不能出现分组列。
+* HAVING子句中的列名是否允许使用select\_list中定义的列别名：
+
+  - yashan模式中，不允许使用别名。
+
+  - mysql模式中，允许使用别名。
+
 
 示例（单机部署）
 

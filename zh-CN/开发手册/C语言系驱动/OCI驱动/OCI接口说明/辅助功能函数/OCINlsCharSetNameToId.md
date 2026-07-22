@@ -19,5 +19,6 @@ ub2 OCINlsCharSetNameToId ( void            *hndl,
 部分参数目前仅支持以下取值：
 
 |  参数| 有效值|
-| ---- | ------------------------ |
-| name | GBK<br />UTF8<br />UTF16 |
+| ---- | ------- |
+| name | GBK<br />UTF8<br />UTF16    |
+

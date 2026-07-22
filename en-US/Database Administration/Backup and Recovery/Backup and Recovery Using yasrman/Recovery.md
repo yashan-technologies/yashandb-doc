@@ -10,7 +10,7 @@ The following recovery operations can be performed using the [yasrman](../../../
 |--------------------|--------------|-------|
 | [Restore Entire Database](#restorealldb) | Use when a complete restore of the database is required in any deployment form | Full Database Backup Set<br/> For PITR (PITR), archive log files or their backup sets are also required |
 | [Restore Tablespace](#rmanSpaceRestore)  | Use when a specified tablespace needs to be restored individually within Standalone Deployment | Tablespace Backup Set, archive log files required for tablespace RECOVER |
-| [Restore Archive Log Files](#rmanArchiveFileRestore) | Use in the PITR process which involves restoring archives in Standalone/YAC/Distributed Cluster Deployment, automatically executed by *yasrman*, manual restoration of archive log files is not necessary | Archive log files backup set                           |
+| [Restore Archive Log Files](#rmanArchiveFileRestore) | Use in the PITR process which involves restoring archives in Standalone/YAC/Distributed Cluster Deployment, automatically executed by *yasrman*, manual restoration of archive log files is not necessary | Archive log backup set or full database backup set containing archive logs within the restore range |
 
 Executing recovery operations requires:
 

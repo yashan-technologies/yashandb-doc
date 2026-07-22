@@ -6,28 +6,11 @@
 
 1. 从[YashanDB官网下载中心](https://download.yashandb.com/download)，或者联系我们的技术支持获取对应的软件包。
 
-2. 将YashanDB客户端安装包下载并解压到本地路径，例如D:\yasdb-driver-c\。
+2. 将包名为`YashanDB Connector/C xxx`并标记为Windows的驱动包下载并解压到本地路径，例如`D:\yasdb-driver-c\`。
 
-   安装包解压后可得到以下文件夹：
-
-## 步骤1：下载C驱动安装包
-
-
-1. 从[YashanDB官网下载中心](https://download.yashandb.com/download)，或者联系我们的技术支持获取对应的软件包。
-
-2. 将YashanDB客户端安装包下载并解压到本地路径，例如/home/yasdb-driver-c/。
-
-   安装包解压后可得到C驱动所需文件：
-
-   * C驱动的头文件：位于include文件夹中。
-
-   * C驱动的库文件：位于lib文件夹中。
-
-
+   安装包解压后可得到文件名为`yascli.dll`的文件：
 
 ## 步骤2：设置环境变量
-
-
 
 将C驱动的库文件所在文件夹设置到Windows环境变量PATH中，具体操作为：
 

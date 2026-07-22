@@ -20,10 +20,10 @@ The SUBMIT procedure is used to create a new scheduled job, and the successfully
 |Parameter |Description |
 | :-------- |:----------------------------------------------------------------------------|
 | job        | The object ID assigned by the system for the scheduled job, of type BIGINT.   |
-| what       | The PL/SQL block to be executed by the scheduled job, must end with a semicolon. |
+| what       | The PL block to be executed by the scheduled job, must end with a semicolon. |
 | next_date  | The time for the next execution of the scheduled job.                          |
 | interval    | The expression text used to calculate the next execution time of the scheduled job; the calculated time must be in the future or NULL. <br/> If NULL, it indicates the scheduled job will execute only once and be deleted after execution. |
-| no_parse   | Indicates whether to parse the PL/SQL text specified by what when creating the scheduled job; true means no parsing, false means parsing and verification will occur. |
+| no_parse   | Indicates whether to parse the PL text specified by what when creating the scheduled job; true means no parsing, false means parsing and verification will occur. |
 | instance   | The instance on which the scheduled job runs; the default value 0 means it can run on any instance. |
 | force      | When FALSE, the specified instance must be running; when TRUE, the instance can be any integer. |
 
@@ -111,7 +111,7 @@ The CHANGE procedure is used to modify the related properties of a scheduled job
 |Parameter |Description |
 | :-------- |:--------------------------------------------------------------------------------------------------------------------------------------|
 | job        | The object ID of the scheduled job, which can be queried through the DBA_JOBS/ALL_JOBS/USER_JOBS views. |
-| what       | The PL/SQL block to be executed by the scheduled job, must end with a semicolon.              |
+| what       | The PL block to be executed by the scheduled job, must end with a semicolon.              |
 | next_date  | The time for the next execution of the scheduled job; if the parameter value is in the past (based on the database server's operating system time), next_date will be modified to the current time.<br/> After modification, the scheduled job will be dispatched according to the modified next execution time; for example, setting this parameter to the current time (or a past time) will cause the scheduled job to execute immediately after modification. |
 | interval   | Expression text to calculate the next execution time of the scheduled job; NULL indicates that the scheduled job will execute only once. The calculated time must be in the future or NULL. |
 | instance   | The instance in a clustered environment where the scheduled job runs; NULL means that the job's instance will not be changed. |
@@ -239,7 +239,7 @@ The WHAT procedure is used to modify the execution content of the scheduled job.
 |Parameter |Description |
 | :--- | :----------------------------------------------------------- |
 | job       | The object ID of the scheduled job, which can be queried through the DBA_JOBS/ALL_JOBS/USER_JOBS views. |
-| what      | The PL/SQL block to be executed by the scheduled job, must end with a semicolon. |
+| what      | The PL block to be executed by the scheduled job, must end with a semicolon. |
 
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
 

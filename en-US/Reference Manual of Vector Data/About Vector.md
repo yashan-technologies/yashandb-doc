@@ -32,9 +32,9 @@ The Yashan Vector Database offers the following capabilities and characteristics
 
 The principal workflow involves:
 
-1. Collect raw unstructured data (text, images, audio, video, etc.), and then clean, standardize, and format them;
-2. Generate high-dimensional feature vectors through embedding models (e.g., BERT, CLIP, ResNet, etc.), and normalize vectors to unit length for easier similarity calculation
-3. Establish mapping relationships between vector IDs and original files/content, and choose a vector database to manage them;
+1. Collect raw unstructured data (text, images, audio, video, etc.), and then clean, standardize, and format them.
+2. Generate high-dimensional feature vectors through embedding models (e.g., BERT, CLIP, ResNet, etc.), and normalize vectors to unit length for easier similarity calculation.
+3. Establish mapping relationships between vector IDs and original files/content, and choose a vector database to manage them.
 4. Choose appropriate vector index algorithm based on data scale and performance requirements. The YashanDB implements HNSW indexing.
 5. During querying, use the input vector values to search for similar vectors in the database:
     - Cosine similarity

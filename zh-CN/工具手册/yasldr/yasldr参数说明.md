@@ -29,6 +29,7 @@
 | SENDER_TIMEOUT	          | [0,86400]                         | 设置导入过程中sender线程的超时退出时间，单位秒，默认值30。若设置为0，则sender线程不会超时退出，此时若表上存在唯一约束，则可能导致导入卡住。                                                                                                                                                                                                                                |
 | PART_SEND_POLICY	        | [SQF,HASH,ROUND]                  | 设置导入过程中，数据单元分配给sender发送的算法，默认值为SQF。SQF表示最短队列优先，HASH表示数据单元ID按照sender线程个数进行hash计算。在分区表导入时，采用HASH可显著提升性能。分区表导入时，若CSV数据分布极度不均匀，导致某些分区数据量远远高于其他分区，则需使用SQF算法。                                                                                                                                                      |
 | ENABLE_AFFINITY	         | [TRUE,FALSE]                      | 设置导入过程中，reader线程和sender是否进行绑核执行，默认值为TRUE，表示会进行绑核执行。                                                                                                                                                                                                                                                          |
+| AFFINITY_SEND	         | [TRUE,FALSE]                      | 设置在共享集群部署中是否开启亲和性导入，默认值为FALSE。开启后，普通表对象和一级分区对象在mode=BATCH模式下可利用亲和性提升导入性能。亲和性导入要求yasldr操作用户拥有SELECT_CATALOG_ROLE角色权限。可通过视图ALL_OBJECT_AFFINITIES查询对象是否配置了亲和属性。                          |
 | MOJIBAKE_REPLACE | [TRUE,FALSE] | 导入数据时，是否对数据文件中无法被源数据字符集识别的乱码内容进行容错。默认值为FALSE，表示不对乱码进行容错，若源字节流中存在工具设定字符集不支持的乱码则可能导入失败。<br />乱码容错机制如下：<br />1. 当源字节流中因乱码导致字符集转换失败时，跳过源字节流的1个字节，并在目标缓冲区增加一个`?`字符。<br />2. 若还存在乱码，重复执行上一步直至源字节流结尾。  |
 
 ## Load Data DML参数
@@ -130,16 +131,16 @@ parameter_value支持相对路径及绝对路径，仅支持指定到文件名�
 
 parameter_value需为TRUE或FALSE，默认值为FALSE。
 
-只建议在数据迁移场景设置nologging属性，且需要关注如下事项：
+只建议在数据迁移场景设置NOLOGGING属性，且需要关注如下事项：
 
-- 主备环境不可启用nologging，需要在完成数据导入后再建备库。
-- 使用nologging导入后，执行一次全量checkpoint可以保证数据持久性，否则宕机后可能导致数据丢失。
-- 当表的属性为nologging，同时发生宕机时，重启后该表将被置为corrupted，只能通过truncate表进行恢复，且需要重新执行上述导入过程以恢复数据。
-- 如果一个事务失败，该事务内所有执行过插入数据操作的nologging表都会被标记为corrupted。
-- nologging属性的LSC表使用bulkload模式导入数据时，不受nologging属性影响（性能无变化，失败也不会被标记为corrupted）。
-- 当表为nologging时，不能对其执行update和delete操作，导入操作完成后需及时将其修改为logging。
-- 设置表状态为nologging属于DDL操作，会加表锁。如果并发执行DML语句，可能导致DML语句失败。
-- 当表为nologging，或使用nologging方式导入时，在违反约束条件时可能出现容错失败的现象，具体受违反约束的数据在所有数据中的位置影响。
+- 主备环境不可启用NOLOGGING，需要在完成数据导入后再建备库。
+- 使用NOLOGGING导入后，执行一次全量checkpoint可以保证数据持久性，否则宕机后可能导致数据丢失。
+- 当表的属性为NOLOGGING，同时发生宕机时，重启后该表将被置为corrupted，只能通过truncate表进行恢复，且需要重新执行上述导入过程以恢复数据。
+- 如果一个事务失败，该事务内所有执行过插入数据操作的NOLOGGING表都会被标记为corrupted。
+- NOLOGGING属性的LSC表使用bulkload模式导入数据时，不受NOLOGGING属性影响（性能无变化，失败也不会被标记为corrupted）。
+- 当表为NOLOGGING时，不能对其执行update和delete操作，导入操作完成后需及时将其修改为logging。
+- 设置表状态为NOLOGGING属于DDL操作，会加表锁。如果并发执行DML语句，可能导致DML语句失败。
+- 当表为NOLOGGING，或使用NOLOGGING方式导入时，在违反约束条件时可能出现容错失败的现象，具体受违反约束的数据在所有数据中的位置影响。
 
 ##### NULL_LOB_FORMAT_SIZE
 

@@ -41,7 +41,7 @@ The SUBMIT procedure can create a new scheduled job for a specified user. Succes
 | NEXT_DATE | The time for the next execution of the scheduled job, defaults to immediate execution |
 | INTERVAL  | Text expression used to calculate the next execution time of the scheduled job; NULL indicates that the job will only execute once. The time calculated by the expression must be in the future or NULL |
 | BROKEN    | Whether the job is broken, defaults to FALSE               |
-| WHAT      | PL/SQL text that the scheduled job will execute, can be an anonymous block or a stored procedure, must end with a semicolon |
+| WHAT      | PL text that the scheduled job will execute, can be an anonymous block or a stored procedure, must end with a semicolon |
 | CS_LAB    | Optional, does not take effect                             |
 | CS_HI     | Optional, does not take effect                             |
 | CS_LO     | Optional, does not take effect                             |

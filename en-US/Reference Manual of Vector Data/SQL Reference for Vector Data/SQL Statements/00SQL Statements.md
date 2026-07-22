@@ -1,1 +1,1 @@
-Yashan Vector Database supports the creation of vector tables using general SQL syntax and performs insert, update, query, and delete operations. It also supports vector indexes to accelerate approximate vector queries.
+Yashan Vector Database supports the creation of vector tables using general [SQL statements](../../../Development Guide/SQL Reference Manual/SQL Statements/00SQL Statements.md) and performs insert, update, query, and delete operations. It also supports vector indexes to accelerate approximate vector queries.

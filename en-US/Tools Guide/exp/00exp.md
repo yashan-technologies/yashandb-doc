@@ -16,7 +16,7 @@ The objects that can be exported through the *exp* tool include:
 - Synonym
 - View/Materialized View: Materialized views must be exported in FULL or OWNER mode.
 - PACKAGE(BODY)/PROCEDURE/FUNCTION/TRIGGER/LIBRARY/TYPE(BODY)
-- Table
+- Table (excluding tables with virtual columns)
 - Index/Partitioned Index
 - Primary Key
 - Foreign Key

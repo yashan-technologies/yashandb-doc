@@ -37,6 +37,7 @@ In ISC Distributed Cluster Deployment, this view shows the MN instance's databas
 | FLASHBACK_ON | VARCHAR(8) | Whether the entire database flashback functionality is enabled <br/>*  YES: Enabled<br/>*  NO: Disabled |
 | CDB | VARCHAR(8) | Is this a CDB<br/>* YES<br/>* NO |
 | RECOVERY\_REDO\_SIZE           | BIGINT   | Size of redo to be recovered when performing database recovery |
+| HAS_GEK                        | VARCHAR(8) | Whether there is a global key<br/>* YES: Yes<br/>* NO: No |
 
 
 

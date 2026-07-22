@@ -4,5 +4,5 @@
 |-------------|-------------|---------------------------------------------------------------------|
 | OWNER       | VARCHAR(64) | 该表的用户名                                                              |
 | TABLE\_NAME | VARCHAR(64) | 表名                                                                  |
-| MODE        | VARCHAR(8)  | 防篡改模式（目前仅针对只读表模式）<br/>"READONLY" 表示只读表模式<br/>"UNKNOWN" 表示未知模式       |
-| ACHECK      | VARCHAR(5)  | 防篡改表是否发生篡改：<br/>"TRUE" 表示未发生篡改<br/>"FALSE" 表示已发生篡改 |
+| MODE        | VARCHAR(8)  | 防篡改模式（目前仅针对只读表模式）<br/>* READONLY：表示只读表模式<br/>* UNKNOWN：表示未知模式       |
+| ACHECK      | VARCHAR(5)  | 防篡改表是否发生篡改：<br/>* TRUE：表示未发生篡改<br/>* FALSE：表示已发生篡改 |

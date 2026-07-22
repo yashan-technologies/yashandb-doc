@@ -1,0 +1,5 @@
+initno:1
+
+filename:yacFsSetCurrentVolume,yacFsGetCurrentVolume,yacFsMkDir,yacFsRmDir,yacFsCreateFile,yacFsRmFile,yacFsFileExist,yacFsFileStat,yacFsFileRead,yacFsFileWrite,yacFsListDir
+
+enName:yacFsSetCurrentVolume,yacFsGetCurrentVolume,yacFsMkDir,yacFsRmDir,yacFsCreateFile,yacFsRmFile,yacFsFileExist,yacFsFileStat,yacFsFileRead,yacFsFileWrite,yacFsListDir

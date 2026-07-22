@@ -69,8 +69,20 @@ $ dd if=/dev/zero bs=1M count=10 | yfscmd cin -e -s 1K DG0/data
 This command is used to copy files or recursively copy directories. Command format:
 
 ```shell
-cp src dst
+cp [-C] src dst
 ```
+
+**-C**
+
+Creates an instant copy of the source file as a clone within the same disk group (such copies will be referred to as "cloned files" below).
+
+When creating a cloned file, the file data is not immediately copied; instead, it only shares storage AUs with the source file. At the same time, the system automatically creates a snapshot for the cloned file once. 
+
+Only when a write operation is performed on the source file or the cloned file will the cloned file copy the data, which is the Copy-on-Write (COW) mechanism. During COW, some write operations will be blocked.
+
+> **Note**:
+>
+> Only YashanDB v27.1.1 and above versions that are newly installed fully support file cloning functionality. If upgraded from an older version to YashanDB v27.1.1 or above, existing DiskGroups will not be able to use the corresponding functionality.
 
 **src** 
 
@@ -79,6 +91,8 @@ Source path, which can be a file or directory in YFS or local file system, canno
 **dst**
 
 Destination path, which can be a file or directory in YFS or local file system, cannot be omitted, and dst must not exist.
+
+When -C is specified, src and dst must be paths within the same disk group.
 
 Unlike the cp command in Linux Shell, this cp command will not infer the dst path, the user needs to explicitly specify the new file or folder. For example, when running `cp 1.txt newdir/`, if the newdir directory does not exist, it will create a file named newdir, if the newdir directory exists, it will report an error. Therefore, executing this cp command should clearly indicate the dst path, for instance `cp 1.txt newdir/2.txt`.
 
@@ -120,27 +134,29 @@ file filename
 YFSCMD >  file data
 fileCtrl = {
     blockHead = {
-        checksum     = 0
-        changeNum    = 40
-        latch.status = 0
-        blockId      = 257
-        lsn          = 14
-        blockSize    = 4096
-        type         = 4
+        checksum     = 0        // Checksum
+        changeNum    = 40       // Change number
+        latch.status = 0        // Latch status
+        blockId      = 257      // Block ID
+        lsn          = 14       // Log sequence number
+        blockSize    = 4096     // Block size
+        type         = 4        // Block type
     }
-    fd        = 257
-    size      = 1048576
-    auCnt     = 2
-    dataCpyCnt= 1
-    metaCpyCnt= 1
-    createTime= 1721329555179151
-    deleteTime= 0
-    strpwdth  = 0
-    redundancy= 0
-    used      = 1
-    type      = 0
-    count     = 2
-    indirAuBlocks= 0
+    fd        = 257             // File descriptor
+    size      = 1048576         // File size (bytes)
+    auCnt     = 2               // Allocation unit count
+    dataCpyCnt= 1               // Data copy count
+    metaCpyCnt= 1               // Metadata copy count
+    createTime= 1721329555179151 // Creation time (timestamp)
+    deleteTime= 0               // Deletion time (timestamp, 0 means not deleted)
+    strpwdth  = 0               // Whether striping is activated
+    redundancy= 0               // Redundancy type
+    used      = 1               // Whether to use
+    type      = 0               // File type
+    count     = 2               // The number of direct AUs
+    indirAuBlocks= 0            // The number of indirect AU blocks
+    referenced = 1              // Whether shared AU exists or has ever existed, 1 for yes, 0 for no
+    snapshot    = 1             // Whether there is an associated snapshot. Non-zero indicates that a snapshot exists and the value is the most recent snapshot ID; 0 indicates that it does not exist
 }
 ```
 
@@ -241,6 +257,8 @@ pwd
 
 This command is used to delete directories or files.
 
+When deleting a file, the associated snapshot is also automatically deleted.
+
 > **Warn**:
 > 
 > High-risk operation, do not use this command for operating database files, business data, etc. Do not use this command in production environments.
@@ -258,6 +276,58 @@ rm [-r] path
 **path**
 
 The name of the directory or file to be deleted, cannot be omitted. For non-empty directories, the `-r` parameter must be specified for recursive deletion.
+
+## reset
+
+This command is used to quickly flashback a file to the state of the most recent snapshot. After the flashback, the original file shares storage AU data with the snapshot file.
+
+It can only flashback to the most recently created snapshot, and the snapshot version cannot be specified.
+
+> **Note**:
+>
+> Only YashanDB v27.1.1 and above versions that are newly installed fully support file reset functionality. If upgraded from an older version to YashanDB v27.1.1 or above, existing DiskGroups will not be able to use the corresponding functionality.
+
+Command format:
+
+```bash
+reset filename
+```
+
+**filename**
+
+The file to be flashed back, cannot be omitted. It must be a file that has a snapshot.
+
+***Example***
+
+```bash
+YFSCMD >  reset +DG0/clone_file
+```
+
+## snapshot
+
+This command is used to create a snapshot of a file.
+
+Each file can only record one snapshot version; creating multiple times will still only associate with the last created snapshot.
+
+> **Note**:
+>
+> Only YashanDB v27.1.1 and above versions that are newly installed fully support snapshot functionality. If upgraded from an older version to YashanDB v27.1.1 or above, existing DiskGroups will not be able to use the corresponding functionality.
+
+Command format:
+
+```bash
+snapshot filename
+```
+
+**filename**
+
+The file to create a snapshot for, cannot be omitted.
+
+***Example***
+
+```bash
+YFSCMD >  snapshot +DG0/datafile
+```
 
 ## touch
 

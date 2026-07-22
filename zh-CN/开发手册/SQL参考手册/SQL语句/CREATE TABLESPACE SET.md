@@ -78,7 +78,7 @@ YashanDB支持创建本地存储bucket及S3（Simple Storage Service） bucket�
 
   - 指定目录的上级目录必须存在，且系统对指定的目录必须拥有读写权限。
 
-  - 存算一体分布式集群部署中不允许指定绝对路径。
+  - 不允许指定绝对路径。
 
 - 对于S3 bucket，bucket_name为逻辑名称，用于在数据库内查询具体的bucket信息。
 

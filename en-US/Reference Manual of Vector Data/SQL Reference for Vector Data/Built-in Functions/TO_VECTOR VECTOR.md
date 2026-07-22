@@ -1,7 +1,7 @@
 ```ebnf
-to_vector = TO_VECTOR "(" expr [ "," number_of_dimensions [ "," format ]  [ "," storage_format ] ] ")".
+to_vector = TO_VECTOR "(" expr [ "," number_of_dimensions [ "," format ]  ] ")".
 
-vector = VECTOR "(" expr [ "," number_of_dimensions [ "," format ] [ "," storage_format ] ] ")".
+vector = VECTOR "(" expr [ "," number_of_dimensions [ "," format ] ] ")".
 ```
 
 The TO_VECTOR function is used to convert string-type vector values to vector type.
@@ -24,7 +24,7 @@ Configure the dimension of the vector, which must be consistent with the actual 
 
 Configure the data type of vector values, supporting configuration as FLOAT32 or FLOAT64. When omitted, the default data type is FLOAT32.
 
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
 SELECT TO_VECTOR('[34.6, 77.8]') FROM dual;

@@ -126,6 +126,10 @@ This command is used to disable process monitoring for a specific node.
 $ yasboot monit unwatch -c yashandb -n 1-1 -d
 ```
 
+>**Note**:
+>
+> When starting or restarting the database using the yasboot command, the monitor process is automatically enabled. To disable the monitor process for a specific node, manually execute the `yasboot monit unwatch` command.
+
 ## monit reload
 
 This command is used to reload the configuration of monit on all servers.

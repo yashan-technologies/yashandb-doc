@@ -1,18 +1,18 @@
 ```ebnf
-wm_concat = WM_CONCAT "(" [DISTINCT|ALL] string ")" [ OVER "(" [query_partition_clause] [order_by_clause] ")" ]. 
+wm_concat = WM_CONCAT "(" [DISTINCT|UNIQUE|ALL] string ")" [ OVER "(" [query_partition_clause] [order_by_clause] ")" ]. 
 ```
 
 The WM\_CONCAT function concatenates multiple rows of data, separating them with a delimiter (`,`) and returning a single row of CLOB type string.
 
 This function is similar to the [GROUP_CONCAT](GROUP_CONCAT) function in functionality, but differs in that WM\_CONCAT does not allow customization of the SEPARATOR delimiter and does not permit ORDER BY sorting.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 When calculating the final concatenated result, it filters out duplicate rows that appear within the same group.
 
+DISTINCT and UNIQUE are completely equivalent.
 
 DISTINCT does not support LOB data.
-
 
 **ALL**
 

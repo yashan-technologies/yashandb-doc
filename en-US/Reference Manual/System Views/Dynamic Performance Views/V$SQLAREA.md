@@ -2,7 +2,7 @@ This view displays the statistics of each SQL in the shared SQL area, including 
 
 |Field |Type |Description |
 | --- | --- | --- |
-| SQL_TEXT    | VARCHAR(1000) | The first 1000 characters of the SQL text                  |
+ SQL_TEXT    | VARCHAR(1000) | The first 1000 characters of the SQL text                  |
 | SQL_FULLTEXT             | CLOB       | Full SQL in CLOB format                                    |
 | SQL_ID                   | VARCHAR(13) | ID value that uniquely identifies a SQL statement, calculated by hashing/encryption of SQL text |
 | SHARABLE_MEM             | INTEGER    | Total shared memory used by this SQL and all versions of the execution plans |

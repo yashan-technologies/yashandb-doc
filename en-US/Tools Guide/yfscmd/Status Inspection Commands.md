@@ -28,9 +28,10 @@ DiskGroup information includes:
   - NORMAL: The system DiskGroup provides [2,3] replicas (the exact number depends on the number of FailureGroups) under this configuration. The data DiskGroup provides [2,3] YFS metadata replicas (the exact number depends on the number of FailureGroups) + 2 user data replicas under this configuration.
   - HIGH: The system DiskGroup provides 5 replicas under this configuration. The data DiskGroup provides [3,5] YFS metadata replicas (the exact number depends on the number of FailureGroups) + 3 user data replicas under this configuration.
 - au_size: The size of the AU, which is the smallest unit for YFS to allocate disk space.
-- stat: The mount status of the DiskGroup.
+- stat: The status of the DiskGroup.
   - MOUNTED: Indicates that the DiskGroup is mounted.
   - DISMOUNTED: Indicates that the DiskGroup is not mounted.
+  - PROTECT: A unique status for the system DiskGroup, indicating that the system DiskGroup enters [protection state](../../Database Administration/Storage Management/YFS Management/System DiskGroup Management.md#Protection) due to partial disk abnormalities. At this time, YFS runs in degraded mode.
 - block_size: The file block size, with the unit being bytes.
 - total_mb: The total capacity of the DiskGroup, with the unit being MB.
 - free_mb: The available space in the DiskGroup, with the unit being MB.
@@ -70,6 +71,8 @@ show disk
 ```
 
 
+For the system DiskGroup, the status of each disk visible to each YFS instance may be inconsistent. The cluster will use the information seen by the master YFS instance as the authoritative source.
+
 Disk information includes:
 
 - id: The globally unique ID of the disk.
@@ -77,7 +80,7 @@ Disk information includes:
 - name: The name of the disk.
 - status: The status of the disk, including:
   - NORMAL: The disk is in normal status
-  - OFFLINE_SYNC: A temporary state during the disk online process — the disk is writable but not readable. After online completion, the disk becomes normal.
+  - OFFLINE_SYNC: A temporary status during the disk online process. Disks in this status are writable but not readable. After the online process is completed, the disk changes to the normal status
   - OFFLINE: The disk is offline
 - fgid: The ID of the FailureGroup to which the disk belongs.
 - dgid: The ID of the DiskGroup to which the disk belongs.

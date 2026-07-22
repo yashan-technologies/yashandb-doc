@@ -1,6 +1,6 @@
 ## Functionality Overview
 
-The OCILobWrite2 function is used to write cache to a LOB.
+OCILobWrite2 is an extended version of OCILobWrite function, used to write a buffer to a LOB. The main difference from OCILobWrite is the use of oraub8 type instead of ub4 type, supporting LOB write operations larger than 4GB.
 
 ## Function Declaration
 

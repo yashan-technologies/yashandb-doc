@@ -93,3 +93,4 @@ In an ISC Distributed Cluster Deployment, the USER views also only collect infor
 | USER\_HIST\_CHECK\_INFO        | Information about tamper-proof objects with tamper-proof capabilities accessible to the current user |
 | USER\_UNIFIED\_AUDIT\_TRAIL    | Information about all audit records for the current user                       |
 | USER\_OBJECT\_AFFINITIES       | Information about affinity of all objects for the current user                 |
+| USER_AI_MODELS                 | Information about all AI models for the current user                           |

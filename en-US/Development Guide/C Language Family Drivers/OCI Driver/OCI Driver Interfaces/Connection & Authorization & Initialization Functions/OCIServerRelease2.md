@@ -1,6 +1,6 @@
 ## Functionality Overview
 
-The OCIServerRelease2 function is used to obtain the corresponding Oracle database version name and version number. It currently fixedly returns the version number Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production.
+OCIServerRelease2 is an extended version used to obtain the corresponding Oracle database version name and version number. It currently fixedly returns the version number Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production. The main difference from OCIServerRelease is the extended return value type.
 
 ## Function Declaration
 

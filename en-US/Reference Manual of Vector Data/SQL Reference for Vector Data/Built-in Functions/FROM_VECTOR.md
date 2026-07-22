@@ -21,7 +21,7 @@ Specify the data type of the return value, which can be VARCHAR or CLOB.
 - When returning VARCHAR, you can specify the length and unit (BYTE or CHAR). If the unit is not specified, it defaults to BYTE.
 - When returning VARCHAR, if the converted string length exceeds the specified length, an error is reported.
 
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
 CREATE TABLE table_convert_test(c1 int,c2 VECTOR(4,float32),c3 VECTOR(4,float64));

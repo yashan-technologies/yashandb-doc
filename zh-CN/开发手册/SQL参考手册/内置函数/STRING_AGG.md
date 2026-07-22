@@ -1,18 +1,18 @@
 ```ebnf
-string_agg = STRING_AGG "(" [DISTINCT|ALL] string "," separator [order_by_clause] ")".
+string_agg = STRING_AGG "(" [DISTINCT|UNIQUE|ALL] string "," separator [order_by_clause] ")".
 ```
 
 STRING\_AGG函数将多行的数据执行拼接操作，并通过分隔符分隔，返回一行CLOB类型的字符串。本函数与[GROUP_CONCAT](./GROUP_CONCAT)函数实现功能类似。
 
 本函数不支持向量化计算。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 计算最终拼接结果时，过滤在同一组内出现的重复的行。
 
+DISTINCT与UNIQUE完全等价。
 
 目前，YashanDB无法对LOB类型的数据进行去重。
-
 
 **ALL**
 

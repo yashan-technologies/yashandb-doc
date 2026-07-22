@@ -1,5 +1,5 @@
 ```ebnf
-to_timestamp = TO_TIMESTAMP "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format] ")".
+to_timestamp = TO_TIMESTAMP "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format [","nls_calendar]] ")".
 ```
 
 The TO\_TIMESTAMP function converts the value of [expr](../General SQL Syntax/expr) to TIMESTAMP type data, returning the value in the default format of TIMESTAMP type.

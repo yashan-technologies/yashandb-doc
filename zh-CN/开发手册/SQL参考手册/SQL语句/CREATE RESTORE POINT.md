@@ -11,9 +11,7 @@ CREATE RESTORE POINT用于创建一个还原点，还原点可作为全库闪回
 
 - 当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，根容器与各个PDB上的还原点相互独立，需连接目标容器执行还原点相关的管理操作，且只对自身生效。
 
-
-- 在高可用部署场景中，主备之间的还原点完全独立、互不同步。如需在备库/备集群上创建还原点，执行该语句前需先[暂停redo日志回放](./ALTER DATABASE.md#stop_apply)。
-
+- 在高可用部署场景中，主备之间的还原点完全独立、互不同步。如需在备库/备集群上创建还原点，执行该语句前需先[暂停redo日志回放](ALTER DATABASE.md#stop_apply)。
 
 - 创建还原点前，需确保数据库已开启[全库闪回](ALTER DATABASE.md#flashbackdatabaseclauses)功能，且当前处于MOUNT或OPEN状态。
 

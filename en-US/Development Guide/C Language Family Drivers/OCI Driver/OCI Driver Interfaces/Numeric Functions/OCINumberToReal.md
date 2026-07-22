@@ -24,4 +24,4 @@ Some parameters currently only support the following values:
 
 |Parameter |Valid Values |
 | ---- |---------------|
-| rsl_length | sizeof({float | double})  |
+| rsl_length | sizeof({float / double})  |

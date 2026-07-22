@@ -18,20 +18,20 @@ The CSV data buffer starts with a complete data row and ends with a complete dat
 
 If a data insertion fails in the buffer, the whole buffer's data insertion fails, and the current transaction is rolled back.
 
-**Setting Nologging Import**
+**Setting NOLOGGING Import**
 
-If the statement is used for data migration, setting nologging to true in the options parameter enables nologging import.
+If the statement is used for data migration, setting NOLOGGING to true in the options parameter enables NOLOGGING import.
 
-The nologging property is only recommended in data migration scenarios, and the following matters need attention:
+The NOLOGGING property is only recommended in data migration scenarios, and the following matters need attention:
 
-- The primary/standby environment cannot enable nologging; a standby database should be created after completing data imports.
-- After using nologging import, executing a full checkpoint can ensure data persistence; otherwise, abrupt shutdowns may lead to data loss.
-- When the table is in nologging mode and a crash occurs, the table will be marked as corrupted after a restart. It can only be restored by truncating the table, and the above import process must be re-executed to restore the data.
-- If a transaction fails, all nologging tables that have performed insert operations in that transaction will be marked as corrupted.
-- Nologging property LSC tables use bulkload mode to import data and are not affected by the nologging property (performance remains unchanged, and failures will not be marked as corrupted).
-- When a table is nologging, update and delete operations cannot be performed on it. The table should be modified to logging as soon as the import operation is completed.
-- Setting the table state to nologging is a DDL operation that will acquire a table lock. Concurrently executing DML statements may cause DML statements to fail.
-- When a table is nologging or imported using nologging, fault-tolerant failures may occur when violating constraints, specifically affected by the position of the violating constraint data among all data.
+- The primary/standby environment cannot enable NOLOGGING; a standby database should be created after completing data imports.
+- After using NOLOGGING import, executing a full checkpoint can ensure data persistence; otherwise, abrupt shutdowns may lead to data loss.
+- When the table is in NOLOGGING mode and a crash occurs, the table will be marked as corrupted after a restart. It can only be restored by truncating the table, and the above import process must be re-executed to restore the data.
+- If a transaction fails, all NOLOGGING tables that have performed insert operations in that transaction will be marked as corrupted.
+- NOLOGGING property LSC tables use bulkload mode to import data and are not affected by the NOLOGGING property (performance remains unchanged, and failures will not be marked as corrupted).
+- When a table is NOLOGGING, UPDATE and DELETE operations cannot be performed on it. The table should be modified to LOGGING as soon as the import operation is completed.
+- Setting the table state to NOLOGGING is a DDL operation that will acquire a table lock. Concurrently executing DML statements may cause DML statements to fail.
+- When a table is NOLOGGING or imported using NOLOGGING, fault-tolerant failures may occur when violating constraints, specifically affected by the position of the violating constraint data among all data.
 
 **Import Environment Preparation**
 
@@ -766,6 +766,28 @@ For column fields in the target table that exist but are not specified in the da
 This statement designates the import mode as normal, using all content from the corresponding columns of the import file for import.
 
 Given that CSV formatted files have data size limitations, for larger data files, it is recommended to use LLS mode for partial import or LOBFILE mode for full import.
+
+When importing into a target table that contains virtual columns：
+
+- If the CSV file itself does not include data for the virtual columns, simply specify the columns to import directly.
+
+- If the CSV file includes data for the virtual columns, you need to specify the positions of the physical columns in the CSV file and skip importing the virtual columns, or set the vritual columns as `FILLER`.
+
+***Example***：Importing data to the HEAP table with virtual columns
+
+```sql
+-- Create a business table containing virtual columns
+create table tab_virtual_col_exp_imp(c1 int, v1 as (c1 + c2), c2 int);
+
+-- When the CSV file does not include virtual column data, the import is no different from that of a regular table; simply omit the virtual column and import CSV data into the table in order
+LOAD DATA INFILE '/ssd_data/yashandb/tab_virtual_col_exp_imp.csv' fields terminated by ',' into table tab_virtual_col_exp_imp(c1, c2);​
+
+-- When the CSV file includes both physical and virtual column data, specify the positions of physical columns C1 and C2 in the CSV file for import
+LOAD DATA INFILE '/ssd_data/yashandb/tab_virtual_col_exp_imp.csv' fields terminated by ',' into table tab_virtual_col_exp_imp(c1 column(1), c2 column(3));​
+
+-- When the CSV file includes both physical and virtual column data, import data while explicitly skipping the virtual column
+LOAD DATA INFILE '/ssd_data/yashandb/tab_virtual_col_exp_imp.csv' fields terminated by ',' into table tab_virtual_col_exp_imp(c1, v1 FILLER, c2);
+```
 
 ###### table_column_clause
 

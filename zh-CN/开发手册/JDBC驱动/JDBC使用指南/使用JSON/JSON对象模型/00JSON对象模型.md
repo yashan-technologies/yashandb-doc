@@ -2,12 +2,12 @@ com.yashandb.json包里面定义了YashanDB目前支持的json的16种类型对�
 
 |  YasonType| code| JSON类型对象模型| 含义|
 |-----------------|------|-------------|----------------------------------------------|
-| YASON_OBJECT    | 1    | YasonObject | json标准类型，代表json的Object类型。                     |
-| YASON_ARRAY     | 2    | YasonArray  | json标准类型，代表json的Array类型。                      |
-| YASON_STRING    | 3    | YasonString | json标准类型，代表json的字符串类型。                       |
-| YASON_NUMBER    | 4    | YasonDecimal | json标准类型，代表json的数字类型。                        |
-| YASON_BOOLEAN   | 5    | YasonBoolean | json标准类型，代表json的布尔类型。                        |
-| YASON_NULL      | 6    | YasonNull   | json标准类型，代表json的null类型。                      |
+| YASON_OBJECT    | 1    | YasonObject | json标准类型，表示json的Object类型。                     |
+| YASON_ARRAY     | 2    | YasonArray  | json标准类型，表示json的Array类型。                      |
+| YASON_STRING    | 3    | YasonString | json标准类型，表示json的字符串类型。                       |
+| YASON_NUMBER    | 4    | YasonDecimal | json标准类型，表示json的数字类型。                        |
+| YASON_BOOLEAN   | 5    | YasonBoolean | json标准类型，表示json的布尔类型。                        |
+| YASON_NULL      | 6    | YasonNull   | json标准类型，表示json的null类型。                      |
 | YASON_BYTE      | 7    | YasonByte   | json扩展类型，是对json的数字类型的细分，对应-128~127范围内的整数类型。 |
 | YASON_SHORT     | 8    | YasonShort  | json扩展类型，是对json的数字类型的细分，对应java的short类型。      |
 | YASON_INT       | 9    | YasonInt    | json扩展类型，是对json的数字类型的细分，对应java的int类型。        |

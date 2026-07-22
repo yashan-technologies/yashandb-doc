@@ -99,7 +99,7 @@ The CONVERTTOBLOB function is used to extract data from the source CLOB or NCLOB
 | amount |The number of characters to convert each time. Use `DBMS_LOB.LOBMAXSIZE` to convert the entire CLOB or NCLOB data. |
 | dest_offset | * As an input parameter, indicates the byte offset in the target BLOB where the write operation begins; specifying 1 indicates starting from the beginning.<br />* As an output parameter, indicates the new byte offset in the target BLOB after the write operation. |
 | src_offset | * As an input parameter, indicates the character offset in the source source data where the read conversion begins; specifying 1 indicates starting from the beginning.<br />* As an output parameter, indicates the character offset in the source data immediately following the read operation.  |
-| blob_csid | The target character set ID. Available values include:  <br>0: Indicates that the source and target data use the same character set <br>1: ASCII  <br>31: ISO88591  852: GBK  <br>854: GB18030  <br>873: UTF-8  <br>2000: UTF-16  |
+| blob_csid | The target character set ID. Available values include:<br/>852: GBK<br/>871: UTF-8<br/>OCI_UTF16ID: UTF-16<br/>2000: AL16UTF16 |
 | lang_context | * As an input parameter, indicates the current context information for the conversion.<br />* As an output parameter, indicates the context information after the conversion is complete. |
 | warning        | Warning message indicating an exception occurred during conversion. Currently, the only possible warning is "inconvertible character," meaning the source character cannot be correctly converted to the target character. This message is defined as the constant value `DBMS_LOB.WARN_INCONVERTIBLE_CHAR`.           |
 

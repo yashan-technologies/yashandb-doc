@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCILobWrite2函数用于将缓冲区写入LOB。
+OCILobWrite2函数是OCILobWrite函数的扩展版本，用于将缓冲区写入LOB。与OCILobWrite的主要区别在于使用oraub8类型替代ub4类型，支持超过4GB的LOB写入操作。
 
 ## 函数声明
 

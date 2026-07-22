@@ -1,6 +1,6 @@
 ## Functionality Introduction
 
-The OCILobRead2 function is used to read LOB into cache.
+OCILobRead2 is an extended version of OCILobRead function, used to read LOB into a buffer. The main difference from OCILobRead is the use of oraub8 type instead of ub4 type, supporting LOB read operations larger than 4GB.
 
 ## Function Declaration
 

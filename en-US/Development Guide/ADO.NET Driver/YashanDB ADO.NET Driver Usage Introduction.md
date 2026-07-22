@@ -116,4 +116,65 @@ command.Dispose();
   ![](./image/error1.png)
 
   This can be resolved by opening the corresponding port on the server side.
-  
+
+## Batch Execute SQL
+
+The YashanDB ADO.NET driver supports batch INSERT/UPDATE/DELETE operations through Array Binding technology, requiring only one network round trip and one SQL compilation to complete batch operations, significantly improving performance.
+
+### Constraints
+
+- Batch mode is enabled only when ArrayBindCount is greater than 1; when ArrayBindCount is 1, it executes in normal mode.
+- All array parameters must have the same length and match the ArrayBindCount.
+- Batch operations are not supported for LOB types (BLOB/CLOB/NCLOB).
+
+### Usage
+
+Enable batch execution mode by setting the ArrayBindCount property of YasdbCommand to specify the batch size and setting parameter values to arrays.
+
+**Batch INSERT**
+
+```c#
+var cmd = conn.CreateCommand();
+cmd.CommandText = "INSERT INTO employees (employee_id, first_name, salary) VALUES (:id, :name, :salary)";
+cmd.ArrayBindCount = 1000;
+
+var ids = Enumerable.Range(1, 1000).Select(i => (int)i).ToArray();
+var names = Enumerable.Range(1, 1000).Select(i => $"Employee_{i}").ToArray();
+var salaries = Enumerable.Range(1, 1000).Select(i => (decimal)(5000 + i * 10)).ToArray();
+
+cmd.Parameters.Add(":id", ids);
+cmd.Parameters.Add(":name", names);
+cmd.Parameters.Add(":salary", salaries);
+
+int affectedRows = cmd.ExecuteNonQuery();
+Console.WriteLine($"Inserted {affectedRows} rows");
+```
+
+**Batch UPDATE**
+
+```c#
+var cmd = conn.CreateCommand();
+cmd.CommandText = "UPDATE employees SET salary = :new_salary WHERE employee_id = :id";
+cmd.ArrayBindCount = 3;
+
+var newSalaries = new decimal[] { 6000, 7000, 8000 };
+var employeeIds = new int[] { 1, 2, 3 };
+
+cmd.Parameters.Add(":new_salary", newSalaries);
+cmd.Parameters.Add(":id", employeeIds);
+
+int affected = cmd.ExecuteNonQuery();
+```
+
+**Batch DELETE**
+
+```c#
+var cmd = conn.CreateCommand();
+cmd.CommandText = "DELETE FROM employees WHERE employee_id = :id";
+cmd.ArrayBindCount = 3;
+
+var idsToDelete = new int[] { 1001, 1002, 1003 };
+cmd.Parameters.Add(":id", idsToDelete);
+
+int affected = cmd.ExecuteNonQuery();
+```

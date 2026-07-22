@@ -1,10 +1,11 @@
 To meet the normal installation and operation requirements of YashanDB, it is recommended to log in as root user or a user with sudo privileges to **all servers** and perform configuration adjustments according to the items listed in this document.
 
-## Check Server Name and Time Zone (YAC/Distributed Cluster Deployment)
 
-When deploying YAC/Distributed Cluster, the following requirements apply to servers in the same cluster:
+## Check Server Time Zone, Hostname and Host ID (YAC/Distributed Cluster Deployment)
 
-- Time zones must be consistent
+When deploying YAC/Distributed Cluster, servers within the same cluster must meet the following requirements, and corresponding operations need to be completed on each server.
+
+- **Time zones must be consistent**.
 
    ```shell
    ## View the time zone of each server
@@ -14,7 +15,7 @@ When deploying YAC/Distributed Cluster, the following requirements apply to serv
    # timedatectl set-timezone Asia/Shanghai
    ```
 
-- Server names must not be the same
+- **Server names must not be the same**.
 
    ```shell
    ## View the hostname of each server
@@ -22,6 +23,29 @@ When deploying YAC/Distributed Cluster, the following requirements apply to serv
 
    ## If the names are the same, corresponding adjustments need to be made
    # hostnamectl set-hostname host0001
+   ```
+
+- If you need to use [Reservation-based IO Fencing](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing), **each server must be configured with a unique ID**.
+
+   > **Note**:
+   >
+   > This configuration is only required when the storage device is an NVMe device (PCIe direct connection or NVMe-oF RDMA) and needs to use NVMe Reservation as I/O Fencing. Other scenarios can skip this.
+   >
+   > After modifying the Host ID, you need to reconnect the NVMe device for the changes to take effect.
+
+   ```shell
+   ## Check the ID (that is, hostid) of each server.
+   # cat /etc/nvme/hostid
+   
+   ## If the hostid of each server has been generated and is unique, no additional operations are required
+   
+   ## If the directory or file does not exist, create the directory first, then generate hostid
+   # mkdir -p /etc/nvme 
+   # uuidgen > /etc/nvme/hostid
+   
+   ## Check the hostid of each server again to ensure that they have all been generated and are unique.
+   # cat /etc/nvme/hostid
+   3d27f714-1931-43a7-a1d5-19c60214c13f
    ```
 
 ## Enable SSH Service
@@ -61,7 +85,7 @@ If the database is used to run latency-sensitive, high-stability, and I/O-intens
 # swapon -a
 ```
 
-If physical memory configuration is relatively tight, insufficient memory may trigger the OOM Killer mechanism. Completely disabling swap partitions might increase OOM occurrences. Consider lowering swap partition priority and treat this as a performance tuning observation item. For example, first set vm.swappiness to 1 to observe system behavior before deciding whether to completely disable swap, and periodically reassess memory configuration strategies based on business growth. For in-depth understanding of swappiness configuration details, please refer to the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/admin-guide/sysctl/vm.md#swappiness).
+If physical memory configuration is relatively tight, insufficient memory may trigger the OOM Killer mechanism. Completely disabling swap partitions might increase OOM occurrences. Consider lowering swap partition priority and treat this as a performance tuning observation item. For example, first set vm.swappiness to 1 to observe system behavior before deciding whether to completely disable swap, and periodically reassess memory configuration strategies based on business growth. For in-depth understanding of swappiness configuration details, please refer to the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/admin-guide/sysctl/vm.html#swappiness).
 
 ```shell
 ## View current configuration
@@ -274,7 +298,7 @@ For a deeper understanding of HugePages memory details, please refer to the [Lin
    ```bash
    ## Red Hat Enterprise Linux kernel
    # cat /sys/kernel/mm/redhat_transparent_hugepage/enabled
-
+   
    ## Other kernels
    # cat /sys/kernel/mm/transparent_hugepage/enabled
    ```
@@ -321,10 +345,10 @@ CGroups is a resource-limiting mechanism provided by the Linux kernel. To use [C
       ## 1. Confirm the kernel compilation configuration — if CONFIG_CGROUPS=y, it indicates that the cgroup feature is included
       $ cat /boot/config-$(uname -r) | grep "^CONFIG_CGROUPS="
       CONFIG_CGROUPS=y
-
+      
       ## 2. Edit the /etc/fstab file, add the information listed below as needed, and save the file
       # vim /etc/fstab
-
+      
       ## 3. Remount /etc/fstab to make it effective
       # mount -a
       # mount | grep -E "cgroup|cgroup2"
@@ -338,7 +362,7 @@ tmpfs          /sys/fs/cgroup      tmpfs   mode=755,nosuid,nodev,noexec        0
 cgroup         /sys/fs/cgroup/cpu  cgroup  cpu,cpuacct,nosuid,nodev,noexec     0 0
 cgroup         /sys/fs/cgroup/memory cgroup memory,nosuid,nodev,noexec       0 0
 cgroup         /sys/fs/cgroup/systemd cgroup name=systemd,nosuid,nodev,noexec 0 0
-```  
+```
       == Mount CGroup v2
 ```text
 cgroup2         /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0

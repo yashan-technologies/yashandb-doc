@@ -1,4 +1,4 @@
-Hidden parameters are testing features, **to be used under the guidance of the original manufacturer engineers** and not considering compatibility.
+Hidden parameters are testing features, **to be used under the guidance of the original manufacturer engineers** and not considering compatibility. For more detailed hidden parameter information, you can query the [X$PARAMETER](./System Views/Dynamic Performance Views/X$PARAMETER.md) view.
 
 |Parameter Name |Parameter Description |
 |----------------------------------------------|-------------------------------------- |
@@ -23,7 +23,7 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _UNDO_MAX_AUTOEXTEND_SEGMENTS                | The upper limit on the automatic extension of undo table space segments.                             |
 | _UNDO_SEG_BUSY_TIMES                         | The number of wait times for undo segment latch locks; if the number exceeds this threshold within the detection interval, the SMON thread will automatically extend undo segments. |
 | _XACT_UNDO_TIMES                             | The number of wait times to obtain transaction information; when the number exceeds this threshold within the detection interval, the SMON thread will automatically extend undo segments. |
-| _WAIT_XA_RECOVER                             | In YAC/Distributed Cluster Deployment, when an instance fails, whether DDL needs to be retried internally until the XA transaction area recovers. By default, retries are enabled. If retry is disabled, during the recovery of the XA transaction area, regardless of whether there are XA transactions in the XA transaction area, DDL may report an error, affecting normal DDL operations in the shared cluster. <br/>**Modification is not recommended**. |
+| _WAIT_XA_RECOVER                             | In YAC/Distributed Cluster Deployment, when an instance fails, whether DDL needs to be retried internally until the XA transaction area recovers. By default, retries are enabled. If retry is disabled, during the recovery of the XA transaction area, regardless of whether there are XA transactions in the XA transaction area, DDL may report an error, affecting normal DDL operations in the YAC. <br/>**Modification is not recommended**. |
 | _UNDO_SEG_EXTEND_INTERVAL                    | The time interval to trigger automatic extension of undo segment quantity, handled by the background SMON thread, and automatically extends the number of undo segments as needed. |
 | _UNDO_FORCE_RETENTION                        | Enforce retention of committed transaction undo pages for a certain period.                          |
 | _UNDO_RESERVE_SIZE | Percentage of data block (`DB_BLOCK_SIZE`) occupancy. The calculated size based on this percentage represents the minimum remaining space in the last undo data block used by a transaction that can be added to the free array.   |
@@ -32,7 +32,7 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _HOT_BUFFER_PCT                              | The proportion of high-priority data blocks in the data cache.                                       |
 | _PROMOTE_NUMBER                              | Whether to promote to NUMBER when the return value type is BIGINT.                                    |
 | DSTB_POOL_SIZE                               | In ISC Distributed Cluster Deployment, the proportion of memory pool to Share Pool.                             |
-| AUDIT_SYS_OPERATIONS                         | Enable/disable logging of database operation behaviors to log files.                                 |
+| AUDIT_SYS_OPERATIONS                         | Whether to enable logging of database operation behaviors to log files.                                 |
 | _MCOL_SLICE_ROWS                             | The maximum number of data rows stored in each MCOL slice by LSC; ideally, not exceeding the set value for each slice. |
 | _COLUMNAR_ROWGROUP_ROWS                      | Specifies the number of data rows in a rowgroup within a SCOL slice.                                 |
 | COLUMNAR_MIN_OPERATOR_MEM_PERCENT            | The minimum memory allocation quota for column execution operators as a proportion of the total quota. |
@@ -43,11 +43,11 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _COLUMNAR_SQL_MIN_QUOTA_PERCENT              | The proportion of the minimum quota allocated for column execution SQL as a proportion of the total quota. |
 | _COLUMNAR_SQL_MAX_QUOTA_PERCENT              | The proportion of the maximum quota allocated for column execution SQL as a proportion of the total quota. |
 | COLUMNAR_MAX_STAGE_MEM_PERCENT               | The maximum quota allocated for column execution STAGE as a proportion of the total quota.                |
-| COLUMNAR_MATERIAL_TRACE                      | Enable/disable logging of materialized quota information for column execution.                        |
+| COLUMNAR_MATERIAL_TRACE                      | Whether to enable logging of materialized quota information for column execution.                        |
 | COLUMNAR_LOG_TRACE                           | Whether to print trace information to the log.                                                     |
 | _COLUMNAR_ENABLE_HASH_GROUP_DISTINCT         | Whether to convert HASH GROUP DISTINCT of column execution into SORT GROUP DISTINCT.                    |
-| COLUMNAR_MAX_SORT_MEM                        | The maximum sort memory for column execution, currently no longer used.                               |
-| COLUMNAR_MAX_JOIN_MEM                        | The maximum JOIN memory for column execution, currently no longer used.                               |
+| COLUMNAR_MAX_SORT_MEM                        | Deprecated parameter.                               |
+| COLUMNAR_MAX_JOIN_MEM                        | Deprecated parameter.                               |
 | COLUMNAR_NON_COLLIDING_HASH                  | Whether to use the original key value as the HASH.                                                |
 | _COLUMNAR_ENABLE_FILTER_INVALID              | Whether to filter out invalid row data in TABLESCAN during column execution.                           |
 | _COLUMNAR_ENABLE_QUOTA_AUTOTRACE             | Whether to print QUOTA allocation information.                                                       |
@@ -56,22 +56,22 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _ENABLE_ALTER_SLICE                          | Whether to enable the ALTER SLICE capability.                                                       |
 | _RWRT_OPT                                    | The possibility of performing static equivalence rewriting of SQL statements; the higher this value, the more likely rewriting will occur, conversely the less likely.  |
 | _PUSH_FILTER | Whether to enable subquery pushdown during the static rewrite phase. |
-| _ENABLE_EXPLAIN_STAGE                        | Enable/disable printing the operator's parallel execution information in the EXPLAIN plan.            |
-| _ENABLE_EXPLAIN_STATS                        | Enable/disable printing detailed data such as row count and cost of operators in the EXPLAIN plan.   |
+| _ENABLE_EXPLAIN_STAGE                        | Whether to enable printing the operator's parallel execution information in the EXPLAIN plan.            |
+| _ENABLE_EXPLAIN_STATS                        | Whether to enable printing detailed data such as row count and cost of operators in the EXPLAIN plan.   |
 | _ENABLE_EXPLAIN_COST                         | Close/Open the printing of operator cost data in the EXPLAIN plan.                |
-| _OPTIMIZER_MODE                              | Specify the optimizer mode, currently only supports specifying CBO.                                   |
-| _OPTIMIZE_EXTEND_FILTER                      | Enable/disable the extension functionality of the filter support.                                    |
+| _OPTIMIZER_MODE                              | Specify the optimizer mode.                                   |
+| _OPTIMIZE_EXTEND_FILTER                      | Whether to enable the extension functionality of the filter support.                                    |
 | _SPAREINDEX_OPT                              | Whether to generate a rangeSet based on the condition push down strategy for LSC tables.              |
 | _TAC_FILTER_PUSH_THRESHOLD                   | The selection rate setting for TAC table condition push down; whether TAC is pushed down depends on this value and the calculated filter selection rate. |
-| _OPTMZ_MINMAX_OPT                            | Specifies the optimization option for Index minmax scan by the optimizer; currently only supports SINGLE optimization option. |
+| _OPTMZ_MINMAX_OPT                            | Specifies the optimization option for Index minmax scan by the optimizer. |
 | _OPTMZ_EARLY_GROUP_OPT                       | Specifies the optimization option for Group by push down by the optimizer.                            |
 | _OPTMZ_EXEC_ENGINE                           | Specifies the execution engine.                                                                     |
-| _OPTMZ_ENABLE_DSTB_AC                        | Enable/disable support for AC tables in distributed mode.                                            |
-| _OPTMZ_ENABLE_DUP_TABLE_PARALLEL             | Enable/disable parallel support for duplicated tables.                                               |
-| _B_TREE_BITMAP_PLANS                         | Enable/disable the optimizer to generate BITMAP OR plans.                                          |
+| _OPTMZ_ENABLE_DSTB_AC                        | Whether to enable support for AC tables in distributed mode.                                            |
+| _OPTMZ_ENABLE_DUP_TABLE_PARALLEL             | Whether to enable parallel support for duplicated tables.                                               |
+| _B_TREE_BITMAP_PLANS                         | Whether to enable the optimizer to generate BITMAP OR plans.                                          |
 | _USED_PN_GROUP                               | Specifies the PN group in ISC Distributed Cluster Deployment.                                                   |
 | _WITH_SUBQUERY                               | Instructs the optimizer to optimize CTE in a materialized/cost calculation/inlining manner.          |
-| _OPTIMIZER_BATCH_TABLE_ACCESS_BY_ROWID       | Enable/disable the optimizer to generate bulk back-table plans; default is off.                       |
+| _OPTIMIZER_BATCH_TABLE_ACCESS_BY_ROWID       | Whether to enable the optimizer to generate bulk back-table plans.                       |
 | _CONSISTENT_WRITE                            | Whether to enable consistent writing.                                                                 |
 | DIN_CONNECTIONS_PER_NODE                     | In the internal communication network, the upper limit of socket connections that can be created between a single node and another node. |
 | _SCOL_FILTER_MODE                            | LSC SCOL filter mode.                                                                                |
@@ -81,8 +81,9 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _ENABLE_INTERNAL_ERROR_COREDUMP              | Indicates whether to allow the process to core dump when a fatal internal error occurs in the database under the release version. |
 | _ENABLE_REDO_TRAFFIC_CONTROL                 | Start redo flushing flow control to prevent redo lags and improve the stability of database performance. |
 | _BATCH_COMMIT_DELAY                          | When transactions are submitted in batch, this parameter controls the delay time for batch submission.  |
+| _READ_INCOMMIT                              | Controls whether the transaction is visible during the redo flush process. When set to TRUE, an optimization mode is enabled: the transaction releases locks immediately after commit, and redo flush is performed asynchronously. When set to FALSE, the original behavior is maintained, waiting for redo flush to complete before releasing locks.<br/>The optimization mode can improve performance when concurrently modifying the same row, but in extreme cases it may lead to loss of committed data. **Not recommended for production environments**. |
 | _LATEST_RESET_ID                             | Used during yasom election.                                                                          |
-| CGROUP_ROOT_DIR                              | The installation directory of cgroup, currently only supports the path /sys/fs/cgroup                 |
+| CGROUP_ROOT_DIR                              | The installation directory of cgroup.                 |
 | _SCOL_MANAGER_CAPACITY                       | The capacity of the LSC SCOL file synchronization manager.                                           |
 | _SCOL_EXTENT_SIZE                            | The size of the LSC SCOL slice extent; in cases of IO amplification, reduce this parameter when the actual query record is small but the scan volume is very large. |
 | _MIGRATION_MODE_ENABLED                      | Database plug-and-play mode; the creation parameter that cannot be modified after creation; after configuring this parameter, all files must be stored in the $YASDB_DATA directory. |
@@ -90,7 +91,7 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _MCOL_CACHE_REFRESH_SIZE                     | The memory range of block cache that stores MCOL slices in LSC; no adjustments needed.                |
 | _PL_POOL_MEMORY_PERCENT                      |The proportion of the PL pool within the SQL Pool.                                       |
 | _CHECK_PASSWORD_COMPLEXITY                   | Perform complexity checks when setting user passwords.                                              |
-| _SQL_MAP                                     | Enable/disable SQL mapping functionality.                                                            |
+| _SQL_MAP                                     | Whether to enable SQL mapping functionality.                                                            |
 | _REMOTE_CR_THRESHOLD                         | In YAC/Distributed Cluster Deployment, if a certain instance's remote request consistency read count for a page reaches this threshold, the request will be converted to the current page request. <br/>**This value affects performance across instances; modification is not recommended**. |
 | _WAIT_BOC                                    | Whether to synchronize broadcast SCN during YAC transaction submission; default is TRUE. If off, it will automatically synchronize through the background periodically, which has a certain impact on consistency access on the application side. <br/>**Modification is not recommended**. |
 | _RCY_BPWR_COUNT                              | In YAC/Distributed Cluster Deployment, the number of flush threads during page recovery when the instance is online, which affects the performance during fault recovery. <br/>**Modification is not recommended**.|
@@ -123,57 +124,6 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _COLUMNAR_MAX_HASH_BUCKET                    | The initial maximum number of BUCKETs in the column execution HASH TABLE.                        |
 | _COLUMNAR_DYNAMIC_ARRAY_THRESHOLD            | The threshold for using two-dimensional dynamic arrays in column execution.                         |
 | _USE_OPTMZ_INFO                              | Deprecated parameter.                             |
-| _COST_TABLE_FULL_SCAN                        | Operator cost, not available in the official version.                                          |
-| _COST_INDEX_UNIQUE_SCAN                      | Operator cost, not available in the official version.                                          |
-| _COST_INDEX_FULL_SCAN                        | Operator cost, not available in the official version.                                          |
-| _COST_INDEX_RANGE_SCAN                       | Operator cost, not available in the official version.                                          |
-| _COST_INDEX_RANGE_SCAN_MIN_MAX                | Operator cost, not available in the official version.  |
-| COST_INDEX_FULL_SCAN_MIN_MAX                  | Operator cost, not available in the official version.  |
-| _COST_INDEX_FAST_FULL_SCAN                   | Operator cost, not available in the official version.                                          |
-| _COST_INDEX_SKIP_SCAN                        | Operator cost, not available in the official version.                                          |
-| _COST_ROWID_SCAN                             | Operator cost, not available in the official version.                                          |
-| _COST_RTREE_SCAN                             | Operator cost, not available in the official version.                                          |
-| _COST_HNSW_SCAN                             | Operator cost, not available in the official version.                                          |
-| _COST_INDEX_SCAN                             | Operator cost, not available in the official version.                                          |
-| _COST_PART_ALL_SCAN                          | Operator cost, not available in the official version.                                          |
-| _COST_PART_ALL_AC_SCAN                       | Operator cost, not available in the official version.                                          |
-| _COST_PART_SINGLE_SCAN                       | Operator cost, not available in the official version.                                          |
-| _COST_PART_SINGLE_AC_SCAN                    | Operator cost, not available in the official version.                                          |
-| _COST_PART_ITER_SCAN                         | Operator cost, not available in the official version.                                          |
-| _COST_PART_ITER_AC_SCAN                      | Operator cost, not available in the official version.                                          |
-| _COST_PART_MULTICOL_SCAN                     | Operator cost, not available in the official version.                                          |
-| _COST_PART_SCAN                              | Operator cost, not available in the official version.                                          |
-| _COST_PART_INDEX_SCAN                        | Operator cost, not available in the official version.                                          |
-| _COST_PART_AC_SCAN                           | Operator cost, not available in the official version.                                          |
-| _COST_IDX_NL_JOIN                            | Operator cost, not available in the official version.                                          |
-| _COST_NL_JOIN                                | Operator cost, not available in the official version.                                          |
-| _COST_MS_JOIN                                | Operator cost, not available in the official version.                                          |
-| _COST_HASH_JOIN                              | Operator cost, not available in the official version.                                          |
-| _COST_SORT                                   | Operator cost, not available in the official version.                                          |
-| _COST_ORDER_BY                               | Operator cost, not available in the official version.                                          |
-| _COST_GROUP                                  | Operator cost, not available in the official version.                                          |
-| _COST_SORT_GROUP                             | Operator cost, not available in the official version.                                          |
-| _COST_SDT                                    | Operator cost, not available in the official version.                                          |
-| _COST_SDT_GROUP                              | Operator cost, not available in the official version.                                          |
-| _COST_HASH_GROUP                             | Operator cost, not available in the official version.                                          |
-| _COST_SORT_GROUPING_SETS                     | Operator cost, not available in the official version.                                          |
-| _COST_HASH_GROUPING_SETS                     | Operator cost, not available in the official version.                                          |
-| _COST_SORTED_WINFUNC                         | Operator cost, not available in the official version.                                          |
-| _COST_HASH_WINFUNC                           | Operator cost, not available in the official version.                                          |
-| _COST_UNIQUE                                 | Operator cost, not available in the official version.                                          |
-| _COST_SORTED_DISTINCT                        | Operator cost, not available in the official version.                                          |
-| _COST_HASH_DISTINCT                          | Operator cost, not available in the official version.                                          |
-| _COST_SORT_AGGRDIST                          | Operator cost, not available in the official version.                                          |
-| _COST_PX_QUEUE                               | Operator cost, not available in the official version.                                          |
-| _COST_AC_SCAN                                | Operator cost, not available in the official version.                                          |
-| _COST_SGL_TO_SGL                             | Operator cost, not available in the official version.                                          |
-| _COST_SGL_TO_MULTI                           | Operator cost, not available in the official version.                                          |
-| _COST_MULTI_TO_MULTI                         | Operator cost, not available in the official version.                                          |
-| _COST_MULTI_TO_SGL                           | Operator cost, not available in the official version.                                          |
-| _COST_MULTI_TO_MULTI_BCST                    | Operator cost, not available in the official version.                                          |
-| _COST_SGL_TO_MULTI_BCST                      | Operator cost, not available in the official version.                                          |
-| _COST_BITMAP_PLANS                           | Operator cost, not available in the official version.                                          |
-| _COST_TEMP_SCAN                              | Operator cost, not available in the official version.                                          |
 | _FAULT_POINT                                 | Fault injection content, effective only in the Debug version.                                     |
 | _DBWR_SORT_ENABLED                           | Page sorting switch during DBWR flush.                                                            |
 | _ENABLE_S3                                   | Whether to allow operations on s3 bucket.                                                         |
@@ -184,7 +134,7 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _CN_SCALING_OUT                              | Deprecated parameter.                             |
 | _ONLY_OPEN_UPGRADE                           | During the upgrade process, the database is not allowed to switch from nomount to open.              |
 | _REDO_FLUSH_THRESHOLD_SIZE                   | The triggering condition for the background redo flushing; when the redo size exceeds this value, it will automatically trigger flushing. |
-| _HASH_JOIN_ALGORITHM                         | The algorithm used for HASH JOIN, can specify HDT and PARTITION, default is PARTITION.               |
+| _HASH_JOIN_ALGORITHM                         | The algorithm used for HASH JOIN.               |
 | _HASH_JOIN_FORCE_PARTITION                   | During vectorized HASH JOIN, whether to force open partition. If true, it indicates forcing partition. <br/>**Not recommended for production environments**. |
 | _HASH_AREA_SIZE                              | The maximum memory size available for each HASH JOIN. When the HASH TABLE size is less than this value, partition will not execute, and the entire HASH TABLE will be placed in memory. |
 | DERM_PARALLEL_EXECUTIONS                     | The number of distributed parallel execution threads.                                               |
@@ -207,11 +157,11 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _SESSION_BLOCK_CACHE_THRESHOLD               | The number of shared lock holders that triggers the session-level buffer page; when requesting a page's shared lock, if the number of shared lock holders has reached this parameter, it will buffer the page into the session. |
 | _BATCH_ENABLED                               | Deprecated parameter.                             |
 | _BATCH_SIZE                                  | Specifies the number of rows in a batch for executing batch operations.                             |
-| _BATCH_MODE                                  | Specifies the execution mode for batch operations, 0: single row execution engine, 1: single row and batch fusion, 2: prioritizes batch. |
-| _CURSOR_BIND_CAPTURE_INTERVAL                | The interval for capturing specific values of bound parameters in SQL records (units: seconds); default is 900. |
+| _BATCH_MODE                                  | Specifies the execution mode for batch operations. |
+| _CURSOR_BIND_CAPTURE_INTERVAL                | The interval for capturing specific values of bound parameters in SQL records (units: seconds). |
 | ENABLE_TRAFFIC_CONTROL                       | Whether to enable the DATA BUFFER flow control mechanism; default is off. If enabled, it will limit the DATA BUFFER to prevent dirty pages from being produced too quickly. |
-| _UNDO_AFFINITY                               | Whether to enable UNDO affinity functionality in cluster deployment mode.                            |
-| _ENABLE_BOM                                  | Whether to enable object cache management functionality; currently, column storage does not support this functionality. |
+| _UNDO_AFFINITY                               | Whether to enable resource affinity functionality. <br/> This is only applicable in YAC/Distributed Deployment.                            |
+| _ENABLE_BOM                                  | Whether to enable object cache management functionality; currently, standalone column storage does not support this functionality. |
 | _INDEX_NOPARALLEL                            | Whether to enable the default parallel functionality for index creation.                            |
 | _BUFFER_OBJECTS                              | When enabling object cache management functionality, the maximum number of cache objects that can be managed. |
 | _PARALLEL_ADAPTIVE_MULTI_USER                | Whether to enable adaptive algorithms to reduce parallelism when parallel execution resources are insufficient. |
@@ -235,25 +185,30 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _TRANSFORMER_MAX_HIS_COUNT                   | The maximum number of records that the XFMR_HIS$ system table can retain.                           |
 | _TRANSFORMER_MAX_HIS_DAYS                    | The maximum interval in days that the XFMR_HIS$ system table can retain records.                    |
 | _TRACE_ALLOC_CURSOR                          | A reserved parameter for checking resource allocation; modification is not allowed.                  |
-| _INSTANCE_JOIN_TIMEOUT                       | The timeout duration for an instance to join the cluster, in seconds; default value is 0, representing a dead wait. |
-| _ENABLE_SYNC_GB_PURGE                        | Whether to enable GB synchronous purge; default is FALSE, representing asynchronous.                 |
+| _INSTANCE_JOIN_TIMEOUT                       | The timeout duration for an instance to join the cluster (units: seconds); default value is 0, representing a dead wait. |
+| _ENABLE_SYNC_GB_PURGE                        | Whether to enable GB synchronous purge.                 |
 | _CHANNEL_INIT_WINDOW                         | Specifies the size of the channel initialization window for data transfer across nodes.               |
 | _EXEC_DEGREE_OF_PARALLEL                     | Deprecated parameter.                             |
-| DP_MAX_JOIN_TABLES                           | Controls the number of tables supported by the DP algorithm; if the number of tables joined in SQL statement exceeds this value, a greedy algorithm will be used, which may result in a suboptimal plan. If less than or equal to this value, the DP algorithm will be used, resulting in an optimal plan but higher memory overhead. Default value: 8, range [4, 32]. |
+| DP_MAX_JOIN_TABLES                           | Controls the number of tables supported by the DP algorithm; if the number of tables joined in SQL statement exceeds this value, a greedy algorithm will be used, which may result in a suboptimal plan. If less than or equal to this value, the DP algorithm will be used, resulting in an optimal plan but higher memory overhead.  |
 | PKCS11_MODULE_LOCATION | Provide the module path of the standard PKCS #11 interface implementation to enable key management using an external HSM. |
 | _WINFUNC_ALGORITHM | Specify the aggregation algorithm for bulk execution of window functions.  |
 | _BATCH_WINDOW_TOPN_LIMIT | Specify the maximum N value supported by the bulk execution window function TOP N algorithm. If set to 0, the bulk execution window function TOPN algorithm is disabled. |
 | _GCS_LOCK_RATIO | In YAC/Distributed Cluster Deployment, the ratio of GcsLock count to data block cache count, i.e., GcsLock count = data block cache count * _GCS_LOCK_RATIO. |
 | _GCS_LOCK_RECYCLE_PROCS | In YAC/Distributed Cluster Deployment, the number of background asynchronous threads for reclaiming orphaned GcsLocks. |
 | _GCS_LOCK_ASYNC_RECYCLE | In YAC/Distributed Cluster Deployment, whether to perform GcsLock eviction and data block cache eviction asynchronously. If asynchronous eviction is enabled, GcsLocks are unbound as much as possible during data block eviction and evicted asynchronously by background threads. If not enabled, GcsLocks are evicted along with data block cache.   |
+| _GCS_LOCK_EXTEND_RATIO                       | The upper limit ratio of automatically extensible GcsLock pool size to data block count in cluster deployment. |
 | _BLOOM_FILTER_SCALE                          | Adjust the estimated data size for the Bloom filter. |
-| _EXEC_WITH_SRLZ                              | Whether to enable local checksum validation for data send/receive — default is disabled. |
+| _EXEC_WITH_SRLZ                              | Whether to enable local checksum validation for data send/receive. |
 | _PARALLEL_FORCE_LOCAL                        | Whether to force single-instance execution — i.e., do not generate a multi-instance execution plan — default is single-instance execution. |
 | _ROLE_CHECK                          | When separation of duties is enabled, whether the user login requires specifying a role. |
-| _DISABLE_MPOOL_SHARE                          | Whether to disable the sharing mechanism of the Shared Pool in the memory. Defaults to FALSE, indicating the feature is enabled. |
+| _DISABLE_MPOOL_SHARE                          | Whether to disable the sharing mechanism of the Shared Pool in the memory.  |
 | _HNSW_EF_SEARCH                              | The number of candidate nodes during the HNSW search graph process for vector indexing. |
 | _HNSW_MAX_SCAN_ROWS                          | The maximum number of scanned nodes at layer 0 of the HNSW search graph for vector indexing. |
-| _TASK_QUEUE_TIMEOUT                          | When shared thread session mode is enabled, the timeout time for judging whether the task queue is in a stuck state, in milliseconds.  |
+| _TASK_QUEUE_TIMEOUT                          | When shared thread session mode is enabled, the timeout time for judging whether the task queue is in a stuck state (unit: milliseconds).  |
 | _ASH_ENABLE                                   | Specifies whether to enable ASH sampling and flushing. |
 | _ASH_SAMPLING_INTERVAL                         | ASH sampling time interval (unit: milliseconds). |
 | _ASH_SIZE                                      | ASH buffer size. |
+| XACT_QUEUE_ENABLE                            | Specifies whether to enter the wait queue when concurrent transactions encounter row lock waits. |
+| _OPTIMIZER_ADAPTIVE_CURSOR_SHARING           | Controls whether different parameter value ranges affect the generation of execution plans. The default value is FALSE |
+| _ARCHFILE_COUNT                              | Number of archived slice file index files |
+| _ARCHFILE_SIZE                               | Archived slice file index file expansion and generation size |

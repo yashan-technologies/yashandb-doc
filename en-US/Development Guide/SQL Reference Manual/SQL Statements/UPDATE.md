@@ -5,9 +5,14 @@ UPDATE is used to update data in the base table of a database table or view.
 
 When updating data in the LSC table, the following constraints apply:
 
+- In YAC/Distributed Cluster Deployment, updating data in the LSC table can only be performed on the master instance (the instance with INSTANCE_ROLE = MASTER in the GV$INSTANCE view).
+
 - Cross-partition updates on the LSC table are not allowed.
+
 - UPDATE operations cannot be performed on AC.
+
 - To update cold data in the LSC table, ROW MOVEMENT must be enabled. The update of cold data in the LSC table uses an optimistic locking mechanism, where lock information for the rows is retained in a buffer during the transaction, and rows are actually locked according to buffer information upon transaction commit. In case of concurrency, locking failures during transaction commits may cause transaction failures.
+
 - If it is necessary to update the primary key/unique key of the LSC table, ensure that the new values of the primary key/unique key still satisfy uniqueness within the same UPDATE statement. It is recommended to avoid batch updating primary key/unique key data within the same statement to prevent unnecessary false alarms related to uniqueness checks caused by the data processing mechanism of the LSC table.
 	
     For example, to increment the value of the primary key column area_no by 1 for all records in the LSC type area table, it is not recommended to execute `UPDATE area SET area_no = area_no + 1;` directly. Instead, it is advisable to start from the maximum value and execute an UPDATE statement for each key value to increment it individually, such as `UPDATE area SET area_no = area_no + 1 WHERE area_no = N;`.
@@ -19,7 +24,7 @@ When updating data based on a view for its base table, the following constraints
     - All base tables of the view must be HEAP tables, and the view must not contain grouping, aggregation, deduplication, ROWNUM, or CONNECT BY operations.
     - The ROWID of data from the same base table must be unique in the view.
     - In multi-base table views, a base table must have columns that have equal connection conditions with all primary key or unique constraint columns of the other base tables to be able to UPDATE that table's data based on the view.
-    - The base table of the view cannot be a remote table based on dblink.
+    - The base table of the view cannot be a remote table based on DBLink.
 - The columns in the UPDATE statement must correspond to the columns in the base table (cannot be other expression types).
 
 By default, before the transaction (Transaction) of an UPDATE is committed (Commit), other sessions cannot query the updated data. You can enable auto-commit (SET AUTOCOMMIT ON) to allow other sessions to timely query the new data.
@@ -74,7 +79,7 @@ This statement is used to submit a given plan to the optimizer, allowing it to g
 
 ### dml_table_expression_clause
 
-This statement is used to specify the object to be updated, which can be a table name (including tables from local databases or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLINK)), partition names of tables, view names, or subqueries, and an alias can be assigned to it.
+This statement is used to specify the object to be updated, which can be a table name (including tables from local databases or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLink)), partition names of tables, view names, or subqueries, and an alias can be assigned to it.
 
 For partitioned tables, if a partition object is not explicitly specified, the system determines the partition to be updated based on the values of partition item fields. When explicitly specified and the table is not defined as ENABLE ROW MOVEMENT:
 

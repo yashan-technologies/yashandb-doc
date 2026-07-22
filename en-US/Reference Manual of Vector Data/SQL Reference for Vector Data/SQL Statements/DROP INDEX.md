@@ -7,17 +7,11 @@ DROP INDEX is used to delete an index object, and at this time, all the data spa
 **drop index::=**
 
 ```ebnf
-= DROP INDEX index_name ON [schema "."] table_name.
+= DROP INDEX [schema"."] index_name.
 ```
 
-**alter table drop index::=**
-
-```ebnf
-= ALTER TABLE [schema "."] table_name DROP INDEX index_name.
-```
-
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
-DROP INDEX HNSW_INDEX ON VECTOR_TABLE;
+DROP INDEX HNSW_INDEX;
 ```

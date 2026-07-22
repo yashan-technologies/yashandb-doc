@@ -78,7 +78,7 @@ For different bucket types, bucket_name has different meanings:
 
   - The parent directory of the specified directory must exist, and the system must have read and write privileges on the specified directory.
 
-  - In ISC Distributed Cluster Deployment, absolute paths are not allowed.
+  - Absolute paths are not allowed.
 
 - For S3 buckets, bucket_name is a logical name used to query specific bucket information within the database.
 

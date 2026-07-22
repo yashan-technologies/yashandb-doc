@@ -77,7 +77,7 @@ The RPM installation method is only suitable for CentOS Linux platforms and must
 6. Configure `PATH` and `LD_LIBRARY_PATH` in `~/.bashrc`.
 
    ```shell
-   $ vi ~/.bashrc
+   # vi ~/.bashrc
    export PATH=$PATH:/usr/local/yashandb_client/bin
    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/yashandb_client/lib
    ```

@@ -43,7 +43,7 @@
    passwd: all authentication tokens updated successfully.   
    
    # groupadd YASDBA
-   # usermod -a -G YASDBA yashan
+   # usermod -aG YASDBA yashan
    # cd /
    # mkdir data
    # cd data
@@ -139,7 +139,7 @@
    1 row fetched.
    ```
 
-   为了方便您通过远端的Windows或Linux设备访问YashanDB，可参考[YashanDB客户端安装](../../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)将数据库客户端工具yasql部署在远端设备上。
+   为了方便您通过远端的Windows、Linux或macOS设备访问YashanDB，可参考[YashanDB客户端安装](../../安装和升级/安装部署/YashanDB客户端安装/00YashanDB客户端安装.md)将数据库客户端工具yasql部署在远端设备上。
 
 6. 为本次产品体验创建测试用户。
 

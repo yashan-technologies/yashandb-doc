@@ -1,4 +1,4 @@
-This document takes Windows 10 Professional, CMake version 3.16 and above, and the YashanDB client installation package yashandb-client-xx.xx-windows-amd64.zip as an example to introduce the installation and configuration process of the YashanDB C driver in this environment.
+This chapter takes Windows 10 Professional, CMake version 3.16 and above, and the YashanDB client installation package yashandb-client-xx.xx-windows-amd64.zip as an example to introduce the installation and configuration process of the YashanDB C driver in this environment.
 
 
 
@@ -6,28 +6,11 @@ This document takes Windows 10 Professional, CMake version 3.16 and above, and t
 
 1. From the [YashanDB Official Website Download Center](https://download.yashandb.com/download), or contact our technical support to obtain the corresponding software package. 
 
-2. Download and extract the YashanDB client installation package to a local path, such as D:\yasdb-driver-c\.
+2. Download and extract the driver package named `YashanDB Connector/C xxx` and marked as Windows to a local path, such as `D:\yasdb-driver-c\`.
 
-   After extraction, the following folders can be found:
-
-## Step 1: Download the C Driver Installation Package
-
-
-1. From the [YashanDB Official Website Download Center](https://download.yashandb.com/download), or contact our technical support to obtain the corresponding software package. 
-
-2. Download and extract the YashanDB client installation package to a local path, for example, /home/yasdb-driver-c/.
-
-   After extracting the installation package, the files required for the C driver can be obtained:
-
-   * Header files for C driver: Located in the include folder.
-
-   * Library files for C driver: Located in the lib folder.
-
-
+   After extracting the installation package, you can get a file named `yascli.dll`:
 
 ## Step 2: Set Environment Variables
-
-
 
 Set the folder containing the C driver's library files to the Windows environment variable PATH. The specific operations are:
 
@@ -75,7 +58,7 @@ The following example project requires a CMake environment and any IDE that supp
    target_link_libraries(yasctest D:/yasdb-driver-c/lib/yascli.lib)
    target_include_directories(yasctest PUBLIC D:/yasdb-driver-c/include)
    ```
-4. Copy the "Usage Example" code from the corresponding document in the [C Driver Usage Examples](../YashanDB C Driver Usage Examples/00YashanDB C Driver Usage Examples) directory (for example, the document on [C Driver Connecting and Disconnecting](../YashanDB C Driver Usage Examples/Connecting and Disconnecting with C Driver)), and save it as a file named cexample.c in the current project path.
+4. Copy the "Usage Example" code from the corresponding scenario document in the [C Driver Usage Examples](../YashanDB C Driver Usage Examples/00YashanDB C Driver Usage Examples) directory (for example, [C Driver Connection and Disconnection](../YashanDB C Driver Usage Examples/Connecting and Disconnecting with C Driver)), save it as a file named `cexample.c` in the current project path.
 
    The directory structure of yacli_c_project is as follows:
 

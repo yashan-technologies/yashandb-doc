@@ -21,6 +21,8 @@
 | IDENTITY_COLUMN | VARCHAR(1) | 列是否具有身份属性<br/>\* Y：是身份列<br/>\* N：不是身份列 |
 | CHAR_USED                  | VARCHAR(1)    | 列使用BYTE长度语义或CHAR长度语义<br/>\*   C：字符长度语义<br/>\*   B：字节长度语义<br/>\*   NULL:该列不是CHAR/VARCHAR/NCHAR/NVARCHAR数据类型 |
 | HIDDEN_COLUMN | VARCHAR(3) | 是否是隐藏列<br/>\* YES：是隐藏列<br/>\* NO：不是隐藏列 |
+| VIRTUAL_COLUMN             | VARCHAR(3)    | 是否是虚拟列<br/>\*   YES：是虚拟列<br/>\*   NO：不是虚拟列  |
+| SEGMENT_COLUMN_ID          | INTEGER       | 列在行上的序号                                               |
 | CHAR_LENGTH                | INTEGER       | 列的字符定义长度<br/>\*   该列是CHAR/VARCHAR/NCHAR/NVARCHAR数据类型时根据定义赋值，其他类型时该列的值为0|
 | CHAR_COL_DECL_LENGTH | INTEGER       | 字符类型列的声明长度                                                                                                 |
 | DIMENSION                  | INTEGER       | 向量列的维度数<br/>仅当列为VECTOR数据类型时，该字段有实际意义且存在实际值，为其他类型时该字段恒为NULL                                 |

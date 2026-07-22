@@ -1,4 +1,4 @@
-This chapter will list the support status of the ODBC driver for Oracle DBLINK.
+This chapter will list the support status of the ODBC driver for Oracle DBLink.
 
 ## Supported Functionality
 
@@ -63,11 +63,11 @@ Supports four methods: APPEND, CREATE, INSERT, and REPLACE. For detailed descrip
 ***Example***
 
 ```sql
---In this example, oracle@ORCL is the Oracle database connection for the oracle user, and YASDBODBC is the configured YashanDB DBLINK
+--In this example, oracle@ORCL is the Oracle database connection for the oracle user, and YASDBODBC is the configured YashanDB DBLink
 --Preliminary table creation
-YashanDB:
+-- YashanDB:
 create table copy_table (col1 int);
-Oracle:
+-- Oracle:
 create table copy_table (col1 int);
 
 --INSERT
@@ -93,7 +93,7 @@ ORA-02021: DDL operations are not allowed on a remote database
 
 ### CRUD Capabilities
 
-Supports executing `DELETE`, `INSERT`, `SELECT`, and `UPDATE` statements by specifying DBLINK to connect remotely to the YashanDB database. For detailed descriptions and limitations of the statements, please refer to the Oracle official documentation.
+Supports executing `DELETE`, `INSERT`, `SELECT`, and `UPDATE` statements by specifying DBLink to connect remotely to the YashanDB database. For detailed descriptions and limitations of the statements, please refer to the Oracle official documentation.
 
 ***Example***
 

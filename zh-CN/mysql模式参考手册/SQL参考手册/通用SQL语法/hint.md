@@ -278,7 +278,7 @@ SELECT area_no FROM branches;
 
 - PARALLEL DML DISABLED，只有在会话中显式ENABLE了PARALLEL DML，INSERT语句中的PARALLEL HINT才能生效。
 - INSERT MULTI VALUES、多表INSERT、INSERT ON DUPLICATE不能并行。
-- 列表、临时表、DBLINK、物化视图基表不允许并行。
+- 列表、临时表、DBLink、物化视图基表不允许并行。
 - 带外键约束、INSERT TRIGGER、LOB列的表不允许并行。
 - XA事务不允许并行，本地已经启动并行事务后，不能再START一个XA事务，START XA事务后并行不生效。
 - 可串行化事务不允许并行。

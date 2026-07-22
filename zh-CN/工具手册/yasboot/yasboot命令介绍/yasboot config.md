@@ -137,6 +137,9 @@ $ yasboot config patrol gen -c yashandb -s ps01  --cron-expression "10 12 ? 1,5,
 | *--host-id*            | 已部署服务器的ID，多个ID间用逗号`,`隔开（废弃参数）                     |
 | *--host-ids*            | 已部署服务器的ID，多个ID间用逗号`,`隔开                     |
 | *--data-path*        | 数据库实例的DATA目录                                |
+| *--data*              | 共享集群/分布式集群部署所需使用的数据盘，多个数据盘路径间用逗号`,`隔开         |
+| *--disk-found-path*   | 共享集群/分布式集群部署所需使用的磁盘发现路径（默认为/dev/yfs）                      |
+| *--system-data*       | 共享集群/分布式集群部署所需使用的系统盘，多个系统盘路径间用逗号`,`隔开        |
 | *-f, --force*          | 是否强制部署数据库，强制表示不会检查当前服务器运行状态是否能够部署            |
 | *--node*               | 新增节点组中的节点数，默认为1                             |
 | *--group*              | 新增的节点组数量，默认为1                               |
@@ -165,4 +168,17 @@ $ yasboot config group gen -c yashandb -u yashan -p password --ip ip1,ip2...ipn 
 
 ```shell
 $ yasboot config group gen -c yashandb --host-ids host0001,host0002 --group 2 --node 3
+```
+
+示例3（在主备集群部署下，生成hosts_add.toml和yashandb_add.toml文件）
+
+```shell
+$ yasboot config group gen -c yashandb \
+    -u yashan -p password --ip ip1 --port 22 \
+    --install-path /data/yashan/yasdb_home \
+    --data-path /data/yashan/add_standby_cluster \
+    --node 3 --begin-port 1688 --data /dev/yfs33/datadisk3 \
+    --disk-found-path  /dev/yfs33 --system-data  /dev/yfs33/ycsdisk3 \
+    --log-path /data/yashan/add_standby_cluster/log \
+    -t ce \
 ```

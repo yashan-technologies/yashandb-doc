@@ -2,6 +2,8 @@
 
 OCILobCreateTemporary函数用于创建临时LOB。
 
+调用[OCIDescriptorFree](../句柄和描述符函数/OCIDescriptorFree.md)函数前，必须先调用OCILobCreateTemporary函数。
+
 ## 函数声明
 
 ```c

@@ -1,18 +1,18 @@
 ```ebnf
-group_concat = GROUP_CONCAT "(" [DISTINCT] string {"," string} [order_by_clause [SEPARATOR sep_character]] ")".
+group_concat = GROUP_CONCAT "(" [DISTINCT|UNIQUE] string {"," string} [order_by_clause [SEPARATOR sep_character]] ")".
 ```
 
 GROUP\_CONCAT函数在[CONCAT](./CONCAT)函数的功能上增加了聚集功能，即对GROUP BY聚集的每个分组里的多行执行CONCAT操作，函数返回值是CLOB类型。
 
 本函数不支持向量化计算。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 过滤在同一组内出现的相同string。  
 
+DISTINCT与UNIQUE完全等价。
 
 目前，YashanDB无法对LOB类型的数据进行去重。
-
 
 **string**
 

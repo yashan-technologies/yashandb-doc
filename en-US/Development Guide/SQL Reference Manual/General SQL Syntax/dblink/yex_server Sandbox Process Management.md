@@ -7,7 +7,7 @@ To improve security, YashanDB will automatically start the yex_server sandbox pr
 
 - Calling external stored procedures (such as external UDFs).
 
-- Performing INSERT, DELETE, UPDATE, and SELECT operations on remote tables via dblink.
+- Performing INSERT, DELETE, UPDATE, and SELECT operations on remote tables via DBLink.
 
 The configuration parameters exposed in yex_server are described as follows:
 
@@ -25,9 +25,9 @@ The configuration parameters exposed in yex_server are described as follows:
 
 The current yex_server process does not require configuration of runtime parameters for external stored procedures.
 
-**Parameter for dblink**
+**Parameter for DBLink**
 
-Please refer to [Syntax Definition of DBLINK](./Syntax Definition of DBLINK) for the details of the parameters related with DBLINK.
+Please refer to [Syntax Definition of DBLink](./Syntax Definition of DBLink) for the details of the parameters related with DBLink.
 
 ## Configuration Steps
 
@@ -54,7 +54,7 @@ After installing YashanDB, the yex_server.ini file will not be generated automat
 
 3. Save and exit the editor.
 
-4. Stop yex_server. Once the application calling external stored procedures or opening the dblink, the yex_server will start automatically and the configuration will take effect.
+4. Stop yex_server. Once the application calling external stored procedures or opening the DBLink, the yex_server will start automatically and the configuration will take effect.
 
     ```shell
     $ ps -efww | grep -w yex_server | grep -v grep  | awk '{print $2}' | xargs -x -i kill -9 {}

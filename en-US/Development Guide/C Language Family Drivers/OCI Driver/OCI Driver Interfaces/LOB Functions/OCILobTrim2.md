@@ -1,6 +1,6 @@
 ## Functionality Overview
 
-The OCILobTrim2 function is used to truncate a LOB value to a shorter length.
+OCILobTrim2 is an extended version of OCILobTrim function, used to truncate a LOB value to a shorter length. The main difference from OCILobTrim is the use of oraub8 type for the newlen parameter instead of ub4 type, supporting LOB truncate operations larger than 4GB.
 
 ## Function Declaration
 

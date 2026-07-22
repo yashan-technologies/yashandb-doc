@@ -15,7 +15,7 @@ The command is used to generate a configuration file for Standalone Deployment b
 | *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`        |
 | *--port*                | SSH connection port of the server   |
 | **Database Basic Configuration Parameters** |  |
-| -c,--cluster       | Name of the generated cluster (required parameter)           |
+| -c,--cluster       | The planned cluster name  (required parameter), must start with a letter, 2-63 characters long, can contain numbers and most visible ASCII characters (excluding `,`, `'`, `"`, `+`, `-`, `*`, `/`, `|`, `(`, `)`, `@`, `[`, `]`, `{`, `}`, `~`, `` ` ``, `%`, `:`, `?`, `.`, spaces and control characters `=`, `!`, `<`, `>`, `;`, `&`, `^`) |
 | *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)         |
 | *--data-path*           | Data path of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)     |
 | *--log-path*            | Run log path, storing database run.log and slow.log, as well as logs for yasom and yasagent                  |
@@ -24,9 +24,13 @@ The command is used to generate a configuration file for Standalone Deployment b
 | *--replica-cidr*        | Primary-standby replication link address (defaults to the same IP segment)              |
 | *--table-type*          | Main business table type, optional [HEAP,TAC,LSC], defaults to HEAP  |
 | *--enable-pluggable-database*  | Whether to deploy as a CDB, defaults to false<br/>When specifying this parameter, the -m (or --mode) parameter cannot be used simultaneously to specify the syntax mode. The PDB's syntax mode can be specified during creation  |
+| *--enable-branch*  | Whether to deploy as a branch database, defaults to false<br/>When specifying this parameter, the -m (or --mode) parameter cannot be used simultaneously to specify the syntax mode  |
 | *--create-cgroup*       | Whether to create the resource management cgroup directory. To create it, sudo privileges are required, and you need to specify at least one of the parameter pairs, either -u, -p or -su, -sp <br/>Created by default when installing a CDB, not created by default for a non-CDB    |
 | *--cgroup-path*         | Customize the resource management cgroup directory. When not specified, it defaults to `/sys/fs/cgroup` |
 | *-m, --mode*            | Syntax mode of the database, options [yashan,mysql]<br/>* yashan: indicates deployment in yashan mode, defaults to this value when omitted, cannot directly switch to mysql mode after installation in yashan mode<br/>* mysql: indicates deployment in mysql mode     |
+| *--disk-found-path*     | Disk discovery path in storage network (defaults to /dev/yfs), avaliable ony when a branch database is deployed |
+| *--system-data*         | System disk in storage network must have their paths under the disk discovery path, with multiple system disk information with a comma `,`,avaliable ony when a branch database is deployed       |
+| *--data*                | Data diskin storage network must have their paths under the disk discovery path, with multiple data disk information with a comma `,`,avaliable ony when a branch database is deployed         |
 | **Node Scale Parameters** |  |
 | *--node*                | Scale of standalone db group and node deployment, defaults to 1             |
 | *--cascade-node*        | Number of Cascade standby nodes |
@@ -74,7 +78,7 @@ The command is used to generate a configuration file for YAC Deployment or Distr
 | *--cn-ip*                  | Distributed Cluster Deployment CN IP address, separate multiple IPs with a comma `,`            |
 | *--dn-ip*                  | Distributed Cluster Deployment DN IP address, separate multiple IPs with a comma `,`            |
 | **Database Basic Configuration Parameters** |  |
-| -c,--cluster       | Name of the generated cluster (required parameter)           |
+| -c,--cluster       | The planned cluster name  (required parameter), must start with a letter, 4-64 characters long, can only contain numbers, letters and underscores|
 | *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)         |
 | *--data-path*           | Data path of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)     |
 | *--log-path*            | Run log path, storing database run.log and slow.log, as well as logs for yasom and yasagent                  |
@@ -91,7 +95,7 @@ The command is used to generate a configuration file for YAC Deployment or Distr
 | *--scanname*                | SCAN domain name of YAC, must be used with --public-network parameter    |
 | *--trtype*               | NVMe communication protocol mode, rdma or tcp supported |
 | *--enable-pluggable-database*  | Whether to deploy as a CDB, defaults to false<br/>When specifying this parameter, the -m (or --mode) parameter cannot be used simultaneously to specify the syntax mode. The PDB's syntax mode can be specified during creation  |
-| *--create-cgroup*       | Whether to create the resource management cgroup directory. By default, it is not created. To create it, sudo privileges are required, and you need to specify at least one of the parameter pairs, either -u, -p or -su, -sp    |
+| *--create-cgroup*       | Whether to create the resource management cgroup directory. Creation requires sudo permissions and at least one of -u, -p, -su, or -sp must be specified<br/>Created by default when installing a CDB, not created by default for a non-CDB    |
 | *--cgroup-path*         | Customize the resource management cgroup directory. When not specified, it defaults to `/sys/fs/cgroup` |
 | *-m, --mode*            | Syntax mode of the database, options [yashan,mysql]<br/>* yashan: indicates deployment in yashan mode, defaults to this value when omitted, cannot directly switch to mysql mode after installation in yashan mode<br/>* mysql: indicates deployment in mysql mode     |
 | **Node Scale Parameters** |  |
@@ -117,7 +121,7 @@ The command is used to generate a configuration file for YAC Deployment or Distr
 | *--dev*                 | For internal development use only  ||
 | *--plugins*             | Plugins to be installed, separate multiple options with a comma `,`, optional options and their meanings are as follows:<br>* all: Install all plugins, default value<br>* none: Do not install plugins<br>* dblink: Install plugins for DBLink related functionality<br>* gis: Install plugins for built-in [GIS](../../../Development Guide/SQL Reference Manual/Built-in Functions/GIS Function/00GIS Function) function<br>* listagg: Install plugins for built-in [LSFA_LISTAGG](../../../Development Guide/SQL Reference Manual/Built-in Functions/LSFA_LISTAGG) function (corresponding functionality is not applicable to YAC/Distributed Cluster Deployment, no need to specify installation of this plugin separately)<br>* s3: Install plugins for S3 bucket related functionality (corresponding functionality is not applicable to YAC/Distributed Cluster Deployment, no need to specify installation of this plugin separately)<br>* udf: Install plugins for [UDF](../../../Development Guide/PL Reference Manual/PL Objects/User-Defined Functions) related functionality<br>* xml: Install plugins for built-in [XML](../../../Development Guide/SQL Reference Manual/Built-in Functions/XML Function/00XML Function) function |
 | *--nvme-reuse*     | Controls whether to check and reuse an existing NVMe-oF disks; reuse is disabled by default. If reuse is not enabled, a warning will be thrown when residual nameof is detected, requiring secondary confirmation from the user. The prerequisites for reuse are: the IP address must be consistent, and the same drive letter name as that passed in during deployment can be found in the corresponding NQN file.                        |
-| *--connect-param* | NVMe-oF connection parameters, see nvme connect --help for details |    
+| *--connect-param* | NVMe-oF connection parameters. For more details, refer to the command `nvme connect --help` <br/> Parameters need to use the \ character for line continuation, for example `--connect-param \ -i\ 4\ -q\ 32\ -l\ -1` |    
 
 <span id="de" name="de"></span>
 
@@ -139,7 +143,7 @@ The command is used to generate a configuration file for ISC Distributed Cluster
 | *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`        |
 | *--port*                | SSH connection port of the server  ||
 | **Database Basic Configuration Parameters** |  |
-| -c,--cluster       | Name of the generated cluster (required parameter)           |
+| -c,--cluster       | The planned cluster name  (required parameter), must start with a letter, 2-63 characters long, can contain numbers and most visible ASCII characters (excluding `,`, `'`, `"`, `+`, `-`, `*`, `/`, `|`, `(`, `)`, `@`, `[`, `]`, `{`, `}`, `~`, `` ` ``, `%`, `:`, `?`, `.`, spaces and control characters `=`, `!`, `<`, `>`, `;`, `&`, `^`) |
 | *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)         |
 | *--data-path*           | Data path of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)     |
 | *--log-path*            | Run log path, storing database run.log and slow.log, as well as logs for yasom and yasagent                  |
@@ -346,45 +350,45 @@ This command is no longer maintained. Please use the package se/de/ce gen comman
 
 |Option |Meaning |
 | --------------------- | ------------------------------------------- |
-| *\-c,--cluster*         | Name of the generated cluster (required parameter)            |
+| *\-c,--cluster*         | The planned cluster name  (required parameter)    |
 | *-u,--username*         | SSH username for the server|
 | *--groupname*           | User group name, defaults to `username`      |
 | *-p,--password*         | SSH login password  |
 | *-N,--no-password*      | SSH passwordless login  |
-| *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`                      |
-| *--port*                | SSH connection port of the server                       |
-| *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)                       |
-| *-su,--sudo-username*   | SSH user with sudo privileges, defaults to the same value as --username (used to execute commands that require sudo privileges, such as creating cgroup directories)                   |
-| *-sp,--sudo-password*   | Password for the SSH user with sudo privileges, defaults to the same value as --password             |
-| *--no-add-yasdba*       | Do not add the installer user to the YASDBA user group          |
-| *--boot-start-monit*    | Enable self-starting monit daemon (add startup command to /etc/rc.local)         |
-| *--host*                | Server connection information expression                    |
+| *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`                |
+| *--port*                | SSH connection port of the server                      |
+| *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)                 |
+| *-su,--sudo-username*   | SSH user with sudo privileges, defaults to the same value as --username (used to execute commands that require sudo privileges, such as creating cgroup directories)            |
+| *-sp,--sudo-password*   | Password for the SSH user with sudo privileges, defaults to the same value as --password       |
+| *--no-add-yasdba*       | Do not add the installer user to the YASDBA user group    |
+| *--boot-start-monit*    | Enable self-starting monit daemon (add startup command to /etc/rc.local)   |
+| *--host*                | Server connection information expression               |
 | *-t, --yas-type*        | Deployment shape of the database:<br>\* SE: Standalone Deployment <br>\* CE: YAC/Distributed Cluster Deployment <br>\* DE: ISC Distributed Cluster Deployment, default value |
 | *-d, --deploy-mode*     | Deployment scale of ISC Distributed Cluster Deployment:<br>\* MINI: Minimum scale deployment, deployed 1MN 1CN 3DN on the same server<br>\* NORMAL: Regular deployment, based on the following node scale |
-| *-L,--local*            | Whether it is a local deployment (no installation package needed), defaults to false, IP defaults to 127.0.0.1                     |
-| *--ipv6*                | Whether to use IPv6 for local deployment, defaults to IPv4    |
-| *--mn*                  | Scale of MN nodes within ISC Distributed Cluster Deployment, defaults to 1   |
-| *--cn*                  | Scale of CN nodes within ISC Distributed Cluster Deployment, defaults to 1   |
+| *-L,--local*            | Whether it is a local deployment (no installation package needed), defaults to false, IP defaults to 127.0.0.1               |
+| *--ipv6*                | Whether to use IPv6 for local deployment, defaults to IPv4 |
+| *--mn*                  | Scale of MN nodes within ISC Distributed Cluster Deployment, defaults to 1 |
+| *--cn*                  | Scale of CN nodes within ISC Distributed Cluster Deployment, defaults to 1 |
 | *--dn*                  | Scale of DN group and nodes within ISC Distributed Cluster Deployment, for example, 1-3 means a group with 3 nodes (1 master and 2 standby within the group)|
 | *--db*                  | Scale of nodes in standalone DB group, defaults to 1 |
-| *--listen-cidr*         | Listen address of the database (defaults to the same IP segment)  |
-| *--din-cidr*            | Distributed network communication link address (defaults to the same IP segment)                     |
-| *--replica-cidr*        | Primary-standby replication link address (defaults to the same IP segment)  |
+| *--listen-cidr*         | Listen address of the database (defaults to the same IP segment) |
+| *--din-cidr*            | Distributed network communication link address (defaults to the same IP segment)               |
+| *--replica-cidr*        | Primary-standby replication link address (defaults to the same IP segment) |
 | *--begin-port*          | Starting port 1688 |
-| *--data-path*           | DATA directory of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)                 |
-| *-f, --force*           | Whether to force deploy the database, forcing means it will not check whether the current server's running state can deploy               |
+| *--data-path*           | DATA directory of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)          |
+| *-f, --force*           | Whether to force deploy the database, forcing means it will not check whether the current server's running state can deploy        |
 | *-o, --output*          | File output path               |
-| *--ce*                  | Scale of nodes in YAC type, defaults to 2, maximum 8         |
-| *--inter-cidr*          | Internal communication link address of YAC/Distributed Cluster (defaults to the same IP segment)               |
-| *--ce-data*             | Data disk in YAC/Distributed Cluster, separate multiple data disk information with a comma `,`                       |
-| *--create-cgroup*       | Whether to create the resource management cgroup directory. By default, it is not created. To create it, sudo privileges are required, and you need to specify at least one of the parameter pairs, either -u, -p or -su, -sp     |
+| *--ce*                  | Scale of nodes in YAC type, defaults to 2, maximum 8   |
+| *--inter-cidr*          | Internal communication link address of YAC/Distributed Cluster (defaults to the same IP segment)         |
+| *--ce-data*             | Data disk in YAC/Distributed Cluster, separate multiple data disk information with a comma `,`                 |
+| *--create-cgroup*       | Whether to create the resource management cgroup directory. By default, it is not created. To create it, sudo privileges are required, and you need to specify at least one of the parameter pairs, either -u, -p or -su, -sp |
 | *--cgroup-path*         | Customize the resource management cgroup directory. When not specified, it defaults to `/sys/fs/cgroup` |
-| *--recommend-param*     | Whether to enable recommended parameter functionality                   |
-| *--memory-limit*        | Maximum percentage limit of memory usable by the server, defaults to 80            |
-| *--table-type*          | Make database configuration parameters more suitable for the main business table type, optional [HEAP,TAC,LSC], defaults to HEAP in Standalone Deployment and LSC in ISC Distributed Cluster Deployment          |
-| *-fg, --failgroup*      | Number of failure groups in YAC/Distributed Cluster disk group (defaults to 1)          |
-| *--ce-group*            | Number of YAC/Distributed Cluster groups, unique parameter in YAC Deployment, default quantity is 1          |
-| *--disk-found-path*     | YAC/Distributed Cluster disk discovery path (defaults to /dev/yfs)                      |
+| *--recommend-param*     | Whether to enable recommended parameter functionality             |
+| *--memory-limit*        | Maximum percentage limit of memory usable by the server, defaults to 80      |
+| *--table-type*          | Make database configuration parameters more suitable for the main business table type, optional [HEAP,TAC,LSC], defaults to HEAP in Standalone Deployment and LSC in ISC Distributed Cluster Deployment   |
+| *-fg, --failgroup*      | Number of failure groups in YAC/Distributed Cluster disk group (defaults to 1)    |
+| *--ce-group*            | Number of YAC/Distributed Cluster groups, unique parameter in YAC Deployment, default quantity is 1    |
+| *--disk-found-path*     | YAC/Distributed Cluster disk discovery path (defaults to /dev/yfs)                |
 
 Parameter explanations:
 

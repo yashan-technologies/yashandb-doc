@@ -7,6 +7,8 @@ When deleting data from the LSC table, the constraints are as follows:
 
 -  The deletion of cold data from the LSC table uses an optimistic locking mechanism, wherein row lock information is retained in a buffer during the transaction, and locks are applied to the rows based on the buffer information upon transaction commit. In concurrent scenarios, transaction commits may fail to acquire locks, resulting in transaction failure.
 
+- In YAC/Distributed Cluster Deployment, deleting data from the LSC table can only be performed on the master instance (the instance with INSTANCE_ROLE = MASTER in the GV$INSTANCE view).
+
 When deleting records from the base table based on a view, the constraints are as follows:
 
 - Not applicable for ISC Distributed Cluster Deployment.
@@ -14,7 +16,7 @@ When deleting records from the base table based on a view, the constraints are a
 	- All base tables of the view must be HEAP tables, and the view should not contain grouping, aggregation, de-duplication, ROWNUM, or CONNECT BY operations.
 	- Data ROWIDs from the same base table in the view must be unique.
 	- In multi-base table views, a base table must have column values that meet equality join conditions with the primary key or unique constraint columns of all other base tables to DELETE data from that table based on the view.
-	- The base table of the view cannot be a remote table based on dblink.
+	- The base table of the view cannot be a remote table based on DBLink.
 
 By default, before the DELETE transaction is committed, other sessions can still query the deleted data. Automatic commit can be enabled (SET AUTOCOMMIT ON) to promptly prevent other sessions from accessing the deleted obsolete data.
 
@@ -53,7 +55,7 @@ This statement is used to propose a given strategy to the optimizer, enabling it
 
 ### table\_reference
 
-This statement is used to specify the object from which records will be deleted, which may include table names (including local database tables or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLINK)), partition names of tables, or view names.
+This statement is used to specify the object from which records will be deleted, which may include table names (including local database tables or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLink)), partition names of tables, or view names.
 
 When the deletion object is a subquery, the following constraints exist:
 
@@ -63,7 +65,7 @@ When the deletion object is a subquery, the following constraints exist:
 
 #### dblink
 
-This statement indicates that the table to be deleted is a remote table; for detailed explanation, see [dblink](../General SQL Syntax/dblink/Syntax Definition of DBLINK).
+This statement indicates that the table to be deleted is a remote table; for detailed explanation, please refer to [dblink](../General SQL Syntax/dblink/Syntax Definition of DBLink).
 
 #### partition\_extension\_clause
 

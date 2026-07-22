@@ -4,6 +4,8 @@ INSERT is used to insert data into the base table of a table or view in the data
 
 In Standalone Deployment, it supports inserting data into a single table at a time, as well as inserting data into multiple tables simultaneously.
 
+In YAC/Distributed Cluster Deployment, inserting data into the LSC table can only be performed on the master instance (the instance with INSTANCE_ROLE = MASTER in the GV$INSTANCE view).
+
 When inserting data into the base table through a view, the following constraints apply:
 
 - Not applicable for ISC Distributed Cluster Deployment.
@@ -115,7 +117,7 @@ Executed INSERT operation on a single table.
 
 #### single\_insert\_into\_clause
 
-This statement is used to specify the table (including tables in the local database or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLINK)) to insert data, as well as the column fields, and may define an alias for the table.
+This statement is used to specify the table (including tables in the local database or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLink)) to insert data, as well as the column fields, and may define an alias for the table.
 
 ##### column_name
 
@@ -142,7 +144,7 @@ YAS-04006 cannot insert NULL value to column BRANCH_NAME
 
 ##### table\_reference
 
-This statement is used to specify the object into which data is to be inserted, which can be a table name (including both local database tables or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLINK)), a table partition name, or a view name.
+This statement is used to specify the object into which data is to be inserted, which can be a table name (including both local database tables or [remote tables](../General SQL Syntax/dblink/Syntax Definition of DBLink)), a table partition name, or a view name.
 
 For partitioned tables, if the partition object is not explicitly specified, the system determines which partition table to insert based on the partition item field value. When explicitly specifying:
 
@@ -209,7 +211,7 @@ insert into view_dml(branch_no, branch_name) values('07','NorthwestChina');
 
 ###### dblink
 
-This statement indicates that the data to be inserted is a remote table; for detailed descriptions, see [dblink](../General SQL Syntax/dblink/Syntax Definition of DBLINK).
+This statement indicates that the data to be inserted is a remote table; for detailed explanation, please refer to [dblink](../General SQL Syntax/dblink/Syntax Definition of DBLink).
 
 <span id="partitionextensionclause" name="partitionextensionclause"></span>
 
@@ -312,7 +314,9 @@ YashanDB supports assigning values to the columns using the following statements
 
 *   DEFAULT
 
-	If a DEFAULT value has been defined for the corresponding column, the inserted data will be that DEFAULT value; otherwise, it will be NULL. Based on this rule, if the corresponding column has a non-null constraint, the data insertion will fail.
+	- If a DEFAULT value has been defined for the corresponding column, the inserted data will be that DEFAULT value; otherwise, it will be NULL. Based on this rule, if the corresponding column has a non-null constraint, the data insertion will fail.
+
+	- When inserting data into a table that contains virtual columns, while the column names are not specified in the INSERT statement, the VALUES clause must include all columns with the value **DEFAULT** set to the virtual column; while the column names are specified, either do not include the virtual column in the column list, or if the virtual column is included, its corresponding value must be **DEFAULT**.
 
 *   For UDT column fields, values are assigned through object initialization methods; see [User UDT](../Data Types/User-Defined Types) for descriptions.
 

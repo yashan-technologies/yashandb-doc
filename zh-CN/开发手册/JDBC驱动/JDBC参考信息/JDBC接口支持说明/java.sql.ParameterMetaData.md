@@ -13,10 +13,6 @@ YashanDB JDBC驱动对ParameterMetaData接口有如下方法：
 | 方法|  返回类型|
 |---------------------------------|--------|
 | getParameterCount()             | int    |
-| getPrecision(int param)         | int    |
-| getScale(int param)             | int    |
-| getParameterType(int param)     | int    |
-| getParameterTypeName(int param) | String |
 
 ## 示例
 

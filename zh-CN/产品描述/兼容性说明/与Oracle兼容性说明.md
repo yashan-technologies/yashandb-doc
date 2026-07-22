@@ -97,7 +97,7 @@ YashanDB兼容Oracle数据库大部分的对象及对象管理操作，包括：
 - 序列
   - 包括升序序列和降序序列，可指定CYCLE|NOCYCLE、CACHE|NOCACHE、ORDER|NOORDER
   - 序列支持NEXTVAL和CURRVAL
-- DBLINK
+- DBLink
   - 支持Oracle到YashanDB、YashanDB到Oracle和YashanDB到YashanDB的远程连接
   - 支持PUBLIC和PRIVATE模式的LINK
   - 支持表和视图的连接

@@ -51,7 +51,13 @@ SQL> <yasql_subcommand>
 
 **yasql_subcommand**
 
-通过yasql连接登录数据库后可以执行的子命令（不区分大小写），具体命令清单如下表所示。
+通过yasql连接登录数据库后可以执行的子命令，输入的规格要求如下：
+
+- 子命令、SQL语句以及PL语句均不区分大小写，但shell命令需遵循其实际写法。
+
+- 单行最多可输入4000字节。若语句长度超出此规格请合理换行，否则将出现YASQL-00021错误。
+
+具体子命令清单如下表所示。
 
 |  子命令| 功能|
 | ------------ | ------------------------------------------ |
@@ -255,12 +261,15 @@ $ yasql sales/******** -c "select 1 from dual";
 
 ### 执行SQL文件
 
+SQL文件中的单行内容长度最多支持128000字节。若语句长度超出此规格请合理换行，否则将出现YASQL-00019错误。
+
 <span id="fsql" name="fsql"></span>
 **方式一**：通过-f\[-e\]参数
 
 通过参数-f \[-e\] filename[.ext]可以直接在操作系统层面连接登录到数据库执行一个SQL文件，后缀名可省略。
 
 - -f用于指定需执行的SQL文件。
+
 - -e用于显示文件中被执行的具体语句。
 
 当SQL文件位于yasql工具同目录时无需指定文件路径，否则需指定文件所在路径（绝对路径或相对路径均可）。
@@ -293,6 +302,7 @@ SQL> select 2 from dual;
 通过@filename[.ext]或@@filename[.ext]命令可以执行本地SQL文件，后缀名可省略。具体使用方式如下：
 
 - 登录数据库后，在yasql命令行界面直接执行`@filename[.ext]`或`@@filename[.ext]`。
+
 - 直接在操作系统层面执行`yasql username/password@host:port @filename[.ext]`或`yasql username/password@host:port @@filename[.ext]`连接登录到数据库执行本地SQL文件，执行完后会保留登录状态和yasql命令行界面。
 
 在以交互方式输入`@file_name.ext`或`@@file_name.ext`时，@或@@会在当前工作目录下查找所需要被调用的文件。当SQL文件位于yasql工具当前工作目录时无需指定文件路径，否则需指定文件所在路径（绝对路径或相对路径均可）。

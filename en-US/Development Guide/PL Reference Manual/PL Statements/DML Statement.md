@@ -71,7 +71,6 @@ The target object of BULK COLLECT INTO must be a collection type.
 ***Example***
 
 ```plsql
-
 DECLARE
   TYPE area_tb IS table of area%rowtype;
   type_001 area_tb;
@@ -135,7 +134,6 @@ LSC tables cannot use the update...return...into statement; multi-table updates 
 ***Example*** for Heap tables
 
 ```plsql
-
 CREATE OR REPLACE PROCEDURE ya_proc IS
   no INT;
   v_area_name VARCHAR(20);
@@ -161,7 +159,6 @@ The target object of BULK COLLECT INTO must be a collection type.
 ***Example*** for Heap tables
 
 ```plsql
-
 DECLARE
   TYPE area_tb IS table of area%rowtype;
   type_001 area_tb;

@@ -4,6 +4,8 @@ INSERT用于对数据库中的表或视图的基表插入数据。
 
 在单机部署中，支持单次对某一张表插入数据，也支持同时对多张表插入数据。
 
+在共享集群/分布式集群部署中，只能在主实例（GV$INSTANCE视图中INSTANCE_ROLE=MASTER的实例）上对LSC表插入数据。
+
 基于视图对其基表插入数据时，约束如下：
 
 - 不适用于存算一体分布式集群部署。
@@ -115,7 +117,7 @@ INSERT用于对数据库中的表或视图的基表插入数据。
 
 #### single\_insert\_into\_clause
 
-该语句用于指定要插入数据的表（包括本地数据库的表或[远端表](../通用SQL语法/dblink/dblink语法说明.md)）及列字段，可为表定义一个别名。
+该语句用于指定要插入数据的表（包括本地数据库的表或[远端表](../通用SQL语法/dblink/DBLink语法说明.md)）及列字段，可为表定义一个别名。
 
 ##### column_name
 
@@ -142,7 +144,7 @@ YAS-04006 cannot insert NULL value to column BRANCH_NAME
 
 ##### table\_reference
 
-该语句用于指定要插入数据的对象，可以为表名称（包括本地数据库的表或[远端表](../通用SQL语法/dblink/dblink语法说明.md)）、表分区名称或视图名称。
+该语句用于指定要插入数据的对象，可以为表名称（包括本地数据库的表或[远端表](../通用SQL语法/dblink/DBLink语法说明.md)）、表分区名称或视图名称。
 
 对于分区表，如未显式指定分区对象，由系统根据分区项字段的值判断要插入的表分区。而在显式指定时：
 
@@ -209,7 +211,7 @@ insert into view_dml(branch_no, branch_name) values('07','NorthwestChina');
 
 ###### dblink
 
-该语句表示要插入数据的是远端表，详细说明参见[dblink](../通用SQL语法/dblink/dblink语法说明.md)。
+该语句表示要插入数据的是远端表，详细说明参见[dblink](../通用SQL语法/dblink/DBLink语法说明.md)。
 
 <span id="partitionextensionclause" name="partitionextensionclause"></span>
 
@@ -312,11 +314,13 @@ YashanDB支持按如下语句对列字段赋值：
 
 *   DEFAULT
 
-	如对应的列上已定义了DEFAULT值，则插入的数据为该DEFAULT值，否则为NULL，基于这个规则，如对应的列存在非空约束，则插入数据失败。
+	- 如对应的列上已定义了DEFAULT值，则插入的数据为该DEFAULT值，否则为NULL，基于这个规则，如对应的列存在非空约束，则插入数据失败。
+
+	- 对包含了虚拟列的表插入数据时，如果INSERT语句不指定列名，VALUES必须是全量的列，虚拟列对应的值必须指定为DEFAULT；如果指定列名，要么不指定虚拟列，如果指定虚拟列则对应的值必须是DEFAULT。
 
 *   对于UDT列字段，通过对象初始化方法赋值，详见[用户自定义类型](../数据类型/用户自定义类型)中描述。
 
-VALUES关键字后可以跟多组值，代表一条SQL语句可以插入多组值，这组值的上限为32768个，超过时将返回YAS-04816错误。
+VALUES关键字后可以跟多组值，表示一条SQL语句可以插入多组值，这组值的上限为32768个，超过时将返回YAS-04816错误。
 
 示例
 
@@ -503,7 +507,7 @@ YashanDB支持按如下语句对列字段赋值：
 
 - 对于UDT列字段，通过对象初始化方法赋值，详见[用户自定义类型](../数据类型/用户自定义类型)中描述。
 
-VALUES关键字后可以跟多组值，代表一条SQL语句可以插入多组值，这组值的上限为32768个，超过时将返回YAS-04816错误。
+VALUES关键字后可以跟多组值，表示一条SQL语句可以插入多组值，这组值的上限为32768个，超过时将返回YAS-04816错误。
 
 <span id="conditionalinsertclause" name="conditionalinsertclause"></span>
 

@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCILobRead2函数用于将LOB读入缓冲区。
+OCILobRead2函数是OCILobRead函数的扩展版本，用于将LOB读入缓冲区。与OCILobRead的主要区别在于使用oraub8类型替代ub4类型，支持超过4GB的LOB读取操作。
 
 ## 函数声明
 

@@ -18,7 +18,7 @@ COSINE_DISTANCE函数是VECTOR_DISTANCE函数**metric**配置为`COSINE`时的�
 - 当某个expr输入为NULL时，函数返回NULL。
 
 
-示例（单机HEAP表）
+示例（HEAP表）
 
 ```sql
 CREATE TABLE table_cosine_test (c_VECTOR VECTOR(4),c_VECTOR_32 VECTOR(4,float32),c_VECTOR_64 VECTOR(4,float64),c_char char(50),c_varchar varchar(50),c_varchar_32000 varchar(32000),c_varchar_65534 varchar(65534),c_clob clob);

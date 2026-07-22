@@ -2,7 +2,7 @@ This view displays the statistics of all standby databases.
 
 |Field |Type |Description |
 | --- | --- | --- |
-|  DEST_ID              | TINYINT   | Standby database ID, corresponding to the ARCHIVE_DEST_x parameter                                  |
+  DEST_ID              | TINYINT   | Standby database ID, corresponding to the ARCHIVE_DEST_x parameter                                  |
 | DEST_NAME            | VARCHAR(16)| Parameter name                                                                                       |
 | CONNECTION           | VARCHAR(16)| Whether this standby database is connected, connection status <br>\*   CONNECTED: Connected<br>\*   DISCONNECTED: Not connected |
 | PEER_ADDR            | VARCHAR(256)| HA link listener address of the peer database                                                       |

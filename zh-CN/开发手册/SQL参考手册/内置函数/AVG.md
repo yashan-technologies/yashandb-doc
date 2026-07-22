@@ -1,5 +1,5 @@
 ```ebnf
-avg = AVG "(" [DISTINCT|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
+avg = AVG "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 
@@ -26,9 +26,11 @@ AVG函数计算给定参数的平均值，返回值的类型有以下几种情�
 
 该聚集函数不可与group_id、grouping、grouping_id以及UDF聚集函数嵌套，expr可以为其他聚集函数或者其他通用表达式，聚集函数嵌套层数不能超过一层。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 表示在计算平均值时，过滤掉重复的行。
+
+DISTINCT与UNIQUE完全等价。
 
 **ALL**
 

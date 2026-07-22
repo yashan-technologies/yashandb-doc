@@ -44,7 +44,7 @@ Statement Definition
 
 ```ebnf
 = [with_clause]
-SELECT [hint] [DISTINCT] select_list
+SELECT [hint] [DISTINCT|UNIQUE] select_list
 FROM (table_reference|join_clause|"(" join_clause ")")
 {" " (table_reference|join_clause|"(" join_clause ")")}
 [where_clause]
@@ -106,7 +106,7 @@ FROM (table_reference|join_clause|"(" join_clause ")")
 **[table\_reference](#tablereference)::=**
 
 ```ebnf
-= ((query_name|query_containers|subquery)[sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause]) {"," ((query_name|query_containers|subquery) [sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause])}.
+= ((query_name|query_containers|subquery|graph_table_spec)[sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause]) {"," ((query_name|query_containers|subquery|graph_table_spec) [sample_clause][flashback_query_clause][t_alias][pivot_clause|unpivot_clause])}.
 ```
 
 **[query_name](#queryname) ::=**
@@ -131,16 +131,252 @@ FROM (table_reference|join_clause|"(" join_clause ")")
 = TABLE "(" collection_expression ")".
 ```
 
-**[sample_clause](#sampleclause)::=**
-
-```ebnf
-= SAMPLE "(" sample_percent ")" [SEED "(" seed_value ")"].
-```
-
 **[query_containers](#querycontainers)::=**
 
 ```ebnf
 = CONTAINERS '(' ([schema'.'] query_name) ')'.
+```
+
+**[graph_table_spec](#graphtablespec)::=**
+
+```ebnf
+= GRAPH_TABLE "(" graph_reference graph_pattern graph_table_columns_clause ")".
+```
+
+<span id="graphtablespec" name="graphtablespec"></span>
+
+**[graph_reference](#graphreference)::=**
+
+```ebnf
+= [schema "."] graph_name.
+```
+
+<span id="graphreference" name="graphreference"></span>
+
+**[graph_pattern](#graphpattern)::=**
+
+```ebnf
+= MATCH path_pattern_list [graph_pattern_where_clause].
+```
+
+<span id="graphpattern" name="graphpattern"></span>
+
+**[path_pattern_list](#pathpatternlist)::=**
+
+```ebnf
+= path_pattern {"," path_pattern}.
+```
+
+<span id="pathpatternlist" name="pathpatternlist"></span>
+
+**[path_pattern](#pathpattern)::=**
+
+```ebnf
+= [path_variable "="] path_expression.
+```
+
+<span id="pathpattern" name="pathpattern"></span>
+
+**[path_expression](#pathexpression)::=**
+
+```ebnf
+= path_term [path_factor].
+```
+
+<span id="pathexpression" name="pathexpression"></span>
+
+**[path_term](#pathexpression)::=**
+
+```ebnf
+= path_factor [path_concatenation].
+```
+
+<span id="pathexpression" name="pathexpression"></span>
+
+**[path_factor](#pathfactor)::=**
+
+```ebnf
+= element_pattern | quantifier_path_primary.
+```
+
+<span id="pathfactor" name="pathfactor"></span>
+
+**[path_concatenation](#pathconcatenation)::=**
+
+```ebnf
+= path_term path_factor.
+```
+
+<span id="pathconcatenation" name="pathconcatenation"></span>
+
+**[element_pattern](#elementpattern)::=**
+
+```ebnf
+= vertex_pattern | edge_pattern.
+```
+
+<span id="elementpattern" name="elementpattern"></span>
+
+**[vertex_pattern](#vertexpattern)::=**
+
+```ebnf
+= "(" [element_variable] [is_label_expression] [element_where_clause] ")".
+```
+
+<span id="vertexpattern" name="vertexpattern"></span>
+
+**[edge_pattern](#edgepattern)::=**
+
+```ebnf
+= full_edge_pattern | abbreviated_edge_pattern.
+```
+
+<span id="edgepattern" name="edgepattern"></span>
+
+**[full_edge_pattern](#fulledgepattern)::=**
+
+```ebnf
+= ( "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-" ">"
+  | "<" "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-"
+  | "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-"
+  | "<" "-" "[" [element_variable] [is_label_expression] [element_where_clause] "]" "-" ">" ).
+```
+
+<span id="fulledgepattern" name="fulledgepattern"></span>
+
+**[abbreviated_edge_pattern](#abbreviatededgepattern)::=**
+
+```ebnf
+= ( "->" | "<-" | "-" | "<->" ).
+```
+
+<span id="abbreviatededgepattern" name="abbreviatededgepattern"></span>
+
+**[element_pattern_filler](#elementpatternfiller)::=**
+
+```ebnf
+= [element_variable] [is_label_expression] [element_where_clause].
+```
+
+<span id="elementpatternfiller" name="elementpatternfiller"></span>
+
+**[element_variable](#elementvariable)::=**
+
+```ebnf
+= identifier.
+```
+
+<span id="elementvariable" name="elementvariable"></span>
+
+**[is_label_expression](#islabelexpression)::=**
+
+```ebnf
+= IS label_expression.
+```
+
+<span id="islabelexpression" name="islabelexpression"></span>
+
+**[quantifier_path_primary](#quantifierpathprimary)::=**
+
+```ebnf
+= element_pattern graph_pattern_quantifier.
+```
+
+<span id="quantifierpathprimary" name="quantifierpathprimary"></span>
+
+**[graph_pattern_quantifier](#graphpatternquantifier)::=**
+
+```ebnf
+= fixed_quantifier | general_quantifier.
+```
+
+<span id="graphpatternquantifier" name="graphpatternquantifier"></span>
+
+**[fixed_quantifier](#fixedquantifier)::=**
+
+```ebnf
+= "(" integer ")".
+```
+
+<span id="fixedquantifier" name="fixedquantifier"></span>
+
+**[general_quantifier](#generalquantifier)::=**
+
+```ebnf
+= "(" [integer] "," integer ")".
+```
+
+<span id="generalquantifier" name="generalquantifier"></span>
+
+**[label_expression](#labelexpression)::=**
+
+```ebnf
+= label_name {"|" label_name}.
+```
+
+<span id="labelexpression" name="labelexpression"></span>
+
+**[label_name](#labelname)::=**
+
+```ebnf
+= identifier.
+```
+
+<span id="labelname" name="labelname"></span>
+
+**[element_where_clause](#elementwhereclause)::=**
+
+```ebnf
+= WHERE condition.
+```
+
+<span id="elementwhereclause" name="elementwhereclause"></span>
+
+**[graph_pattern_where_clause](#graphpatternwhereclause)::=**
+
+```ebnf
+= WHERE condition.
+```
+
+<span id="graphpatternwhereclause" name="graphpatternwhereclause"></span>
+
+**[graph_table_columns_clause](#graphtablecolumnsclause)::=**
+
+```ebnf
+= COLUMNS "(" graph_table_column_definition {"," graph_table_column_definition} ")".
+```
+
+<span id="graphtablecolumnsclause" name="graphtablecolumnsclause"></span>
+
+**[graph_table_column_definition](#graphtablecolumndefinition)::=**
+
+```ebnf
+= value_expression [AS column_name]
+  | all_properties_reference.
+```
+
+<span id="graphtablecolumndefinition" name="graphtablecolumndefinition"></span>
+
+**[all_properties_reference](#allpropertiesreference)::=**
+
+```ebnf
+= element_reference "." "*".
+```
+
+<span id="allpropertiesreference" name="allpropertiesreference"></span>
+
+**[element_reference](#elementreference)::=**
+
+```ebnf
+= element_variable.
+```
+
+<span id="elementreference" name="elementreference"></span>
+
+**[sample_clause](#sampleclause)::=**
+
+```ebnf
+= SAMPLE "(" sample_percent ")" [SEED "(" seed_value ")"].
 ```
 
 **[flashback_query_clause](#flashbackqueryclause)::=**
@@ -376,9 +612,11 @@ BRANCH DEPARTMENT EMPLOYEE_NO   ENTRY_DATE                                      
 
 This statement is used to suggest a given plan to the optimizer, so that it generates the execution plan for the statement according to this plan. For details, please refer to [hint](../General SQL Syntax/hint).
 
-##### distinct
+##### DISTINCT|UNIQUE
 
-This statement is used to filter the query results, returning only one record for any duplicated records found in the results.
+This statement is used to set filtering on the query results, returning only one record for any duplicated records found in the results.
+
+DISTINCT and UNIQUE are completely equivalent.
 
 <span id="selectlist" name="selectlist"></span>
 
@@ -526,7 +764,7 @@ YashanDB supports defining aliases for query objects, which can be of the follow
 
 * [subquery](#query_subquery): The result of a subquery.
 
-* [dblink](../General SQL Syntax/dblink/Syntax Definition of DBLINK): Remote tables.
+* [dblink](../General SQL Syntax/dblink/Syntax Definition of DBLink): Remote tables.
 
 Query objects cannot simultaneously contain heap tables and LSC tables, otherwise an error will be returned.
 
@@ -737,6 +975,219 @@ Chengdu                                                                   500
 Nanjing                                                                   600
 ```
 
+<span id="querycontainers" name="querycontainers"></span>
+
+###### query_containers
+
+This statement is used to aggregate queries on tables, views, and other query objects in PDBs within a CDB.  
+
+When this operator is used in the CDB root, it aggregates relevant data from identically named query objects across all containers (the CDB root and all PDBs), enabling global queries, with the pseudo-column CON_ID generated in the query results to distinguish data sources. When this operator is used in PDB, it always queries local data, producing the same effect as not using the operator.
+
+ 
+
+To query global aggregated data, the following requirements must be met:
+
+- Appropriate permissions for all target query objects are required.
+
+- The query objects in PDB must have the same table structure definition as the corresponding objects in the CDB root.
+
+- If LOB type columns exist in the column items (select_list) of an aggregate query, the entire query result set will be NULL.
+
+
+
+***Example*** for Standalone/YAC/Distributed Cluster Deployment
+
+```sql
+-- Get PDB information
+show pdbs
+
+               CON_ID CON_NAME                                                         STATUS
+--------------------- ---------------------------------------------------------------- -----------------
+                    1 PDB$SEED                                                         CLOSED
+                    2 PDB1                                                             OPEN
+
+-- Globally query the v$parameter view on the CDB root to get the parameter configuration of all PDBs 
+select con_id,name,value from containers(v$parameter) where name ='DB_BLOCK_SIZE';
+
+      CON_ID NAME                                                             VALUE
+------------ ---------------------------------------------------------------- ----------------------------------------------------------------
+           0 DB_BLOCK_SIZE                                                    8192
+           2 DB_BLOCK_SIZE                                                    8192
+```
+
+<span id="graphtablespec" name="graphtablespec"></span>
+
+###### graph_table_spec
+
+`GRAPH_TABLE` is a table expression used for pattern matching queries on property graphs. A property graph consists of vertices (Vertex) and edges (Edge). The query takes a property graph as input, matches it against the graph pattern specified in the MATCH clause, and outputs the results in a regular relational table form.
+
+In ISC Distributed Cluster Deployment, users cannot execute this statement.
+
+**graph_reference**
+
+Specifies the name of the property graph to query. The property graph must already exist, created by the [CREATE PROPERTY GRAPH](./CREATE PROPERTY GRAPH.md) statement. Format: `[schema.]graph_name`.
+
+**graph_pattern**
+
+Specifies the graph pattern matching rules, guided by the MATCH keyword, consisting of one or more path patterns (path_pattern) with optional graph pattern-level WHERE condition.
+
+**path_pattern_list**
+
+A list of path patterns, consisting of one or more path patterns separated by commas. Multiple path patterns within the same `GRAPH_TABLE` may share vertex and edge variables, enabling complex non-linear graph pattern matching.
+
+**path_pattern**
+
+Specifies a path pattern, format: `[path_var =] path_expression`, optionally supporting path variable declaration (`path_var =`) for naming the matched path.
+
+**path_expression**
+
+A linear path expression formed by sequentially connecting vertex and edge patterns.
+
+**element_pattern**
+
+Element pattern, used for matching vertices and edges in a graph. Element patterns include vertex patterns and edge patterns, both of which can be followed by a quantifier modifier for variable-length path matching.
+
+- **Vertex Pattern (vertex_pattern)**: Enclosed with parentheses `()`, format: `( [element_variable] [IS label_expression] [element_where_clause] )`
+
+    - `element_variable`: Vertex alias, used to reference this vertex in subsequent WHERE and COLUMNS clauses
+    - `IS label_expression`: Optional label expression, restricts matching to vertices with the specified label. When omitted, matches all vertices. label_expression supports label disjunction, e.g. `IS person|university`
+    - `element_where_clause`: Optional element-level WHERE condition, e.g. `WHERE v.name = 'John'`, filters only this vertex
+
+- **Edge Pattern (edge_pattern)**: Includes full edge pattern (full_edge_pattern) and abbreviated edge pattern (abbreviated_edge_pattern)
+
+    - Full edge pattern supports the following directions, where the brackets `[]` may optionally contain: element_variable, IS label expression, and element_where_clause:
+
+        | Direction | Syntax |
+        |------|------|
+        | Outgoing (rightward) | `-[e IS label]->` |
+        | Incoming (leftward) | `<-[e IS label]-` |
+        | Any-direction (bidirectional) | `-[e IS label]-` or `<-[e IS label]->` |
+
+    - Abbreviated edge pattern allows matching any edge based on direction only, without specifying alias, label, or WHERE condition:
+
+        | Direction | Abbreviation |
+        |------|------|
+        | Outgoing | `->` |
+        | Incoming | `<-` |
+        | Bidirectional | `-` |
+        | Bidirectional (equivalent) | `<->` |
+
+- **Element Quantifier (quantifier)**: Specifies the repetition count (quantification) of a vertex, an edge, or a parenthesized path expression. Variables quantified outside their scope have group degree of reference and must be used inside aggregate functions. Supported quantifier forms:
+
+    - `fixed_quantifier`: Fixed repetition, format `(n)`, meaning exactly n repetitions
+    - `general_quantifier`: Range repetition, format `(n,m)`, meaning between n and m repetitions (inclusive); format `(,m)` means between 0 and m repetitions
+
+**element_where_clause**
+
+A WHERE condition placed inside a vertex or edge pattern, filtering only that individual element. For example: `(p IS person WHERE p.name = 'John')` or `-[e IS friend WHERE e.meeting_date > DATE '2000-01-01']->`.
+
+**graph_pattern_where_clause**
+
+An overall WHERE condition placed at the end of the MATCH clause, filtering the matching results of the entire graph pattern. It may reference any variable in the graph pattern. When referencing a variable with group degree of reference, it must be placed inside an aggregate function.
+
+**COLUMNS**
+
+Specifies the columns returned by the graph query, projecting graph pattern matching results into a regular relational table. It may contain:
+- Vertex/edge property references, e.g. `v.name`, `e.since_date`
+- Arbitrary expression calculations, e.g. `v.height * 3.281 AS height_in_feet`
+- `v.*` (all_properties_reference): Expand all valid properties of that variable
+- Aggregate functions, currently only `COUNT(*)` is supported
+
+***Example*** for Standalone Deployment and YAC/Distributed Cluster Deployment
+
+```sql
+-- Basic vertex query: query all vertices with person label
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person)
+    COLUMNS (p.person_id, p.name, p.dob)
+) AS persons
+WHERE persons.name = 'Alice';
+
+-- Edge traversal query: find outgoing edges
+SELECT result.friend_name, result.meeting_date
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person) -[e IS friend]-> (friend)
+    COLUMNS (p.name AS person_name, friend.name AS friend_name, e.meeting_date)
+) AS result
+WHERE result.person_name = 'Bob';
+
+-- Any-direction edge query: use undirected edge matching
+SELECT person1.name AS person_a, person2.name AS person_b
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (person1) -[e IS friend]- (person2)
+    COLUMNS (person1.name, person2.name)
+) AS connections;
+
+-- Incoming edge query: use leftward edge
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (a) <-[e IS student_of]- (b)
+    COLUMNS (a.name AS university, b.name AS student, e.subject)
+) AS result;
+
+-- Quantified pattern query: match variable-length paths
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (n IS person) -[f IS friend]->{0,3} (m IS person)
+    WHERE n.name = 'John'
+    COLUMNS (m.name AS reachable_name)
+) AS paths;
+
+-- Query with element WHERE condition
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person WHERE p.name = 'John')
+            -[e IS friend WHERE e.meeting_date > DATE '2000-09-15']-
+            (friend)
+    COLUMNS (friend.name)
+) AS result;
+
+-- Combine element WHERE and graph pattern WHERE
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (a IS person) -[e IS friend]- (b IS person)
+    WHERE a.name = 'John' AND e.meeting_date > DATE '2000-09-15'
+    COLUMNS (b.name)
+) AS result;
+
+-- Multi-label matching: use pipe to separate multiple labels
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (v IS person|university)
+    COLUMNS (v.name)
+) AS result;
+
+-- Quantified query with aggregate functions
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p IS person) -[e IS friend]-{2,5} (friend)
+    WHERE p.name = 'Alice'
+    COLUMNS (LISTAGG(e.friendship_id, ', ') AS friendship_ids,
+             COUNT(e.friendship_id) AS path_length)
+);
+
+-- Multiple path patterns sharing variables
+SELECT *
+FROM GRAPH_TABLE (
+    students_graph
+    MATCH (p1 IS person) -[e1 IS friend]- (p2 IS person),
+          (p1) -[e2 IS student_of]-> (u1),
+          (p2) -[e3 IS student_of]-> (u2)
+    WHERE p1.name = 'Mary'
+    COLUMNS (p1.name, p2.name AS friend, u1.name AS univ_1, u2.name AS univ_2)
+) AS result;
+```
+
 <span id="sampleclause" name="sampleclause"></span>
 
 ###### sample_clause
@@ -793,45 +1244,6 @@ AREA_NO AREA_NAME               DHQ
 05      CentralChina                  Wuhan
 ```
 
-<span id="querycontainers" name="querycontainers"></span>
-
-###### query_containers
-
-This statement is used to aggregate queries on tables, views, and other query objects in PDBs within a CDB.  
-
-When this operator is used in the CDB root, it aggregates relevant data from identically named query objects across all containers (the CDB root and all PDBs), enabling global queries, with the pseudo-column CON_ID generated in the query results to distinguish data sources. When this operator is used in PDB, it always queries local data, producing the same effect as not using the operator.
-
- 
-
-To query global aggregated data, the following requirements must be met:
-
-- Appropriate permissions for all target query objects are required.
-
-- The query objects in PDB must have the same table structure definition as the corresponding objects in the CDB root.
-
-- If LOB type columns exist in the column items (select_list) of an aggregate query, the entire query result set will be NULL.
-
-
-
-***Example*** for Standalone/YAC/Distributed Cluster Deployment
-
-```sql
--- Get PDB information
-show pdbs
-
-               CON_ID CON_NAME                                                         STATUS
---------------------- ---------------------------------------------------------------- -----------------
-                    1 PDB$SEED                                                         CLOSED
-                    2 PDB1                                                             OPEN
-
--- Globally query the v$parameter view on the CDB root to get the parameter configuration of all PDBs 
-select con_id,name,value from containers(v$parameter) where name ='DB_BLOCK_SIZE';
-
-      CON_ID NAME                                                             VALUE
------------- ---------------------------------------------------------------- ----------------------------------------------------------------
-           0 DB_BLOCK_SIZE                                                    8192
-           2 DB_BLOCK_SIZE                                                    8192
-```
 
 <span id="flashbackqueryclause" name="flashbackqueryclause"></span>
 
@@ -1386,9 +1798,9 @@ Columns are defined for grouping after GROUP BY, with multiple columns separated
 
 * Columns or column data appearing in `select_list` must be a subset of the grouping columns or column data. 
 
-    Column is a subset: "SELECT col ,COUNT(*) FROM table GROUP BY col, col2;"
+    - Column is a subset: "SELECT col ,COUNT(*) FROM table GROUP BY col, col2;"
 
-    Column data is a subset: "SELECT LPAD(col), COUNT(*) FROM table GROUP BY col;"
+    - Column data is a subset: "SELECT LPAD(col), COUNT(*) FROM table GROUP BY col;"
 
 * When functions are involved in grouping columns, the function parameters must match. 
 
@@ -1398,13 +1810,26 @@ Columns are defined for grouping after GROUP BY, with multiple columns separated
 * Grouping columns cannot contain or nest `*` (asterisk), SEQUENCE, subqueries, and aggregate functions or similar expressions.
 * When a numerical grouping column appears, unlike ORDER BY, this statement will not interpret numbers as column positions but rather treat them as literals.
 
+* Whether grouping columns are allowed to use column aliases defined in the select\_list:
+
+  - In yashan mode, grouping columns are not allowed to use aliases.
+
+  - In mysql mode, grouping columns are allowed to use aliases.
+
 ###### HAVING
 
 The HAVING clause constrains the results of a SELECT query with GROUP BY, applying to every grouping in the query results, similar to how the WHERE condition applies to `select_list`. The usage rules are as follows:
 
 * The HAVING clause can be placed before or after the GROUP BY clause.
+
 * The condition after HAVING is a Boolean expression, with syntax identical to that of the WHERE clause's filter_clause. However, it may only include grouping columns, aggregate functions (which may differ from those in the select_list), literals, and subqueries (columns in the subquery need not be grouping columns). In ISC Distributed Cluster Deployment, subqueries cannot be used.
 * If there is no GROUP BY, using HAVING directly means this constraint applies to the entire query result. In this case, grouping columns cannot appear in the `select_list` and condition.
+* Whether column names in the HAVING clause are allowed to use column aliases defined in the select\_list:
+
+  - In yashan mode, aliases are not allowed.
+
+  - In mysql mode, aliases are allowed.
+
 
 ***Example*** for Standalone Deployment
 

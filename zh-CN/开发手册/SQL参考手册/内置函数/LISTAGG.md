@@ -1,5 +1,5 @@
 ```ebnf
-listagg = LISTAGG "(" [ALL|DISTINCT] expr ["," separator] [listagg_overflow_clause] ")"
+listagg = LISTAGG "(" [ALL|DISTINCT|UNIQUE] expr ["," separator] [listagg_overflow_clause] ")"
   [WITHIN GROUP order_by_clause] [OVER query_partition_clause].
 ```
 
@@ -11,10 +11,11 @@ expr不能为BIT、BOOLEAN、时区类型和UDT类型。
 
 当expr的类型为RAW时，函数返回RAW类型，否则函数返回VARCHAR类型。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 计算最终拼接结果时，过滤在同一组内出现的重复的行。
 
+DISTINCT与UNIQUE完全等价。
 
 目前，YashanDB无法对LOB类型的数据进行去重。
 

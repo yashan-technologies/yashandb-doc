@@ -1,4 +1,4 @@
-## Function Purpose
+## Functionality Overview
 
 Returns scrollable result rows.
 

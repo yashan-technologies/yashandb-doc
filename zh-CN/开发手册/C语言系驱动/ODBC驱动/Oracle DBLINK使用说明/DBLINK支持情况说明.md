@@ -1,4 +1,4 @@
-本章节将列举ODBC驱动对Oracle DBLINK的支持情况。
+本章节将列举ODBC驱动对Oracle DBLink的支持情况。
 
 ## 已支持功能
 
@@ -63,11 +63,11 @@ END;
 示例
 
 ```sql
---示例中oracle@ORCL为连接Oracle数据库中的oracle用户，YASDBODBC为配置的YashanDB DBLINK
+--示例中oracle@ORCL为连接Oracle数据库中的oracle用户，YASDBODBC为配置的YashanDB DBLink
 --前置建表操作
-YashanDB:
+-- YashanDB：
 create table copy_table (col1 int);
-Oracle:
+-- Oracle：
 create table copy_table (col1 int);
 
 --INSERT
@@ -93,7 +93,7 @@ ORA-02021: DDL operations are not allowed on a remote database
 
 ### 增删改查能力
 
-支持Oracle数据库中通过在`DELETE`、`INSERT`、`SELECT`和`UPDATE`语句中指定DBLINK的方式，远程连接至YashanDB数据库中执行语句，语句的具体描述限制请参考Oracle官方文档。
+支持Oracle数据库中通过在`DELETE`、`INSERT`、`SELECT`和`UPDATE`语句中指定DBLink的方式，远程连接至YashanDB数据库中执行语句，语句的具体描述限制请参考Oracle官方文档。
 
 示例
 

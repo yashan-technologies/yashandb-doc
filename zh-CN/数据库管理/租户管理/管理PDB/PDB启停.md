@@ -71,7 +71,7 @@ YashanDB支持按以下3种模式关闭PDB：
 | [yasboot工具](../../../工具手册/yasboot/yasboot命令介绍/yasboot pdb.md) | 可以将PDB启动至任意阶段，且可以执行批量PDB启动，但无法指定PDB的运行模式。<br/>在共享集群/分布式集群部署的容器数据库，只能将PDB从关闭状态启动至任意阶段，无法从过程态（NOMOUNT、MOUNT）启动至下一阶段或OPEN。 |
 | 连接根容器执行[ALTER PLUGGABLE DATABASE](../../../开发手册/SQL参考手册/SQL语句/ALTER PLUGGABLE DATABASE.md)语句 | 可以将指定PDB启动至任意阶段，且可以执行批量PDB启动，但无法指定PDB的运行模式。 |
 | 直连目标PDB执行[ALTER DATABASE](../../../开发手册/SQL参考手册/SQL语句/ALTER DATABASE.md)语句 | 可以将PDB从NOMOUNT阶段调整到MOUNT阶段或OPEN阶段，但ALTER DATABASE语句仅对执行PDB生效。 |
-| [ycsctl工具](../../../工具手册/ycsctl/节点管理命令.md)                                               | 仅适用于共享集群/分布式集群部署的容器数据库。<br />可以将指定PDB从关闭状态启动至任意阶段，但无法指定PDB的运行模式、无法从过程态（NOMOUNT、MOUNT）启动至下一阶段或OPEN。 |
+| [ycsctl工具](../../../工具手册/ycsctl/ycsctl使用指导/数据库资源管理命令.md)                                               | 仅适用于共享集群/分布式集群部署的容器数据库。<br />可以将指定PDB从关闭状态启动至任意阶段，但无法指定PDB的运行模式、无法从过程态（NOMOUNT、MOUNT）启动至下一阶段或OPEN。 |
 
 <span id="nomount" name="nomount"></span>
 
@@ -264,7 +264,7 @@ SQL> show pdbs
 | [yasboot工具](../../../工具手册/yasboot/yasboot命令介绍/yasboot pdb.md) | 可以单个或批量关闭PDB，但单机部署中无法以ABORT关库模式，共享集群/分布式集群部署中无法指定关库模式。 |
 | 连接根容器执行[ALTER PLUGGABLE DATABASE](../../../开发手册/SQL参考手册/SQL语句/ALTER PLUGGABLE DATABASE.md)语句 | 可以单个或批量关闭PDB，但无法以ABORT模式关闭PDB。 |
 | 直连目标PDB执行[SHUTDOWN](../../../开发手册/SQL参考手册/SQL语句/SHUTDOWN)语句 | 仅对执行PDB生效。 |
-| [ycsctl工具](../../../工具手册/ycsctl/节点管理命令.md)                                               | 仅适用于共享集群/分布式集群部署的容器数据库。<br />单次可以关闭1个PDB的实例，但无法指定PDB的关库模式。<br/>仅关闭执行服务器节点上目标PDB的实例。 |
+| [ycsctl工具](../../../工具手册/ycsctl/ycsctl使用指导/数据库资源管理命令.md)                                               | 仅适用于共享集群/分布式集群部署的容器数据库。<br />单次可以关闭1个PDB的实例，但无法指定PDB的关库模式。<br/>仅关闭执行服务器节点上目标PDB的实例。 |
 
 ::: tabs
 == 使用yasboot工具

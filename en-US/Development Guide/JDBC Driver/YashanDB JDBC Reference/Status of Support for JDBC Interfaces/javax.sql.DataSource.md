@@ -31,8 +31,6 @@ The YashanDB JDBC driver has the following methods for the DataSource interface:
 | getSslRootCer() | String |
 | setDescription(String value) | void |
 | getDescription() | String |
-| createShardingKeyBuilder() | ShardingKeyBuilder |
-| createConnectionBuilder() | ConnectionBuilder |
 
 ## Example
 

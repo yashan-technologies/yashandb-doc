@@ -98,7 +98,7 @@ redo日志文件是循环复用的，文件数量、单个文件的大小等均�
 3. 执行ALTER DATABASE ADD LOGFILE语句，添加新的redo日志文件。
 
     ```sql
-    ALTER DATABASE ADD LOGFILE ('redo4q' SIZE 200M,'redo5' SIZE 64G BLOCKSIZE 4k,'redo6' SIZE 64G PARALLEL 8);
+    ALTER DATABASE ADD LOGFILE ('redo4' SIZE 200M,'redo5' SIZE 64G BLOCKSIZE 4k,'redo6' SIZE 64G PARALLEL 8);
 
     SELECT thread#,id,name,block_size,block_count,used_blocks,sequence#,status FROM V$LOGFILE;
 

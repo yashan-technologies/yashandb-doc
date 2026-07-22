@@ -45,7 +45,7 @@ The table below shows the minimum configuration for a personal development trial
    passwd: all authentication tokens updated successfully.   
    
    # groupadd YASDBA
-   # usermod -a -G YASDBA yashan
+   # usermod -aG YASDBA yashan
    # cd /
    # mkdir data
    # cd data
@@ -127,7 +127,7 @@ The table below shows the minimum configuration for a personal development trial
    1 row fetched.
    ```
 
-   To facilitate access to the YashanDB service from remote Windows or Linux devices, you can refer to the [YashanDB Client Installation](../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) to deploy the database client tool *yasql* on the remote devices.
+   For your convenience to access YashanDB from remote Windows, Linux, or macOS devices, please refer to [YashanDB Client Installation](../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) to deploy the database client tool *yasql* on remote devices.
 
 ### Solution 2: Docker Container Deployment Trial Environment
 
@@ -148,7 +148,7 @@ The table below shows the minimum configuration for a personal development trial
    passwd: all authentication tokens updated successfully.   
    
    # groupadd YASDBA
-   # usermod -a -G YASDBA yashan
+   # usermod -aG YASDBA yashan
    # cd /
    # mkdir data
    # cd data
@@ -237,7 +237,7 @@ The table below shows the minimum configuration for a personal development trial
    1 row fetched.
    ```
 
-To facilitate access to the database service from remote Windows or Linux devices, you can refer to the [YashanDB Client Installation](../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) to deploy the database client tool *yasql* on remote devices. When connecting to the database container, use the `sys` user password and the host-mapped port specified in the above command.
+   For your convenience to access YashanDB from remote Windows, Linux, or macOS devices, please refer to [YashanDB Client Installation](../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) to deploy the database client tool *yasql* on remote devices.
 
 ## Create Database Test User
 

@@ -1,4 +1,4 @@
-## Function Purpose
+## Functionality Overview
 
 Sends part or all of the parameter data values.
 

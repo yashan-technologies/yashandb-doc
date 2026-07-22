@@ -34,13 +34,13 @@ Supports the following five vector distance calculation methods. When omitted, i
 
 When the metric is not configured, the distance calculation method to be used is determined based on the vector index situation on the input vector columns.
 
-- If neither expression (expr) has a vector index, the COSINE distance algorithm is used;
-- If only one expression has a vector index, the distance algorithm of that vector index is used;
-- If both expressions have vector indexes and the distance algorithm of the indexes are consistent, that distance algorithm is used;
-- If both expressions have vector indexes but the distance algorithm of the indexes are inconsistent, the COSINE distance algorithm is used;
-- If the input expression is a subquery, it is considered that the expression does not have an index and the distance algorithm follows the judgment rules described above..
+- If neither expression (expr) has a vector index, the COSINE distance algorithm is used.
+- If only one expression has a vector index, the distance algorithm of that vector index is used.
+- If both expressions have vector indexes and the distance algorithm of the indexes are consistent, that distance algorithm is used.
+- If both expressions have vector indexes but the distance algorithm of the indexes are inconsistent, the COSINE distance algorithm is used.
+- If the input expression is a subquery, it is considered that the expression does not have an index and the distance algorithm follows the judgment rules described above.
 
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
 -- Input expr as CHAR type

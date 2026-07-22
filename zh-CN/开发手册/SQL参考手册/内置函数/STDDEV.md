@@ -1,5 +1,5 @@
 ```ebnf
-stddev = STDDEV "(" [DISTINCT|ALL] expr ")" [keep_clause].
+stddev = STDDEV "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 ```
@@ -20,9 +20,11 @@ STDDEV函数的返回值类型有以下几种情况：
 
 在多行计算中，系统忽略数值为空的行，当所有行均为空时，计算结果为NULL。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 表示过滤掉输入的重复数据后，进行样本标准差计算。
+
+DISTINCT与UNIQUE完全等价。
 
 **ALL**
 

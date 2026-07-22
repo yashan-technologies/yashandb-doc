@@ -8,8 +8,59 @@ This command is used to create a new PDB in a CDB.
 | *--pdb*      | The PDB name (required)           |
 | *--pdb-config*   | The [PDB configuration file](../Configuration Files/PDB Configuration File). When using yasboot to deploy YashanDB as a CDB, this file will be generated in the $YASDB_HOME directory                |
 | *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
-| *-p, --password* | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified                         |
-| *-m, --mode*            | Syntax mode of the database, options [yashan,mysql]<br/>* yashan: Indicates creating a PDB in yashan mode, defaults to this value when omitted, and cannot be directly switched to mysql mode after creation<br/>* mysql: Indicates creating a PDB in mysql mode     |
+| *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
+| *-h,--help*          | View help information for the current command  |
+| *--mode*            | Syntax mode of the database, options [yashan,mysql]<br/>* yashan: Indicates creating a PDB in yashan mode, defaults to this value when omitted, and cannot be directly switched to mysql mode after creation<br/>* mysql: Indicates creating a PDB in mysql mode     |
+| *--policy* | Specifies the PDB startup policy, options [automatic|manual], default is automatic<br/>* automatic: PDB starts with the CDB root<br/>* manual: PDB does not start with the CDB root, manual PDB startup is required<br/>Can be specified as needed in YAC deployment, while in standalone deployment it always behaves as PDB starting with the CDB root |
+| *-m, --start-mode* | Specifies the default PDB startup stage option in YAC deployment. Optional values are [mount&#124;nomount&#124;open], default is open <br />After specification, this option will be used as the default value when starting PDB later if no separate startup option is specified. |
+| *-h, --help*          | View help information for the current command    |
+| *-w, --nowait*   | Do not wait for command execution results after running   |
+| *-d, --child*     | Display task and subtasks information   |
+| *--disable*       | Disable the display of running progress  |
+
+***Example***
+
+```shell
+$ yasboot pdb add -c yashandb --pdb pdb2 --pdb-config pdb_add.toml
+```
+
+## pdb build
+
+This command is used to rebuild PDB standby databases.
+
+|Option |Meaning |
+| --------------- | ----------------------------------------------- |
+| *-c, --cluster*   | The cluster name (required)              |
+| *--pdb*        | Names of PDBs to be rebuilt, must be PDBs on the specified node. Multiple names should be separated by commas. Specifying 'all' indicates rebuilding all PDBs (excluding the seed container)    |
+| *-n, --node-id*   | Node ID (e.g., 1-1, can be viewed via the `yasboot cluster status` command, no need for colon and the following number) (required) |
+| *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
+| *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
+| *-h,--help*          | View help information for the current command  |
+| *-f, --force* | Whether the clean operation requires secondary confirmation, defaults to requiring confirmation when omitted |
+| *-h, --help*          | View help information for the current command    |
+| *-w, --nowait*   | Do not wait for command execution results after running   |
+| *-d, --child*     | Display task and subtasks information   |
+| *--disable*       | Disable the display of running progress  |
+
+***Example***
+
+```shell
+$ yasboot pdb build -c yashandb -n 1-2 --pdb pdb1,pdb2
+```
+
+## pdb clean
+
+This command is used to clean PDB data before restoring or rebuilding a PDB. After execution, the target PDB will be started to the NOMOUNT stage.
+
+|Option |Meaning |
+| --------------- | ----------------------------------------------- |
+| *-c, --cluster*   | The cluster name (required)              |
+| *--pdb*      | Names of PDBs to be operated, must be PDBs on the specified node. Multiple names should be separated by commas. Specifying 'all' indicates cleaning all PDBs (excluding the seed container)<br/>Can only be specified as **standby** PDBs in **closed** state; when specified as 'all', PDBs that do not meet the status and role requirements will be automatically skipped |
+| *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
+| *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
+| *--with-arch*     | Whether to also clean archive files during clean, default is no |
+| *-f, --force*     | Whether the clean operation requires secondary confirmation, defaults to requiring confirmation when omitted |
+| *-r, --restore*     | Only used for compatibility, no actual effect |
 | *-h, --help*          | View help information for the current command    |
 | *-w, --nowait*   | Do not wait for command execution results after running   |
 | *-d, --child*     | Display task and subtasks information   |
@@ -19,7 +70,9 @@ This command is used to create a new PDB in a CDB.
 ***Example***
 
 ```shell
-$ yasboot pdb add -c yashandb --pdb pdb2 --pdb-config pdb_add.toml
+$ yasboot pdb clean -c yashandb --pdb pdb1,pdb2 -f
+
+$ yasboot pdb clean -c yashandb --pdb pdb1 --with-arch -f
 ```
 
 ## pdb status
@@ -56,13 +109,14 @@ This command is used to start PDB(s).
 | *-c, --cluster*      | The cluster name of YashanDB (required) |
 | *-n, --node-id*      | Node ID (e.g., 1-1, can be viewed via the `yasboot cluster status` command, no need for colon and the following number)  |
 | *--pdb*      | Names of PDBs to be started, must be PDBs on the specified node. Multiple names should be separated by commas. Specifying `all` indicates starting all PDBs on the specified node  |
-| *-m, --start-mode*   | Start stage, options are [mount&#124;nomount&#124;open], defaults to open   |
+| *-m, --start-mode*   | Start stage, options are [mount&#124;nomount&#124;open] <br/>In Standalone Deployment, the default is open <br/> In YAC/Distributed Cluster Deployment, the default uses the PDB default startup stage option specified in the `yasboot pdb add` command or `ycsctl add pdb` command   |
 | *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
 | *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
 | *-h, --help*          | View help information for the current command    |
 | *-w, --nowait*   | Do not wait for command execution results after running   |
 | *-d, --child*     | Display task and subtasks information   |
 | *--disable*       | Disable the display of running progress  |
+
 
 ***Example***
 
@@ -82,7 +136,7 @@ This command is used to restart PDBs.
 | *-n, --node-id*      | Node ID (e.g., 1-1, can be viewed via the `yasboot cluster status` command, no need for colon and the following number)  |
 | *--pdb*      | Names of PDBs to be restarted, must be PDBs on the specified node. Multiple names should be separated by commas. Specifying 'all' indicates restarting all PDBs on the specified node  |
 | *-s, --stop-mode*    | Shutdown mode, options: [normal|immediate|abort], defaults to normal   |
-| *-m, --start-mode*   | Start stage, options are [mount&#124;nomount&#124;open], defaults to open    |
+| *-m, --start-mode*   | Start stage, options are [mount&#124;nomount&#124;open] <br/>In Standalone Deployment, the default is open <br/> In YAC/Distributed Cluster Deployment, the default uses the PDB default startup stage option specified in the `yasboot pdb add` command or `ycsctl add pdb` command    |
 | *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
 | *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
 | *-f, --force*        | Whether to forcibly stop the PDB, defaults to not forcibly stop |

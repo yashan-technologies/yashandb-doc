@@ -1,18 +1,20 @@
-This step is only applicable to the YAC Deployment and  Distributed Cluster Deployment. Other scenarios should be skipped.
+This step is applicable to the YAC Deployment, Distributed Cluster Deployment, and Branch Database Deployment. Other scenarios should be skipped.
 
 In YAC Deployment, when using NVMe-oF distributed storage devices, servers are divided into two categories: servers deploying instances (hereinafter referred to as instance servers) and servers mounting NVMe SSDs (hereinafter referred to as storage servers).
 
 In Distributed Cluster Deployment, servers are divided into two categories: compute node servers (hereinafter referred to as CN servers) and data node servers (hereinafter referred to as DN servers), where NVMe SSDs will be mounted on DN servers.
 
-The following table will list the steps and requirements for configuring storage devices in different sub-scenarios. Please strictly follow the guidance for operations (- indicates skipping that step): 
+In Branch Database Deployment, the server needs to configure one system disk and one data disk to support the database branch feature.
 
-|Steps    |YAC (Shared Storage) Deployment |YAC (Distributed Storage) Deployment |Distributed Cluster(Distributed Storage) Deployment |
-| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Disk partitioning | Partition LUNs according to YFS disk planning                | Partition namespaces according to YFS disk planning          | Partition namespaces according to YFS disk planning          |
-| Mounting disks    | Mount to all servers via multipath                           | Mount to all storage servers                                 | Mount to all DN servers                                      |
-| Disk mapping      | -                                                            | Perform mapping on all storage servers                       | Perform mapping on all DN servers                            |
-| Connecting disks  | -                                                            | Perform connection on all instance servers                   | Perform connection on all CN servers                         |
-| Binding disks     | Perform binding on all servers                               | Perform binding on all instance servers                      | Perform binding on all CN servers                                 |
+The following table will list the steps and requirements for configuring storage devices in different sub-scenarios. Please strictly follow the guidance for operations (- indicates skipping that step):
+
+|Steps    |YAC (Shared Storage) Deployment |YAC (Distributed Storage) Deployment |Distributed Cluster(Distributed Storage) Deployment |Branch Database Deployment |
+| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Disk partitioning | Partition LUNs according to YFS disk planning                | Partition namespaces according to YFS disk planning          | Partition namespaces according to YFS disk planning          | Partition disks according to YFS disk planning               |
+| Mounting disks    | Mount to all servers via multipath                           | Mount to all storage servers                                 | Mount to all DN servers                                      | Mount to the server                                          |
+| Disk mapping      | -                                                            | Perform mapping on all storage servers                       | Perform mapping on all DN servers                            | -                                                            |
+| Connecting disks  | -                                                            | Perform connection on all instance servers                   | Perform connection on all CN servers                         | -                                                            |
+| Binding disks     | Perform binding on all servers                               | Perform binding on all instance servers                      | Perform binding on all CN servers                            | Perform binding on the server                                |
 
 If it is in Primary-Standby Cluster Deployment, only centralized shared storage is supported as the storage device, and LUNs must be planned and bound separately for the primary cluster and standby cluster.
 
@@ -83,6 +85,13 @@ This document assumes that the storage devices have been partitioned and mounted
 | /dev/nvme0n1 | System Disk | 172.16.1.5 |
 | /dev/nvme0n3 | Data Disk | 172.16.1.5 |
 
+== Branch Database Deployment
+
+| LUN | Disk Usage | Host Server |
+|------------|--------|--------------------------------------|
+| /dev/mapper/lun03-sys0 | System Disk | 172.16.1.2 |
+| /dev/mapper/lun01-data0 | Data Disk | 172.16.1.2 |
+
 :::
 
 ## Binding Disks for YAC (Shared Storage) Deployment
@@ -114,7 +123,7 @@ This document will introduce two methods: multi-path binding (recommended) and S
 |------------|--------|--------------------------------------|
 | 0   | Prerequisites      | When binding storage devices via SCSI device WWID, the WWIDs of all devices under the target path (e.g., /dev) must be unique; otherwise, binding will fail. |
 | 1   | Step 1: Generate Configuration File | The contents of the genDevRuleByUUID.sh script differ for the two methods, thus the generated configuration file yashan-device-rule.rules will also differ. |
-| 2   | Step 4 (Optional): Modify Multi-path Configuration File | If using multipath binding and needing [IO Fencing based on SCSI persistent reservations](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) functionality, this functionality must be modified in the multipath configuration file on each server of YAC before use. |
+| 2   | Step 4 (Optional): Modify Multi-path Configuration File | If using multipath binding and needing [IO fencing based on SCSI persistent reservations](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) functionality, this functionality must be modified in the multipath configuration file on each server of YAC before use. |
 
 >**Caution**:
 >
@@ -156,9 +165,9 @@ TARGETS=("data0"                   "sys0"                   "sys1"              
 # Specify the binding directory
 YFS_DISK_DIR="yfs"
 
-# Keep default; ensure the yashan user exists
+# Keep default; ensure the yashan user and the YASDBA user group exists
 USER="yashan"
-GROUP="yashan"
+GROUP="YASDBA"
 UGROUP="$USER:$GROUP"
 
 if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
@@ -202,9 +211,9 @@ TARGETS=("data0"                   "sys0"                   "sys1"              
 # Specify the binding directory
 YFS_DISK_DIR="yfs"
 
-# Keep default; ensure the yashan user exists
+# Keep default; ensure the yashan user and the YASDBA user group exists
 USER="yashan"
-GROUP="yashan"
+GROUP="YASDBA"
 UGROUP="$USER:$GROUP"
 
 if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
@@ -250,10 +259,10 @@ done
 
 ```shell
 # cat yashan-device-rule.rules
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7d9668d7b4a",SYMLINK+="yfs/data0",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/data0'"
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7dd668d7b68",SYMLINK+="yfs/sys0",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/sys0'"
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e358668d7caf",SYMLINK+="yfs/sys1",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/sys1'"
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e35a668d7cbf",SYMLINK+="yfs/sys2",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/sys2'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7d9668d7b4a",SYMLINK+="yfs/data0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7dd668d7b68",SYMLINK+="yfs/sys0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys0'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e358668d7caf",SYMLINK+="yfs/sys1",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys1'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e35a668d7cbf",SYMLINK+="yfs/sys2",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys2'"
 ```
 
    == KylinOS V10
@@ -266,7 +275,7 @@ KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd66",SYMLINK+="yfs/
 KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd78",SYMLINK+="yfs/sys2",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch"
 ```
    :::
-   
+
    SYMLINK represents the alias for the bound device; check whether it matches the expected binding target.
 
 ##### Step 2: Bind Storage Devices
@@ -295,24 +304,24 @@ KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd78",SYMLINK+="yfs/
 
 ##### Step 3: Check Binding Result
 
-1. Execute the following command to confirm all bindings have taken effect, with user and group both being `yashan`:
+1. Execute the following command to confirm all bindings have taken effect, with user being `yashan` and group being `YASDBA`:
 
-   ```shell
-   # ls -l /dev/yfs/*
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 data0 -> ../dm-5
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys0 -> ../dm-7
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys1 -> ../dm-4
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys2 -> ../dm-6
-   ```
+    ```shell
+    # ls -l /dev/yfs/*
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 data0 -> ../dm-5
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys0 -> ../dm-7
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys1 -> ../dm-4
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys2 -> ../dm-6
+    ```
 
-   And verify that the user and group pointing to these devices are both `yashan`, and the privilege is `0666`:
+    And verify that the user of the devices they point to is `yashan`, the group is `YASDBA`, and the permission is `0666`:
 
-   ```shell
-   # ls -l /dev/dm-4
-   brw-rw-rw- 1 yashan yashan 253, 4 Jul 11 14:44 /dev/dm-4
+    ```shell
+    # ls -l /dev/dm-4
+    brw-rw-rw- 1 yashan YASDBA 253, 4 Jul 11 14:44 /dev/dm-4
 
-   # Other devices are similar
-   ```
+    # Other devices are similar
+    ```
 
 2. On all servers in the cluster, execute the following command to confirm that **all** bound multipath WWIDs are consistent across servers.
 
@@ -329,7 +338,7 @@ KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd78",SYMLINK+="yfs/
 
 ##### Step 4 (Optional): Modify Multi-path Configuration File
 
-When using multipath binding for storage devices, this optional step must be completed on each server in YAC before utilizing the [IO Fencing based on SCSI persistent reservations](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) functionality.
+When using multipath binding for storage devices, this optional step must be completed on each server in YAC before utilizing the [IO fencing based on SCSI persistent reservations](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) functionality.
 
 1. Confirm that the mpathpersist tool is installed.
 
@@ -372,10 +381,10 @@ When using multipath binding for storage devices, this optional step must be com
    # Specify the binding directory
    YFS_DISK_DIR="yfs"
 
-   # Keep default; ensure the yashan user exists
-   USER="yashan"
-   GROUP="yashan"
-   UGROUP="$USER:$GROUP"
+    # Keep default; ensure the yashan user and the YASDBA user group exists
+    USER="yashan"
+    GROUP="YASDBA"
+    UGROUP="$USER:$GROUP"
 
    if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
    then
@@ -412,13 +421,15 @@ When using multipath binding for storage devices, this optional step must be com
 
    Upon execution, a binding configuration file named yashan-device-rule.rules will be generated at the current path, with content as follows, though it may differ in actual deployment:
 
-   ```shell
-   # cat yashan-device-rule.rules
-   KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88dd000002b4",SYMLINK+="yfs/data0",OWNER="yashan", GROUP="yashan", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/data0'"
-   KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88be000002b3",SYMLINK+="yfs/sys0",OWNER="yashan", GROUP="yashan", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/data0'"
-   KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88be000002b5",SYMLINK+="yfs/sys1",OWNER="yashan", GROUP="yashan", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/data0'"
-   KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88be000002b6",SYMLINK+="yfs/sys2",OWNER="yashan", GROUP="yashan", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/data0'"
-   ```
+    
+
+    ```shell
+    # cat yashan-device-rule.rules
+    KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88dd000002b4",SYMLINK+="yfs/data0",OWNER="yashan", GROUP="YASDBA", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+    KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88be000002b3",SYMLINK+="yfs/sys0",OWNER="yashan", GROUP="YASDBA", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+    KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88be000002b5",SYMLINK+="yfs/sys1",OWNER="yashan", GROUP="YASDBA", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+    KERNEL=="sd*", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/$parent", RESULT=="36a01c8d100cd2c1b777f88be000002b6",SYMLINK+="yfs/sys2",OWNER="yashan", GROUP="YASDBA", MODE="0666", OPTIONS:="nowatch", RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+    ```
 <span id="rebinding" name="rebinding"></span>
 
 ##### Step 2: Bind Storage Devices
@@ -447,24 +458,24 @@ When using multipath binding for storage devices, this optional step must be com
 
 ##### Step 3: Check Binding Result
 
-1. Execute the following command to confirm all bindings have taken effect, with user and group both being `yashan`:
+1. Execute the following command to confirm all bindings have taken effect, with user being `yashan` and group being `YASDBA`:
 
-   ```shell
-   # ls -l /dev/yfs/*
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 data0 -> ../dm-5
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys0 -> ../dm-7
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys1 -> ../dm-4
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys2 -> ../dm-6
-   ```
+    ```shell
+    # ls -l /dev/yfs/*
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 data0 -> ../dm-5
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys0 -> ../dm-7
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys1 -> ../dm-4
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys2 -> ../dm-6
+    ```
 
-   And verify that the user and group pointing to these devices are both `yashan`, and the privilege is `0666`:
+    And verify that the user of the devices they point to is `yashan`, the group is `YASDBA`, and the permission is `0666`:
 
-   ```shell
-   # ls -l /dev/dm-4
-   brw-rw-rw- 1 yashan yashan 253, 4 Jul 11 14:44 /dev/dm-4
+    ```shell
+    # ls -l /dev/dm-4
+    brw-rw-rw- 1 yashan YASDBA 253, 4 Jul 11 14:44 /dev/dm-4
 
-   # Other devices are similar
-   ```
+    # Other devices are similar
+    ```
 
 2. On all servers in the cluster, execute the following command to confirm that **all** bound multipath WWIDs are consistent across servers.
 
@@ -645,16 +656,16 @@ Manual mapping of NVMe-oF disks requires installing nvme-cli or nvmetcli tools. 
    ```
 
 10. Repeat steps 4-9 above to map other NVMe-oF disks, and it is recommended to create an independent NVMe-oF subsystem for each NVMe-oF disk, with unique namespace IDs, to facilitate subsequent identification.
-   
+
    If you wish to cancel an associated and created subsystem, refer to the following command to execute:
-   
+
    ```shell
    > cd /ports
    > delete 100
    > cd subsystems
    > delete nqn.2014-08.org.nvmexpress:NVMf:uuid:5834f6e0-cb79-40ac-a7cc-f02524340742
    ```
-	
+
 11. Repeat all the above steps to complete the NVMe-oF disk mapping on this machine on all storage servers (in YAC Deployment) or DN servers (in Distributed Cluster Deployment).
 
 ###  Operation via Script
@@ -839,14 +850,12 @@ In Distributed Cluster Deployment, you need to log in to each CN server as root 
 
 5. Grant read and write permissions for all NVMe-oF disks to the installation user (yashan).
 
-   ```shell
-   # chown -R yashan:yashan /dev/nvme1n1 && chmod 666 /dev/nvme1n1
-   # chown -R yashan:yashan /dev/nvme2n1 && chmod 666 /dev/nvme2n1
-   # chown -R yashan:yashan /dev/nvme3n1 && chmod 666 /dev/nvme3n1
-   # chown -R yashan:yashan /dev/nvme4n1 && chmod 666 /dev/nvme4n1
-   ```
-	
-6. In Distributed Cluster Deployment, the storage device configuration on this server is completed at this step, and you can switch to the remaining servers to repeat the above steps; in YAC (distributed storage) Deployment, do not exit the server and continue with the following disk binding operations.
+    ```shell
+    # chown -R yashan:YASDBA /dev/nvme1n1 && chmod 666 /dev/nvme1n1
+    # chown -R yashan:YASDBA /dev/nvme2n1 && chmod 666 /dev/nvme2n1
+    # chown -R yashan:YASDBA /dev/nvme3n1 && chmod 666 /dev/nvme3n1
+    # chown -R yashan:YASDBA /dev/nvme4n1 && chmod 666 /dev/nvme4n1
+    ```
 
 	If you wish to disconnect already connected NVMe-oF disks, please refer to the following command to execute:
 	
@@ -903,9 +912,9 @@ TARGETS=("data0"                   "sys0"                   "sys1"              
 # Specify the binding directory
 YFS_DISK_DIR="yfs"
 
-# Keep default; ensure the yashan user exists
+# Keep default; ensure the yashan user and the YASDBA user group exists
 USER="yashan"
-GROUP="yashan"
+GROUP="YASDBA"
 UGROUP="$USER:$GROUP"
 
 if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
@@ -949,9 +958,9 @@ TARGETS=("data0"                   "sys0"                   "sys1"              
 # Specify the binding directory
 YFS_DISK_DIR="yfs"
 
-# Keep default; ensure the yashan user exists
+# Keep default; ensure the yashan user and the YASDBA user group exists
 USER="yashan"
-GROUP="yashan"
+GROUP="YASDBA"
 UGROUP="$USER:$GROUP"
 
 if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
@@ -997,10 +1006,10 @@ done
 
 ```shell
 # cat yashan-device-rule.rules
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7d9668d7b4a",SYMLINK+="yfs/data0",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/data0'"
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7dd668d7b68",SYMLINK+="yfs/sys0",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/sys0'"
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e358668d7caf",SYMLINK+="yfs/sys1",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/sys1'"
-KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e35a668d7cbf",SYMLINK+="yfs/sys2",OWNER="yashan",GROUP="yashan",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:yashan /dev/yfs/sys2'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7d9668d7b4a",SYMLINK+="yfs/data0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7dd668d7b68",SYMLINK+="yfs/sys0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys0'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e358668d7caf",SYMLINK+="yfs/sys1",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys1'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a233b90000e35a668d7cbf",SYMLINK+="yfs/sys2",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys2'"
 ```
 
    == KylinOS V10
@@ -1013,7 +1022,7 @@ KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd66",SYMLINK+="yfs/
 KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd78",SYMLINK+="yfs/sys2",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch"
 ```
    :::
-   
+
    SYMLINK represents the alias for the bound device; check whether it matches the expected binding target.
 
 ### Step 2: Bind Storage Devices
@@ -1042,24 +1051,24 @@ KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd78",SYMLINK+="yfs/
 
 ### Step 3: Check Binding Result
 
-1. Execute the following command to confirm all bindings have taken effect, with user and group both being `yashan`:
+1. Execute the following command to confirm all bindings have taken effect, with user being `yashan` and group being `YASDBA`:
 
    ```shell
    # ls -l /dev/yfs/*
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 data0 -> ../dm-5
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys0 -> ../dm-7
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys1 -> ../dm-4
-   lrw-rw-rw- 1 yashan yashan 7 Jul 11 14:44 sys2 -> ../dm-6
+   lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 data0 -> ../dm-5
+   lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys0 -> ../dm-7
+   lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys1 -> ../dm-4
+   lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys2 -> ../dm-6
    ```
 
-   And verify that the user and group pointing to these devices are both `yashan`, and the privilege is `0666`:
+    And verify that the user of the devices they point to is `yashan`, the group is `YASDBA`, and the permission is `0666`:
 
-   ```shell
-   # ls -l /dev/dm-4
-   brw-rw-rw- 1 yashan yashan 253, 4 Jul 11 14:44 /dev/dm-4
+    ```shell
+    # ls -l /dev/dm-4
+    brw-rw-rw- 1 yashan YASDBA 253, 4 Jul 11 14:44 /dev/dm-4
 
-   # Other devices are similar
-   ```
+    # Other devices are similar
+    ```
 
 2. On all servers in the cluster, execute the following command to confirm that **all** bound multipath WWIDs are consistent across servers.
 
@@ -1073,5 +1082,200 @@ KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd78",SYMLINK+="yfs/
    If the WWIDs corresponding to the same path on two servers do not match, it indicates that the mounted NVMe-oF disk is not the same NVMe-oF disk, and you should contact the network administrator for resolution.
 
 After completing the above operations, the storage device configuration on this server is complete at this step, and you can switch to the remaining servers to repeat the above steps.
+
+If you need to rebind, please refer to the [rebinding](#rebinding) operation under YAC (shared storage) Deployment.
+
+## Binding Disks for Branch Database Deployment
+
+The disk configuration for Branch Database Deployment is similar to that of YAC (Shared Storage) Deployment, with the difference that Branch Database Deployment only requires one system disk and one data disk, and does not involve multiple servers.
+
+### Step 1: Generate Configuration File
+
+1. Log in to the server as the root user.
+
+2. Create a script named `genDevRuleByUUID.sh` in the root directory:
+
+   ```shell
+   # cd ~
+   # vi genDevRuleByUUID.sh
+   ```
+
+3. Input the following content and modify `DEVICES` to the paths of each device, change `TARGETS` to the binding names of each device, ensuring names correspond to device paths, and modify `YFS_DISK_DIR` to the binding directory. Save and exit. 
+
+   ::: tabs
+   == CentOS
+
+```shell
+#/bin/bash
+
+# Please change to the paths of each device
+DEVICES=("/dev/mapper/lun01-data0" "/dev/mapper/lun03-sys0")
+# Please specify the names for binding these devices in the same order as the DEVICES array, ideally related to the business
+TARGETS=("data0"                   "sys0")
+# Specify the binding directory
+YFS_DISK_DIR="yfs"
+
+# Keep default; ensure the yashan user and the YASDBA user group exists
+USER="yashan"
+GROUP="YASDBA"
+UGROUP="$USER:$GROUP"
+
+if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
+then
+    echo "DEVICES and TARGETS count does not match"
+    exit 1
+fi
+
+if [ ${#TARGETS[@]} == 0 ]
+then
+    echo "no targets found"
+    exit 1
+fi
+
+curDir=$(cd "$(dirname "$0")";pwd)
+rm -f $curDir/yashan-device-rule.rules
+
+count=${#TARGETS[@]}
+
+for ((i = 0; i < $count; i ++))
+do
+    device=${DEVICES[$i]}
+    target_name=${TARGETS[$i]}
+    target="${YFS_DISK_DIR}/${target_name}"
+
+    str1="$device:`udevadm info --query=all --name=$device | grep DM_UUID`"
+    str2=${str1#*=}
+    echo "KERNEL==\"dm-*\",ENV{DM_UUID}==\"${str2}\",SYMLINK+=\"$target\",OWNER=\"$USER\",GROUP=\"$GROUP\",MODE=\"0666\",OPTIONS:=\"nowatch\",RUN+=\"/bin/sh -c 'chown -R $UGROUP $target'\""  >> $curDir/yashan-device-rule.rules
+done
+```
+
+    == KylinOS V10
+
+```shell
+#/bin/bash
+
+# Please change to the paths of each device
+DEVICES=("/dev/mapper/lun01-data0" "/dev/mapper/lun03-sys0")
+# Please specify the names for binding these devices in the same order as the DEVICES array, ideally related to the business
+TARGETS=("data0"                   "sys0")
+# Specify the binding directory
+YFS_DISK_DIR="yfs"
+
+# Keep default; ensure the yashan user and the YASDBA user group exists
+USER="yashan"
+GROUP="YASDBA"
+UGROUP="$USER:$GROUP"
+
+if [ ${#TARGETS[@]} != ${#DEVICES[@]} ]
+then
+    echo "DEVICES and TARGETS count does not match"
+    exit 1
+fi
+
+if [ ${#TARGETS[@]} == 0 ]
+then
+    echo "no targets found"
+    exit 1
+fi
+
+curDir=$(cd "$(dirname "$0")";pwd)
+rm -f $curDir/yashan-device-rule.rules
+
+count=${#TARGETS[@]}
+
+for ((i = 0; i < $count; i ++))
+do
+    device=${DEVICES[$i]}
+    target_name=${TARGETS[$i]}
+    target="${YFS_DISK_DIR}/${target_name}"
+    
+    str1="$device:`udevadm info --query=all --name=$device | grep DM_UUID`"
+    str2=${str1#*=}
+    echo "KERNEL==\"sd*\",ENV{ID_SERIAL}==\"${str2}\",SYMLINK+=\"$target\",OWNER=\"$USER\",GROUP=\"$GROUP\",MODE=\"0666\",OPTIONS:=\"nowatch\"" >> $curDir/yashan-device-rule.rules
+done
+```
+    :::
+
+4. Execute the script to generate the configuration file:
+
+   ```shell
+   # sh ./genDevRuleByUUID.sh
+   ```
+
+   Upon execution, a binding configuration file named yashan-device-rule.rules will be generated at the current path, with content as follows, though it may differ in actual deployment:
+
+   ::: tabs
+   == CentOS
+
+```shell
+# cat yashan-device-rule.rules
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7d9668d7b4a",SYMLINK+="yfs/data0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/data0'"
+KERNEL=="dm-*",ENV{DM_UUID}=="mpath-36d039ea000a2231f0000e7dd668d7b68",SYMLINK+="yfs/sys0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch",RUN+="/bin/sh -c 'chown -R yashan:YASDBA /dev/yfs/sys0'"
+```
+
+   == KylinOS V10
+
+```shell
+# cat yashan-device-rule.rules
+KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd50",SYMLINK+="yfs/data0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch"
+KERNEL=="sd*",ENV{ID_SERIAL}=="3684302d47042ab09d42082949ee0fd58",SYMLINK+="yfs/sys0",OWNER="yashan",GROUP="YASDBA",MODE="0666",OPTIONS:="nowatch"
+```
+   :::
+
+   SYMLINK represents the alias for the bound device; check whether it matches the expected binding target.
+
+#### Step 2: Bind Storage Devices
+
+1. Move the configuration file to the /etc/udev/rules.d directory.
+
+   ```shell
+   # cp yashan-device-rule.rules /etc/udev/rules.d/99-yashan-device-rule.rules
+   ```
+
+2. Load the udev configuration.
+
+   ```shell
+   # udevadm control --reload-rules
+   ```
+
+3. Bind the storage devices.
+
+   ```shell
+   ## Scenario 1: Re-bind all devices in the rules file
+   # udevadm trigger
+   
+   ## Scenario 2: Re-bind a specific device in the rules file
+   # udevadm trigger --sysname-match=sdf
+   ```
+
+#### Step 3: Check Binding Result
+
+1. Execute the following command to confirm all bindings have taken effect, with user being `yashan` and group being `YASDBA`:
+
+    ```shell
+    # ls -l /dev/yfs/*
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 data0 -> ../dm-5
+    lrw-rw-rw- 1 yashan YASDBA 7 Jul 11 14:44 sys0 -> ../dm-7
+    ```
+
+    And verify that the user of the devices they point to is `yashan`, the group is `YASDBA`, and the permission is `0666`:
+
+    ```shell
+    # ls -l /dev/dm-4
+    brw-rw-rw- 1 yashan YASDBA 253, 4 Jul 11 14:44 /dev/dm-4
+
+    # Other devices are similar
+    ```
+
+2. On all servers in the cluster, execute the following command to confirm that **all** bound multipath WWIDs are consistent across servers.
+
+   ```shell
+   # Compare the output results from each server for consistency
+   # /lib/udev/scsi_id --whitelisted  --device=/dev/yfs/data
+   # /lib/udev/scsi_id --whitelisted  --device=/dev/yfs/sys0
+   ```
+   If the WWIDs corresponding to the same path on two servers do not match, it indicates that the mounted shared storage is not the same LUN, and you should contact the network administrator for resolution.
+
+<span id="modify_multipath_conf" name="modify_multipath_conf"></span>
 
 If you need to rebind, please refer to the [rebinding](#rebinding) operation under YAC (shared storage) Deployment.

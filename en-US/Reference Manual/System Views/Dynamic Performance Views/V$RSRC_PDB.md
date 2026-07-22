@@ -2,7 +2,7 @@ This view displays resource usage information for each container in a CDB.
 
 |Field |Type |Description |
 |---------------|--------------|--------------------|
-| PDB_NAME                  | VARCHAR(68) | PDB name |
+ PDB_NAME                  | VARCHAR(68) | PDB name |
 | CPU_WAIT_TIME             | BIGINT      | Cumulative amount of time that sessions waited for CPU because of resource management. This does not include waits due to latch or enqueue contention, I/O waits, and so on. When CPU resources are not being actively managed, this value is set to zero. |
 | CPU_WAITS                 | BIGINT      | Cumulative number of times all sessions in the consumer group had to wait for CPU because of resource management. This does not include waits due to latch or enqueue contention, I/O waits, and so on. When CPU resources are not being actively managed, this value is set to zero. |
 | CONSUMED_CPU_TIME         | BIGINT      | Cumulative amount of CPU time consumed by all sessions in the consumer group (in milliseconds) |

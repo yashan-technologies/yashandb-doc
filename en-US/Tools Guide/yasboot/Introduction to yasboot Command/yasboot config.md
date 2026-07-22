@@ -137,6 +137,9 @@ This command is used to generate the scale-out configuration files: hosts_add.to
 | *--host-id*           | ID of the deployed server, multiple IDs separated by commas (deprecated parameter) |
 | *--host-ids*          | IDs of the deployed servers, separated by commas              |
 | *--data-path*         | DATA directory of the database instance                       |
+| *--data*              | Data disks used in YAC/Distributed Cluster Deployment, multiple disk paths separated by commas `,`         |
+| *--disk-found-path*   | Disk discovery path used in YAC/Distributed Cluster, with the default value being /dev/yfs |
+| *--system-data*       | System data disk(s) used in YAC/Distributed Cluster Deployment, multiple disk paths separated by commas `,` |
 | *-f, --force*          | Whether to force database deployment, forcing means that the current server running status will not be checked |
 | *--node*              | Number of nodes in the new group, defaults to 1              |
 | *--group*             | Number of new node groups, defaults to 1                      |
@@ -165,4 +168,17 @@ $ yasboot config group gen -c yashandb -u yashan -p password --ip ip1,ip2...ipn 
 
 ```shell
 $ yasboot config group gen -c yashandb --host-ids host0001,host0002 --group 2 --node 3
+```
+
+***Example***3 in Primary Standby Cluster Deployment, for expanding nodes on new servers, generating hosts_add.toml and ${cluster}_add.toml files
+
+```shell
+$ yasboot config group gen -c yashandb \
+    -u yashan -p password --ip ip1 --port 22 \
+    --install-path /data/yashan/yasdb_home \
+    --data-path /data/yashan/add_standby_cluster \
+    --node 3 --begin-port 1688 --data /dev/yfs33/datadisk3 \
+    --disk-found-path  /dev/yfs33 --system-data  /dev/yfs33/ycsdisk3 \
+    --log-path /data/yashan/add_standby_cluster/log \
+    -t ce \
 ```

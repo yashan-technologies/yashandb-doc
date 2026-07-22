@@ -9,7 +9,7 @@ The stored procedures/functions of this advanced package apply to the following 
 
 | Action Scope | Subprograms | Applicable Objects        |
 |--------------------|--------------------------------------|--------------------|
-| CDB global resource management   | [CREATE_CDB_PLAN](#CREATE_CDB_PLAN)<br />[CREATE_CDB_PLAN_DIRECTIVE](#CREATE_CDB_PLAN_DIRECTIVE)<br />[CREATE_CDB_PROFILE_DIRECTIVE](#CREATE_CDB_PROFILE_DIRECTIVE)<br />[SET_PDB_PROFILE](#SET_PDB_PROFILE)<br />[UPDATE_CDB_DEFAULT_DIRECTIVE](#UPDATE_CDB_DEFAULT_DIRECTIVE)<br />[UPDATE_CDB_PLAN_DIRECTIVE](#UPDATE_CDB_PLAN_DIRECTIVE)<br />[UPDATE_CDB_PROFILE_DIRECTIVE](#UPDATE_CDB_PROFILE_DIRECTIVE)<br />[DELETE_CDB_PLAN_DIRECTIVE](#DELETE_CDB_PLAN_DIRECTIVE)<br />[DELETE_CDB_PROFILE_DIRECTIVE](#DELETE_CDB_PROFILE_DIRECTIVE)<br />[DELETE_CDB_PLAN](#DELETE_CDB_PLAN) | CDB in Standalone Deployment (Execute on the CDB root; or on the primary CDB root for Standalone Primary-Standby Deployment.) |
+| CDB global resource management   | [CREATE_CDB_PLAN](#CREATE_CDB_PLAN)<br />[CREATE_CDB_PLAN_DIRECTIVE](#CREATE_CDB_PLAN_DIRECTIVE)<br />[CREATE_CDB_PROFILE_DIRECTIVE](#CREATE_CDB_PROFILE_DIRECTIVE)<br />[SET_PDB_PROFILE](#SET_PDB_PROFILE)<br />[UPDATE_CDB_DEFAULT_DIRECTIVE](#UPDATE_CDB_DEFAULT_DIRECTIVE)<br />[UPDATE_CDB_PLAN_DIRECTIVE](#UPDATE_CDB_PLAN_DIRECTIVE)<br />[UPDATE_CDB_PROFILE_DIRECTIVE](#UPDATE_CDB_PROFILE_DIRECTIVE)<br />[DELETE_CDB_PLAN_DIRECTIVE](#DELETE_CDB_PLAN_DIRECTIVE)<br />[DELETE_CDB_PROFILE_DIRECTIVE](#DELETE_CDB_PROFILE_DIRECTIVE)<br />[DELETE_CDB_PLAN](#DELETE_CDB_PLAN) | CDB (Execute on the CDB root; or on the primary CDB root for Standalone Primary-Standby Deployment or Primary-Standby YAC Deployment.) |
 | Non-CDB resource management<br/><br/>CDB local resource management | [CREATE_CONSUMER_GROUP](#CREATE_CONSUMER_GROUP)<br />[CREATE_PLAN](#CREATE_PLAN)<br />[CREATE_PLAN_DIRECTIVE](#CREATE_PLAN_DIRECTIVE)<br />[SET_CONSUMER_GROUP_MAPPING](#SET_CONSUMER_GROUP_MAPPING)<br />[UPDATE_PLAN_DIRECTIVE](#UPDATE_PLAN_DIRECTIVE)<br />[DELETE_CONSUMER_GROUP_MAPPING](#DELETE_CONSUMER_GROUP_MAPPING)<br />[DELETE_PLAN_DIRECTIVE](#DELETE_PLAN_DIRECTIVE)<br />[DELETE_PLAN](#DELETE_PLAN)<br />[DELETE_CONSUMER_GROUP](#DELETE_CONSUMER_GROUP) | * Non-CDB<br/><br/>* PDBs (excluding PDB seed) |
 
 <span id="CREATE_CDB_PLAN" name="CREATE_CDB_PLAN"></span>
@@ -35,7 +35,7 @@ In a CDB, the system includes a default resource plan DEFAULT_CDB_PLAN, whose di
 
 
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.CREATE_CDB_PLAN(
@@ -97,7 +97,7 @@ Usage Instructions:
 
 
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.CREATE_CDB_PLAN_DIRECTIVE(
@@ -163,7 +163,7 @@ Usage Instructions:
 
 
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.CREATE_CDB_PROFILE_DIRECTIVE(
@@ -198,7 +198,7 @@ The priority of various directives taking effect on PDBs is CDB resource plan di
 | PLUGGABLE_DATABASE    | General Parameters     | PDB name, only one PDB can be specified at a time.     |
 | PROFILE            | General Parameters | Name of the CDB resource template. Default value NULL indicates removing the mapping relationship from PDB to resource template   |
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 -- Set resource profile for PDB
@@ -248,7 +248,7 @@ Usage Instructions:
 
 -  Optional parameters that are not assigned values or input as NULL will not be processed.
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.UPDATE_CDB_DEFAULT_DIRECTIVE(
@@ -294,7 +294,7 @@ Usage Instructions:
 
 -  Optional parameters that are not assigned values or input as NULL will not be processed.
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.UPDATE_CDB_PLAN_DIRECTIVE(
@@ -341,8 +341,7 @@ Usage Instructions:
 
 -  Optional parameters that are not assigned values or input as NULL will not be processed.
 
-
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.UPDATE_CDB_PROFILE_DIRECTIVE(
@@ -373,8 +372,7 @@ This program is used to delete CDB resource plan directives. After successful de
 | PLAN                    | General Parameter        | Name of the CDB resource plan to which the CDB resource plan directive to be deleted belongs     |
 | PLUGGABLE_DATABASE    | General Parameters     | Name of the PDB associated with the CDB resource plan directive to be deleted    |
 
-
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.DELETE_CDB_PLAN_DIRECTIVE(
@@ -400,8 +398,7 @@ This program is used to delete CDB resource plan template directives. Before del
 | PLAN                    | General Parameter        | Name of the CDB resource plan to which the CDB resource template directive to be deleted belongs     |
 |PROFILE|General Parameters|Name of the CDB resource template directive to be deleted |
 
-
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.DELETE_CDB_PROFILE_DIRECTIVE(
@@ -424,7 +421,7 @@ This program is used to delete resource plans on the CDB root. It is not possibl
 | --- | --- |
 | PLAN | Name of an existing CDB resource plan  |
 
-***Example*** for Standalone Deployment
+***Example*** for Standalone Deployment or YAC Deployment
 
 ```plsql
 EXEC DBMS_RESOURCE_MANAGER.DELETE_CDB_PLAN(

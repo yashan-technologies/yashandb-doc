@@ -41,7 +41,7 @@ The [Quick Start with YashanDB](Quick Start with YashanDB) chapter has completed
    SQL> 
    ```
 
-The YashanDB client tool also supports deployment on Linux servers. Please refer to [YashanDB Client Installation](../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) for further steps.
+The YashanDB client tool also supports deployment on Linux and macOS devices. For operations, refer to [YashanDB Client Installation](../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation).
 
 ### Option 2: Connect to the Database via YDC Tool
 

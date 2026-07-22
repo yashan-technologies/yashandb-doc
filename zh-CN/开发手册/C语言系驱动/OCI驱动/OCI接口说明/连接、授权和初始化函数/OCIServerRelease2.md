@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCIServerRelease2函数用于获取对应Oracle数据库版本名称及版本号，目前固定返回Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production版本号。
+OCIServerRelease2函数用于获取对应Oracle数据库版本名称及版本号，目前固定返回Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production版本号。与OCIServerRelease的主要区别在于扩展了返回值类型。
 
 ## 函数声明
 

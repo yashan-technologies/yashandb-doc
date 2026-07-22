@@ -682,9 +682,21 @@ Description: Number of retry attempts to upgrade page locks by this instance in 
 
 Description: Cluster field, number of times GCS locks were allocated.
 
+### GCS AUTO EXTEND LOCK POOL
+
+Description: Cluster field, number of times the GCS lock pool was automatically extended.
+
+### GCS AUTO EXTEND LOCK POOL PERCENTS
+
+Description: Cluster field, the ratio of automatic GCS lock pool extension (relative to the number of data blocks).
+
 ### GCS DETACH LOCKS
 
 Description: Cluster field, number of times GCS locks were detached.
+
+### GCS EXTEND RECYCLE THREADS
+
+Description: Cluster field, number of times asynchronous recycle threads were automatically extended.
 
 ### GCS FREE LOCK TIME
 
@@ -701,6 +713,10 @@ Description: Cluster field, number of times GCS locks were acquired.
 ### GCS RELEASE LOCKS
 
 Description: Cluster field, number of times GCS locks were released.
+
+### GCS SHRINK RECYCLE THREADS
+
+Description: Cluster field, number of times asynchronous eviction threads were automatically shrunk.
 
 ### GCS WAKEUP RECYCLE
 

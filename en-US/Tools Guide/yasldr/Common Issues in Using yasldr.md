@@ -17,9 +17,9 @@ If this issue persists even after adjusting this parameter to the maximum value,
     
 #### Why does it report the error `the table is corrupted` during the import?
     
-When the nologging parameter is set to true, if any data violates the constraint conditions of the target table during the import process, the import tool cannot provide fault tolerance and will report the error 'the table is corrupted'.
+When the NOLOGGING parameter is set to TRUE, if any data violates the constraint conditions of the target table during the import process, the import tool cannot provide fault tolerance and will report the error 'the table is corrupted'.
     
-Please set nologging to false before importing again, or ensure the data meets the constraint conditions of the target table before re-importing.
+Please set NOLOGGING to FALSE before importing again, or ensure the data meets the constraint conditions of the target table before re-importing.
 
 #### Why does it report the error `dead lock detected` during the import?
 

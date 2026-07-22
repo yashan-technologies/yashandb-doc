@@ -1,29 +1,11 @@
-A YAC database consists of a database file that is persisted on shared storage and multiple peer, read-write member servers. When certain member servers encounter exceptions (such as private network isolation, storage network I/O exceptions, etc.), it is necessary to prevent the already evicted illegal member servers from continuing to modify the data file before updating the cluster member relationships based on the results of the voting arbitration. This process is called I/O Fencing.
+## What is IO Fencing
 
-YCS provides various I/O Fencing methods, each fence type corresponds to an integer type code. If *yasboot* is used to deploy YAC, *yasboot* will automatically select the optimal fence type for the user. If needed, users can cautiously modify the RTO requirements according to the hardware configuration of the deployment environment and business scenarios after the cluster is deployed. Before making modifications, please read the documentation of the relevant fence types carefully and execute the required hardware capability testing scripts to confirm that the hardware capabilities meet the requirements.
+A YAC/distributed cluster database consists of shared database files that is persisted on storage device(s) and multiple peer, read-write member servers. When certain member servers encounter exceptions (such as private network isolation, storage network I/O exceptions, etc.), it is necessary to prevent the already evicted illegal member servers from continuing to modify the data file before updating the cluster member relationships based on the results of the voting arbitration. This process is called I/O Fencing.
 
-- [In-Flight I/O Protection Algorithm](IO Protection Algorithm): Does not rely on hardware capabilities of SAN-based shared storage, has strong compatibility, but slightly lower safety and RTO. Type code: 1.
+When deploying YAC/distributed cluster, *yasboot* will automatically select the optimal fence type. If needed, users can cautiously modify the RTO requirements according to the hardware configuration of the deployment environment and business scenarios after the cluster is deployed. Before making modifications, please read the documentation of the relevant fence types carefully and execute the required hardware capability testing scripts to confirm that the hardware capabilities meet the requirements.
 
-- [SCSI Persistent Reservation-Based I/O Fencing](SCSI IO Fencing): Requires the SAN-based shared storage device to support SCSI persistent reservation commands, providing optimal safety and RTO. Type code: 2.
+## IO Fencing Methods Supported by YCS
 
-If the YAC uses NVMe-oF-based shared storage, only the in-flight I/O protection algorithm is supported.  
+- [In-Transit I/O Protection Algorithm](./In-Transit IO Protection Algorithm): Does not rely on hardware capabilities of storage devices, has strong compatibility, but slightly lower safety and RTO.
 
-## Configuration Method
-
-The fence type of YAC can be modified using the ycsctl set_ycr command.
-
-- Command format: ycsctl set_ycr FENCE_TYPE <Type Code>
-
-- Notes: This command can only be executed statically. You need to stop all servers in the cluster and restart them for the changes to take effect. The value range of the type code is [0, 1, 2], where 0 is the default value, indicating that IO Fencing is not configured. If the type code is set to 2, please ensure that the YCSRA process has been started on every server; otherwise, refer to the [ycsrootagent tool](../../../Tools Guide/ycsrootagent) to manually start it with sudo.
-
-## Status Query
-
-The fence status of YAC can be queried using the ycsctl show fence command.
-
-- Command format: ycsctl show fence
-
-- Notes: This command requires YCSRA to be online to provide query services.
-
-## Common Issues
-
-Common issues that may be encountered during configuration and usage are recorded in the corresponding subpages according to the fence type.
+- [Reservation-based IO Fencing](./Reservation-based IO Fencing): Requires storage devices to support the corresponding protocols, offering the best security and RTO. Supports both SCSI Persistent Reservation and NVMe Reservation protocols.

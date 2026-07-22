@@ -43,7 +43,7 @@ The following table lists the minimum configuration for a personal development t
    passwd: all authentication tokens updated successfully.   
    
    # groupadd YASDBA
-   # usermod -a -G YASDBA yashan
+   # usermod -aG YASDBA yashan
    # cd /
    # mkdir data
    # cd data
@@ -139,7 +139,7 @@ The following table lists the minimum configuration for a personal development t
    1 row fetched.
    ```
 
-   For your convenience to access YashanDB from remote Windows or Linux devices, please refer to [YashanDB Client Installation](../../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) to deploy the database client tool *yasql* on remote devices.
+   For your convenience to access YashanDB from remote Windows, Linux, or macOS devices, please refer to [YashanDB Client Installation](../../Installation and Upgrade/Installation and Deployment/YashanDB Client Installation/00YashanDB Client Installation) to deploy the database client tool *yasql* on remote devices.
 
 6. Create test users for this product experience.
 

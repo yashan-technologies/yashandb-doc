@@ -71,7 +71,6 @@ BULK COLLECT INTO的目标对象必须是集合类型。
 示例
 
 ```plsql
-
 DECLARE
   TYPE area_tb IS table of area%rowtype;
   type_001 area_tb;
@@ -135,7 +134,6 @@ AREANO:9AREANAME:area09
 示例（HEAP表）
 
 ```plsql
-
 CREATE OR REPLACE PROCEDURE ya_proc IS
   no INT;
   v_area_name VARCHAR(20);
@@ -161,7 +159,6 @@ BULK COLLECT INTO的目标对象必须是集合类型。
 示例（HEAP表）
 
 ```plsql
-
 DECLARE
   TYPE area_tb IS table of area%rowtype;
   type_001 area_tb;

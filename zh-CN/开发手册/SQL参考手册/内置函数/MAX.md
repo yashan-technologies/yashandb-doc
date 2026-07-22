@@ -1,5 +1,5 @@
 ```ebnf
-max = MAX "(" [DISTINCT|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
+max = MAX "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 
@@ -16,9 +16,11 @@ MAX函数计算给定参数[expr](../通用SQL语法/expr)的最大值。
 
 该聚集函数不可与group_id、grouping、grouping_id以及UDF聚集函数嵌套，expr可以为其他聚集函数或者其他通用表达式，聚集函数嵌套层数不能超过一层，其数据类型可以是除布尔型、大对象型、JSON及UDT以外的数据类型。
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 表示在计算最大值时，过滤掉重复的行。
+
+DISTINCT与UNIQUE完全等价。
 
 **ALL**
 

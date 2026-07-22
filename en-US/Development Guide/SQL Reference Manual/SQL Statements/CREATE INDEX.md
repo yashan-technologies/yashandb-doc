@@ -154,20 +154,48 @@ CREATE RTREE INDEX idx_rtree_shp ON geom_test (shp);
 
 ### SEARCH
 
-This statement is used to specify the creation of a full-text index.
+This statement is used to specify the creation of a full-text index (Search Index).
+
+Full-text indexes use an inverted index storage structure. They employ a tokenizer to perform mixed Chinese and English word segmentation, supporting efficient keyword retrieval through the [CONTAINS function](../Built-in Functions/CONTAINS.md). When a LIKE pattern in the query condition can be converted to an equivalent CONTAINS query, the optimizer automatically performs the conversion to accelerate the query using the full-text index. For full-text index usage, see [CONTAINS function](../Built-in Functions/CONTAINS.md).
 
 Full-text indexes have the following restrictions:
 
-- Full-text index is only applicable to HEAP tables and cannot be used for partitioned tables.
+- Full-text index is only applicable to HEAP tables.
 
-- Full-text indexes can only be created for CHAR, VARCHAR, or CLOB columns, and only one column can be specified for each full-text index.
+- Full-text indexes can only be created for CHAR, VARCHAR or CLOB columns, and only one column can be specified for each full-text index.
 
-- When specified as a full-text index, only the parallelism option ([NOPARALLEL|PARALLEL](#parallel)) and and tablespace (TABLESPACE) can be configured and other [index attributes](#indexattrclause) cannot be configured.
+- When specified as a full-text index, only the parallelism option ([NOPARALLEL|PARALLEL](#parallel)), tablespace (TABLESPACE), GLOBAL or [local_index_clause](#localindexclause) can be configured, and other [index attributes](#indexattrclause) cannot be configured.
 
-***Example*** for Standalone Deployment Heap tables and YAC/Distributed Cluster Deployment Heap tables
+- When specified as a full-text index, cannot be created (CREATE) or rebuilt (ALTER INDEX) online (ONLINE).
+
+- Table partition-related DDL operations (DROP/TRUNCATE/SPLIT/MERGE) may cause the full-text index partition in the corresponding partition to become UNUSABLE when the operation fails. If this occurs, you can rebuild the target index partition to fix it.
+
+***Example*** for Heap tables
 
 ```sql
+-- Create a full-text index on a non-partitioned table
 CREATE SEARCH INDEX idx_full_text ON branches (address);
+
+-- Create a LOCAL full-text index on a partitioned table
+CREATE SEARCH INDEX idx_full_text_local ON sales_info (description) LOCAL;
+
+-- Create a GLOBAL full-text index on a partitioned table
+CREATE SEARCH INDEX idx_full_text_global ON sales_info (description) GLOBAL;
+
+CREATE TABLE articles (
+    id INT,
+    title VARCHAR(200),
+    content VARCHAR(2000)
+);
+
+INSERT INTO articles VALUES (1, 'Database Basics', 'This book covers database fundamentals including SQL, performance optimization, and database design principles.');
+INSERT INTO articles VALUES (2, 'MySQL Guide', 'A comprehensive guide to MySQL database management and administration.');
+INSERT INTO articles VALUES (3, 'PostgreSQL vs Oracle', 'Comparison between PostgreSQL and Oracle databases, focusing on performance and features.');
+COMMIT;
+
+CREATE SEARCH INDEX idx_articles_content ON articles (content);
+
+SELECT * FROM articles WHERE CONTAINS(content, 'database') > 0;
 ```
 
 <span id="BITMAP" name="BITMAP"></span>
@@ -245,6 +273,8 @@ Specifies an expression as the index column. An index containing expression-base
 YashanDB supports the use of any [general expression](../General SQL Syntax/expr) as an index column for creating FUNCTION indexes, but there are the following constraint rules:
 
 - FUNCTION indexes cannot be created for LSC tables.
+
+- When creating a FUNCTION index, if there are virtual columns in the table, the expression of the FUNCTION index must not be the same as that of the virtual columns.
 
 - FUNCTION expressions cannot be used on partition keys when creating partition indexes.
 

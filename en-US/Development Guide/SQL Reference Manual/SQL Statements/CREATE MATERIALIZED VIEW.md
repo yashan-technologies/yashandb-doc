@@ -94,7 +94,7 @@ This statement is used to specify the refresh mode of the materialized view, inc
 
 At most one refresh mode can be specified; if omitted, the default is ON DEMAND.
 
-Materialized views containing DBLINK remote tables as base tables do not support `ON COMMIT` refresh mode.
+Materialized views containing DBLink remote tables as base tables do not support `ON COMMIT` refresh mode.
 
 #### START WITH date|NEXT date
 
@@ -134,7 +134,7 @@ The query rewrite functionality includes the following restrictions:
 - Materialized views are not allowed to contain variable built-in functions (such as time-related functions), UDFs, and packages.
 - Materialized views are not allowed to contain table functions.
 - Materialized views are not allowed to contain pseudo-columns.
-- Materialized views cannot use dblink remote tables as their base tables.
+- Materialized views cannot use DBLink remote tables as their base tables.
 - When the definition of the table on which the materialized view is based is modified and causes the materialized view to become invalid, the materialized view cannot be used for query rewrite. Modifications to the table definition include:
   - Changes to the data types of selected base table columns
   - Deletion of selected base table columns

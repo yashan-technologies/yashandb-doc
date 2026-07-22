@@ -9,7 +9,7 @@ CREATE DATABASE LINK语句用于创建一个数据库链接对象。本地当前
 
 - 同构数据库链接：YashanDB与YashanDB的数据库链接
 
-- 异构数据库链接：YashanDB与Oracle的数据库链接，需要进行[dblink配置管理](../通用SQL语法/dblink/dblink配置管理)
+- 异构数据库链接：YashanDB与Oracle、达梦数据库、金仓数据库的数据库链接，需要进行[DBLink配置管理](../通用SQL语法/dblink/DBLink配置管理)
 
 语句定义
 ----
@@ -42,7 +42,7 @@ CREATE DATABASE LINK语句用于创建一个数据库链接对象。本地当前
 **[database\_type](#databasetype)::=**
 
 ```ebnf
-= [YASHAN | ORACLE].
+= [YASHAN | ORACLE | DM | KING].
 ```
 
 <span id="createdatabaselink" name="createdatabaselink"></span>
@@ -83,7 +83,7 @@ CREATE DATABASE LINK语句用于创建一个数据库链接对象。本地当前
 
 #### database\_type
 
-该语句用于指定远程数据库系统或标准接口标签名，支持识别Yashan和Oracle，省略时默认为Yashan。
+该语句用于指定远程数据库系统或标准接口标签名，支持识别Yashan、Oracle、DM和KING，省略时默认为Yashan。
 
 #### url
 
@@ -93,9 +93,9 @@ CREATE DATABASE LINK语句用于创建一个数据库链接对象。本地当前
 
 #### db\_name
 
-该语句用于指定远程Oracle数据库的名称。
+该语句用于指定远程Oracle数据库或金仓数据库的名称。
 
-若远程数据库为YashanDB，不能指定数据库名称。
+若远程数据库为YashanDB或达梦数据库，不能指定数据库名称。
 
 示例
 
@@ -105,4 +105,10 @@ CREATE DATABASE LINK dblink_yashan CONNECT TO sales identified BY sales USING '1
 
 -- YashanDB与Oracle的数据库链接，且对所有用户可见
 CREATE PUBLIC DATABASE LINK dblink_oracle CONNECT TO REGRESS identified BY REGRESS USING 'oracle:192.168.1.2:1521/orcl';
+
+-- YashanDB与达梦数据库的数据库链接
+CREATE DATABASE LINK dblink_dm CONNECT TO DMUSER IDENTIFIED BY DMPWD USING 'dm:192.168.1.3:5236';
+
+-- YashanDB与金仓数据库的数据库链接
+CREATE DATABASE LINK dblink_king CONNECT TO KINGUSER IDENTIFIED BY KINGPWD USING 'king:192.168.1.4:54321/TEST';
 ```

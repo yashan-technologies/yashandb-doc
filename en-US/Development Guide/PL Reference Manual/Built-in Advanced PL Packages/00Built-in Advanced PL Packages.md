@@ -2,6 +2,8 @@ YashanDB provides a range of built-in advanced packages, which encapsulate vario
 
 - System standard functionality and transaction processing related
 
+    [DBMS_BRANCH](DBMS_BRANCH)
+
     [DBMS_CRYPTO](DBMS_CRYPTO)
 
     [DBMS_DESCRIBE](DBMS_DESCRIBE)
@@ -31,6 +33,8 @@ YashanDB provides a range of built-in advanced packages, which encapsulate vario
     [DBMS_XA](DBMS_XA)
 
     [UTL_FILE](UTL_FILE)
+
+    [UTL_SMTP](UTL_SMTP)
 
     [UTL_ENCODE](UTL_ENCODE)
 	
@@ -63,6 +67,8 @@ YashanDB provides a range of built-in advanced packages, which encapsulate vario
     [DBMS_AWR](DBMS_AWR)
 
     [DBMS_AWR_EXTRA](DBMS_AWR_EXTRA)
+
+    [DBMS_PROFILER](DBMS_PROFILER)
 
     [DBMS_STATS](DBMS_STATS)
 
@@ -149,6 +155,14 @@ YashanDB provides a range of built-in advanced packages, which encapsulate vario
 - Partition table global index maintenance and cleanup
 
   [DBMS_PART](DBMS_PART)
+
+- AI capability related
+
+  [DBMS_LLM](DBMS_LLM)
+
+- Volume Storage
+
+  [DBMS_FS](DBMS_FS)
 
 Based on the above built-in advanced packages, users can perform real-time functionality operations in the SQL client. For specific functionality descriptions of each advanced package, refer to the relevant documentation. Users can also utilize [Package](../PL Objects/Packages) functionality for more customized development.
 

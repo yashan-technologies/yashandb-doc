@@ -69,21 +69,21 @@ This command is used to clean YashanDB on all servers and can also be used for e
 
 > **Warn**:
 >
-> If --restore is not specified, the clean operation will stop all database processes on all servers (using --purge will also delete data) and remove the database cluster from yasom management, meaning yasom can no longer manage this database cluster.
+> The --restore option is a critical parameter. Please clarify whether you need to specify it or not before executing this command.
 
 |Option |Meaning |
 | --------------- | ------------------------------------------- |
 | *-c, --cluster*   | The cluster name of YashanDB (required) |
-| *-f,--force*      | Force clean flag; a confirmation prompt will appear if this parameter is not used |
-| *-r,--restore*    | Preparations before database restore operation, deletes all contents under /dbfiles and /local_fs directories on each node, and starts the database to NOMOUNT stage |
-| *-w, --nowait*    | Do not wait for the execution command result after running |
-| *--purge*         | Clean the cluster and delete all node data, default is false |
-| *--with-arch*     | Delete archive log files (effective when --restore is true), default is false |
+| *-r, --restore*    | Identifies whether the current operation is preparatory work for restoring the database<br/>* Specifying this option indicates it is; this operation will delete all contents under /dbfiles and /local_fs directories on each node, and start the target database to the NOMOUNT stage<br/>* Not specifying this option indicates it is not; this operation will stop all database processes on all servers (using --purge will also delete data), and remove from yasom information, meaning yasom can no longer manage this database cluster |
+| *--with-arch*     | Delete archive logs, default is not to delete<br/>Only effective when --restore is specified |
+| *-p, --password*  | Password for the database `sys` user<br/>Only effective when --restore is specified<br/>If [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified |
+| *--purge*         | Clean the cluster and delete all node data, default is not to clean<br/>Cannot be specified together with `--restore` |
+| *-f, --force*     | Whether the clean operation requires secondary confirmation, defaults to requiring confirmation when omitted |
 | *-d, --child*     | Display information about tasks and subtasks |
 | *--disable*       | Disable the display of the task progress bar |
-| *-p, --password*  | Password for the database `sys` user; effective when --restore is true<br/>If [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified |
+| *-w, --nowait*    | Do not wait for the execution command result after running |
 | *--wait-timeout*  | Command execution timeout (hidden parameter) |
-| *-h,--help*          | View help information for the current command  |
+| *-h,--help*          | View help information for the current command  ||
 
 ***Example***
 
@@ -98,6 +98,8 @@ $ yasboot cluster clean -c yashandb --restore --with-arch
 ## cluster stop
 
 This command is used to stop YashanDB services on all servers.
+
+When YashanDB is deployed as a CDB (configuration parameter ENABLE_PLUGGABLE_DATABASE=TRUE), this command will close all PDBs simultaneously.
 
 |Option |Meaning |
 | ----------------- | ----------------------- |
@@ -123,6 +125,8 @@ $ yasboot cluster stop -c yashandb -f
 
 This command is used to start YashanDB services on all servers.
 
+When YashanDB is deployed as a CDB (configuration parameter ENABLE_PLUGGABLE_DATABASE=TRUE), this command will start the PDBs that start with the CDB root (i.e., PDBs created without specifying `--policy` or with `--policy` set to `automatic`) simultaneously.  
+
 |Option |Meaning |
 | ------------------ | ---------------------------------------------------- |
 | *-c, --cluster*      | The cluster name of YashanDB (required) |
@@ -146,6 +150,8 @@ $ yasboot cluster start -c yashandb -m nomount
 ## cluster restart
 
 This command is used to restart YashanDB services on all servers.
+
+When YashanDB is deployed as a CDB (configuration parameter ENABLE_PLUGGABLE_DATABASE=TRUE), this command will close all PDBs, but will only restart those PDBs that start with the CDB root (i.e., PDBs created without specifying `--policy` or with `--policy` set to `automatic`). 
 
 |Option |Meaning |
 | ------------------ | ----------------------- |
@@ -254,6 +260,7 @@ This command is used to upgrade the version of the database on all nodes in the 
 | *--logic-stdby-file-size* | In incompatible version rolling upgrade scenarios for Primary/Standby YAC, each instance in the primary cluster will automatically create 3 STANDBY LOG files to store redo logs from the logical standby during the upgrade<br />This parameter specifies the total size of the 3 STANDBY LOG files on the primary cluster's master instance (other instances always use the minimum value). The default is 2048M, and the value must not exceed 10G |
 | *--rolling-sync-timeout* | In incompatible version rolling upgrade scenarios for Primary/Standby YAC, the default timeout for the upgrade task is 2 hours. If exceeded, the upgrade will be interrupted |
 | *--continue*                 | In scenarios where rolling upgrade between incompatible versions fails and prompts "please execute 'yasboot cluster upgrade --rolling --continue' to continue upgrade", you can specify this parameter to resume the upgrade |
+| *--wallet-password* | The password of database wallet                  |
 | *-w, --nowait*               | Do not wait for the execution command result after running   |
 | *-d, --child*                | Display information about tasks and subtasks                 |
 | *--disable*                  | Disable the display of the task progress bar                 |

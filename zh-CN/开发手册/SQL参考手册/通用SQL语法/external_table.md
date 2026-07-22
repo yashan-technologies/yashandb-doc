@@ -144,12 +144,14 @@ location_specifier为一个已存在的csv文件的名称。
 
 ```sql
 -- 在/data/area.csv中存在如下数据：
-8|load|801|loadbranch|8
-9|load|901|loadbranch|9
+01|EastChina|Shanghai
+02|WestChina|Chengdu
 
--- 在数据库中创建目录对象和外部表
+-- 在数据库中创建目录对象
 CREATE DIRECTORY dir_ext AS '/data';
-CREATE TABLE area_external(
+
+-- 创建外部表1
+CREATE TABLE area_external1(
  area_no CHAR(2),
  area_name VARCHAR2(60),
  DHQ VARCHAR2(20) DEFAULT 'ShenZhen')
@@ -164,6 +166,29 @@ ORGANIZATION EXTERNAL(
 REJECT LIMIT 1;
 
 -- 查询表数据，由于文件内数据格式与表定义格式不匹配，将无法查询到数据且达到容错行数退出
-select * from area_external;
+select area_no,area_name,DHQ from area_external1;
 YAS-02687 reject limit reached
+
+-- 创建外部表2
+CREATE TABLE area_external2(
+ area_no CHAR(2),
+ area_name VARCHAR2(60),
+ DHQ VARCHAR2(20) DEFAULT 'ShenZhen')
+ORGANIZATION EXTERNAL(
+ TYPE YASDB_LOADER
+ DEFAULT DIRECTORY dir_ext
+ ACCESS PARAMETERS(
+  RECORDS BADFILE 'area_bad.log' LOGFILE 'area_log.log'
+  FIELDS TERMINATED BY '|')
+ LOCATION ('area.csv')
+)
+REJECT LIMIT 1;
+
+-- 查询表数据
+select area_no,area_name,DHQ from area_external2;
+
+AREA_NO AREA_NAME                                                     DHQ
+------- ------------------------------------------------------------- ---------------------
+01      EastChina                                                     Shanghai
+02      WestChina                                                     Chengdu
 ```

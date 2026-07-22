@@ -21,7 +21,7 @@ VECTOR_SERIALIZE函数与FROM_VECTOR函数含义相同。
 - 返回VARCHAR时指定长度和单位（BYTE或CHAR），省略BYTE或CHAR时表示为BYTE。
 - 返回VARCHAR时，如果转换后的字符串长度超过指定长度，则报错。
 
-示例（单机HEAP表）
+示例（HEAP表）
 
 ```sql
 CREATE TABLE table_convert_test(c1 int,c2 VECTOR(4,float32),c3 VECTOR(4,float64));

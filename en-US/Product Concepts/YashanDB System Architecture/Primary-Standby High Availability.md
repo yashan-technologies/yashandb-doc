@@ -24,7 +24,7 @@ The following diagram illustrates this:
 
     Receives and applies logs from the primary database, operating in read-only mode. When the primary database fails, the status of the standby database switches to that of the primary database. A primary database can have multiple standby databases.
 
-    In standalone primary/standby high availability deployments, standby databases can be further categorized into physical standby databases and logical standby databases based on the replication method.
+    In standalone primary/standby high availability deployments, standby databases can be further categorized into physical standby databases, logical standby databases and snapshot standby.
 
     In primary/standby cluster deployments, the standby database expands to the concept of a standby cluster, but only the primary instance in the standby cluster is needed to receive and apply logs.
 
@@ -61,3 +61,5 @@ YashanDB supports manual switching of the primary and standby databases and lead
 - **Leader Election**
 
     Based on different deployment scenarios, YashanDB implements various mechanisms for leader election, including one-primary/multi-standby leader election and *yasom* election, reducing operational complexity. When an exception occurs with the primary database and it cannot provide services, the system selects a new primary database from the standby databases according to the corresponding mechanism and automatically performs the primary/standby switch. For more details, please refer to [leader election](../High Availability/Automatic Election).
+
+

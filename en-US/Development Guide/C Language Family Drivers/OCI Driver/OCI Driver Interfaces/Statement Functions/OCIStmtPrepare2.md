@@ -1,6 +1,6 @@
 ## Functionality Overview
 
-The OCIStmtPrepare2 function is used to prepare SQL or PL statements for execution.
+OCIStmtPrepare2 is an extended version of OCIStmtPrepare function, used to prepare SQL or PL statements for execution. The main difference from OCIStmtPrepare is the support for statement cache functionality and independent statement handle management.
 
 ## Function Declaration
 

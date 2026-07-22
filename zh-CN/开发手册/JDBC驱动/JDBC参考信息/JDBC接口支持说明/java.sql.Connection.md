@@ -37,7 +37,7 @@ YashanDB JDBC驱动对connection接口有如下方法（单机部署/共享集�
 | getHoldability()          | int             |  -         |
 | setSavepoint()            | Savepoint       |  -         |
 | setSavepoint(String name)                | Savepoint       |  -         |
-| Struct            | createStruct(String typeName, Object[] attributes)  |  -         |
+| createStruct(String typeName, Object[] attributes) | Struct |  -         |
 | rollback(Savepoint savepoint)            | void            |  -         |
 | isValid(int timeout)      | boolean         |  -         |
 | setSchema(String schema)                 | void            |  -         |
@@ -84,7 +84,7 @@ YashanDB JDBC驱动对connection接口有如下方法（存算一体分布式集
 | createBlob()             | Blob            |  -    |
 | setSavepoint()           | Savepoint       |  -    |
 | setSavepoint(String name)               | Savepoint       |  -    |
-| Struct      | createStruct(String typeName, Object\[\] attributes) |  -    |
+| createStruct(String typeName, Object\[\] attributes)     | Struct |  -    |
 | rollback(Savepoint savepoint)           | void            |  -    |
 | createSQLXML()           | SQLXML          |  -    |
 | setHoldability(int holdability)         | void            |  -    |

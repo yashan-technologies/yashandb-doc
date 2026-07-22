@@ -1,5 +1,5 @@
 ```ebnf
-json_value = JSON_VALUE "(" expr [FORMAT JSON] ","  json_path ")".
+json_value = JSON_VALUE "(" expr [FORMAT JSON] ","  json_path  [RETURNING type] ")".
 ```
 JSON_VALUE函数将基于json_path所描述的路径对json_value进行检索，并返回对应的标量值。
 
@@ -12,7 +12,7 @@ JSON_VALUE函数将基于json_path所描述的路径对json_value进行检索，
 
 **expr**
 
-expr支持字符串类型，LOB，BFILE，RAW，JSON类型；在运算之前会先转成JSON类型，转换失败后函数返回NULL。
+expr支持字符串类型、LOB、BFILE、RAW以及JSON类型。在运算之前会先转成JSON类型，转换失败后函数返回NULL。
 
 **FORMAT JSON**
 
@@ -22,7 +22,12 @@ expr支持字符串类型，LOB，BFILE，RAW，JSON类型；在运算之前会�
 
 路径表达式，为一个常量字符串，其格式定义请参考[json](../通用SQL语法/json)文档中描述。
 
+**RETURNING type**
+
+RETURNING子句，type为SQL标量类型，目前支持CHAR、VARCHAR、VARCHAR2、NCHAR、NVARCHAR、TINYINT、SMALLINT、INT、BIGINT、NUMBER、FLOAT、DOUBLE以及CLOB类型。
+
 示例（HEAP表）
+
 ```sql
 SELECT JSON_VALUE('{"key4":-0.123,"key5":"test"}','$.key4') res FROM DUAL;
 RES
@@ -57,4 +62,72 @@ SELECT JSON_VALUE(JSON(c1), '$[0].key4[0][0][0]') res FROM table_json ORDER BY i
 RES
 ----------------------------------------------------------------
 456
+
+SELECT JSON_VALUE('{"data": 123}', '$.data' RETURNING CHAR(3))  v  from dual;
+
+V     
+----- 
+123  
+
+SELECT JSON_VALUE('{"data": 123}', '$.data' RETURNING DOUBLE)  v  from dual;
+
+          V 
+----------- 
+  1.23E+002
+
+SELECT JSON_VALUE('{"data": 123}', '$.data' RETURNING NUMBER)  v  from dual;
+
+          V 
+----------- 
+        123
+
+
+SELECT JSON_VALUE('{"data": "123.45"}', '$.data' RETURNING int) v from dual;
+
+           V 
+------------ 
+         123
+
+SELECT JSON_VALUE('{"data": "-99999"}', '$.data' RETURNING int) v from dual;
+
+           V 
+------------ 
+      -99999
+
+
+--- 创建带有json列的索引表
+create table test(a int, b json);
+insert into test values(1,  '{"key" : 2147483641 }'),
+                       (8,  '{"key" : 2147483642 }'),
+                       (11, '{"key" : 2147483643 }'),
+                       (12, '{"key" : 2147483644 }'),
+                       (15, '{"key" : 2147483647 }'),
+                       (16, '{"key" : 2147483648 }'),
+                       (17, '{"key" : 2147483649 }'),
+                       (18, '{"key" : 2147483650 }'),
+                       (19, '{"key" : 2147483651 }');
+
+--- 使用json-value创建索引，索引列为bigint类型
+create index int_index on test(JSON_VALUE(b, '$.key' RETURNING BIGINT));
+
+--- 谓词中使用json_value，查询计划选中int_index索引
+explain select * from test where json_value(b, '$.key' returning bigint) > 2147483644;
+
+PLAN_DESCRIPTION                                                 
+---------------------------------------------------------------- 
+SQL hash value: 54853043                                        
+Optimizer: ADOPT_C                                              
+                                                                
++----+--------------------------------+----------------------+------------+----------+-------------+--------------------------------+
+| Id | Operation type                 | Name                 | Owner      | Rows     | Cost(%CPU)  | Partition info                 |
++----+--------------------------------+----------------------+------------+----------+-------------+--------------------------------+
+|  0 | SELECT STATEMENT               |                      |            |          |             |                                |
+|  1 |  TABLE ACCESS BY INDEX ROWID   | TEST                 | SYS        |     33000|        6( 0)|                                |
+|* 2 |   INDEX RANGE SCAN             | SMALLINT_INDEX       | SYS        |     33000|        4(100)|                                |
++----+--------------------------------+----------------------+------------+----------+-------------+--------------------------------+
+                                                                
+Operation Information (identified by operation id):             
+---------------------------------------------------             
+                                                                
+   2 - Predicate : access("TEST"."JSON_VALUE(b, '$.key' RETURNING smallint)" > 2147483644)
 ```

@@ -1,18 +1,18 @@
 ```ebnf
-string_agg = STRING_AGG "(" [DISTINCT|ALL] string "," separator [order_by_clause] ")".
+string_agg = STRING_AGG "(" [DISTINCT|UNIQUE|ALL] string "," separator [order_by_clause] ")".
 ```
 
 The STRING\_AGG function concatenates multiple rows of data, with a separator between them, returning a single row of CLOB type string. This function has similar functionality to the [GROUP_CONCAT](GROUP_CONCAT) function.
 
 This function does not support vectorization calculation.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Filters out duplicate rows that appear within the same group when calculating the final concatenated result.
 
+DISTINCT and UNIQUE are completely equivalent.
 
 DISTINCT does not support LOB data.
-
 
 **ALL**
 

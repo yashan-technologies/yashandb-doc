@@ -15,5 +15,5 @@ YacResult yacNumberRound(YacNumber* n,
 |Parameter Name |Description |
 | -------------- | -------------------- |
 | n (IN/OUT)       | Holds the value of type number. |
-| precision (IN)   | Precision.                     |
-| scale (IN)       | Number of decimal places.      |
+| precision (IN)   | Precision, the valid range is [1,38] |
+| scale (IN)       | Number of decimal places, the valid range is [-84,127] |

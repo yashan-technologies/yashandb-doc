@@ -3,7 +3,7 @@
 
 MERGE语句整合了多步的SELECT/UPDATE/INSERT/DELETE操作，使用一次该语句即可实现根据条件（Condition）把源（Source）对象记录整合到目标（Target）对象的功能。
 
-本语句适用于单机HEAP/TAC表和共享集群/分布式集群部署。
+本语句适用于单机HEAP、TAC表和共享集群/分布式集群部署HEAP表。
 
 语句中的merge\_update\_clause和merge\_insert\_clause至少要定义一个。
 

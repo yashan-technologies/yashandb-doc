@@ -1,4 +1,3 @@
-
 JSON is a data interchange format independent of programming languages, represented in a text format to express data. Supporting JSON format in database systems can make data transfer between applications and databases more straightforward, understandable, and logically structured.
 
 YashanDB supports defining and calculating JSON data using standard JSON format, including its two structural forms and six data types; it also supports using the [JSON extended format](#json-ext) to extend support for other data types in the database.
@@ -151,7 +150,7 @@ Common matching errors include:
   - The input value contains illegal characters.
   - The input value exceeds the range that this type can express.
 - When matching the Number type and the input value is infinite or NaN; note that the Number type does not support such values, but Float and Double types do.
-- When matching the Binary type, the input base64 encoded string does not meet its encoding requirements (e.g., `{"$binary": "«»"}`).
+- When matching the Binary type, the input base64 encoded string does not meet its encoding requirements (e.g., `{"$binary": "??"}`).
 - The input string does not meet other parsing requirements.
 
 When in extended mode, the JSON function will further process numeric data without an explicitly indicated type:  
@@ -220,6 +219,7 @@ In extended format, the output follows these rules. For clarity, when stating th
    - Timestamp type's key is `$yashanTimestamp`.
    - Date type's key is `$yashanDate`.
    - Time type's key is `$yashanTime`.
+
 ## Path Expression
 
 YashanDB provides several built-in functions to implement search functionalities within JSON data (such as checking whether a key exists in JSON data), which need to be used in conjunction with path expressions.
@@ -229,7 +229,7 @@ Path expressions are somewhat similar to XQuery or XPath expressions for XML dat
 **[json_path](#jsonpath)::=**
 
 ```ebnf
-= "$" [nonfunction_steps] [function_step].
+= "$" [(nonfunction_steps | filter_step){ " " (nonfunction_steps | filter_step)}] [function_step].
 ```
 
 **[nonfunction_steps](#nonfunctionsteps)::=**
@@ -256,6 +256,60 @@ Path expressions are somewhat similar to XQuery or XPath expressions for XML dat
 = ".." key.
 ```
 
+**[filter_step](#filterstep)::=**
+
+```ebnf
+= "?" "(" condition ")".
+```
+
+**[condition](#filterstep)::=**
+
+```ebnf
+= predicate
+| "(" condition ")"
+| "!" "(" condition ")"
+| condition ("&&"|"||") condition
+| "exists" "(" relative_path ")".
+```
+
+**[predicate](#filterpredicate)::=**
+
+```ebnf
+= operand compare_op operand
+| operand keyword_predicate operand
+| operand "in" "(" [literal {"," literal}] ")".
+```
+
+**[compare_op](#filterpredicate)::=**
+
+```ebnf
+= "=="|"!="|"<>"|"<"|"<="|">"|">=".
+```
+
+**[keyword_predicate](#filterpredicate)::=**
+
+```ebnf
+= "like"|"starts with"|"has substring"|"like_regex"|"ci_like_regex"|"eq_regex"|"ci_regex".
+```
+
+**[operand](#filteroperand)::=**
+
+```ebnf
+= relative_path | literal.
+```
+
+**[relative_path](#filteroperand)::=**
+
+```ebnf
+= "@" [nonfunction_steps] [function_step].
+```
+
+**[literal](#filteroperand)::=**
+
+```ebnf
+= string | number | "true" | "false" | "null".
+```
+
 **[function_step](#functionstep)::=**
 
 ```ebnf
@@ -270,7 +324,7 @@ Path expressions are somewhat similar to XQuery or XPath expressions for XML dat
 
 <span id="jsonpath" name="jsonpath"></span>
 
-The path expression uses an absolute path, beginning with the symbol `$`, which denotes the matching path for retrieving JSON data. Following `$`, there can be zero or more nonfunction_steps and an optional function_step to support multi-step matching; if no content follows, it denotes a matching path completely consistent with the JSON data.
+The path expression uses an absolute path, beginning with the symbol `$`, which denotes the matching path for retrieving JSON data. Following `$`, there can be zero or more nonfunction_steps or filter_step, and an optional function_step to support multi-step matching; if no content follows, it denotes a matching path completely consistent with the JSON data. The JSON_EXISTS, JSON_VALUE, and JSON_QUERY functions all support the full path expression syntax (including the filter_step expression).
 
 A path expression selects zero or more matching values. Generally, each step in the path expression is tried sequentially. If the current step fails to match, subsequent steps will not be attempted, and the path expression will fail. If each step matches successfully, the path expression succeeds.
 
@@ -364,6 +418,95 @@ RES
 [4,1,3] 
 ```
 
+<span id="filterstep" name="filterstep"></span>
+
+### filter_step
+
+Filter expression steps used to filter the values matched in prior steps by a condition. For each matched value, the condition is evaluated independently; if the condition is true, the value is kept, otherwise it is discarded.
+
+`filter_step` starts with `?`, followed by a condition expression enclosed in parentheses `()`. It can appear after `object_step`, `array_step`, or `descendent_step` (or directly after `$`). In a single path, `filter_step` can appear multiple times, but two `filter_steps` cannot be adjacent, and it cannot appear after `function_step`.
+
+<span id="filteroperand" name="filteroperand"></span>
+
+#### Operands
+
+The operands in a condition can be:
+
+- **Relative path**: Starts with `@`, where `@` represents the value currently being filtered. The `@` can be followed by any non-function steps and item_method function steps, for example `@.a.b`, `@[0]`, `@.a.size()`.
+
+- **Literal**: String (using double quotes, supporting standard JSON string escape syntax), number, `true`, `false`, `null` (must be all lowercase).
+
+In a comparison, at least one side must be a constant. Two relative paths cannot be compared directly. The types on both sides need to be compatible. Type incompatibility will result in a syntax error or be treated as non-matching. Compatibility and matching rules are as follows:
+
+- Number vs number
+
+- String vs string
+
+- Boolean vs boolean, and booleans can be compared with string constants containing `"true"`/`"false"` (case-insensitive)
+
+- `null` is only equal to `null`
+
+- When the path ends with item_method, the result of `type()` can only be compared with strings, and the results of `size()`/`count()` can only be compared with numbers
+
+- If the value matched by the relative path is an array, the comparison is performed element-by-element. If any element satisfies the condition, the comparison is considered true (consistent with loose matching semantics)
+
+<span id="filterpredicate" name="filterpredicate"></span>
+
+#### Predicates and Operators
+
+- Comparison operators: `==`, `!=`, `<>` (equivalent to `!=`), `<`, `<=`, `>`, `>=`.
+
+- Logical operators: `&&` (AND), `||` (OR), `!` (NOT, applied to a parenthesized condition). For complex combinations, it is recommended to use parentheses explicitly.
+
+- Keyword predicates (keywords must be all lowercase):
+
+   | Predicate | Description |
+   |---|---|
+   | `like` | Pattern matching; `%` matches any length of characters, `_` matches a single character, and the escape character is fixed as the backtick `` ` `` |
+   | `starts with` | Prefix matching (case sensitive) |
+   | `has substring` | Substring inclusion matching |
+   | `like_regex` | Regular expression partial matching (case sensitive); the right side must be a string literal |
+   | `ci_like_regex` | Regular expression partial matching (case insensitive); the right side must be a string literal |
+   | `eq_regex` | Regular expression full-string matching (case sensitive, automatically anchored to the entire string); the right side must be a string literal |
+   | `ci_regex` | Regular expression full-string matching (case insensitive); the right side must be a string literal |
+   | `in ( ... )` | True if the left value is in the literal list; non-null elements in the list must be of the same type |
+   | `exists ( ... )` | True if the relative path inside the parentheses can match a value; nested filter conditions are also supported |
+
+   In the string-type predicates above, if the left value is `null`, it is judged as no match; if the left value is a non-string scalar, the system tries to implicitly convert it to a string for matching. If the conversion fails, it is judged as no match.
+
+- Nesting limit: The maximum nesting depth of parentheses in the condition expression is 512 levels, and the overall complexity (expression node depth) is limited to 256 levels; exceeding this will result in an error.
+
+***Example***
+
+```sql
+SELECT JSON_QUERY(JSON('[{"a":1},{"a":2},{"a":3}]'), '$[*]?(@.a > 1)' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[{"a":2},{"a":3}]
+
+SELECT JSON_QUERY(JSON('[{"a":1},{"b":2},{"a":3}]'), '$[*]?(exists(@.b))' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[{"b":2}]
+
+SELECT JSON_QUERY(JSON('[{"name":"pen"},{"name":"book"},{"name":"bag"}]'),
+                  '$[*]?(@.name like "b%")' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[{"name":"book"},{"name":"bag"}]
+
+SELECT JSON_VALUE(JSON('{"items":[{"name":"pen","price":3},{"name":"book","price":12}]}'),
+                  '$.items[*]?(@.price > 10).name') RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+book
+
+SELECT JSON_QUERY(JSON('[1,2,3,4]'), '$[*]?(@ in (1, 3))' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[1,3]
+```
+
 <span id="functionstep" name="functionstep"></span>
 
 ### function_step
@@ -403,7 +546,7 @@ To provide more flexible querying, YashanDB supports a loose matching mode (this
 
 - If the current match is an array_step but the JSON data is non-Array type, the system will automatically wrap the JSON data into a single-element array and then match.
 
-  Example
+  ***Example***
 
   ```sql
   SELECT JSON_QUERY(JSON('1'), '$[0]') RES FROM dual;
@@ -414,7 +557,7 @@ To provide more flexible querying, YashanDB supports a loose matching mode (this
 
 - If the current match is a non-array_step, such as object_step or function_step, but the JSON data is of Array type, the system will apply the current matching path to each element in the Array.
 
-  Example
+  ***Example***
   
   ```sql
   SELECT JSON_QUERY(JSON('[{"a": 1}, {"a": 2}, {"a": 3}]'), '$.a' WITH WRAPPER) RES FROM dual;
@@ -422,3 +565,18 @@ To provide more flexible querying, YashanDB supports a loose matching mode (this
   ---------------------------------------------------------------- 
   [1,2,3] 
   ```
+
+### Fixed-path Function Index
+
+[JSON_VALUE](../Built-in Functions/JSON_VALUE.md) is a deterministic function and can be used to create function indexes. When queries frequently extract scalar values from JSON data for filtering operations according to a certain fixed path (the path expression must be a constant string), a function index can be created based on this JSON_VALUE expression to accelerate the queries.
+
+***Example***
+
+```sql
+CREATE TABLE goods(id INT, info JSON);
+
+CREATE INDEX idx_goods_price ON goods(JSON_VALUE(info, '$.price'));
+
+-- A query condition consistent with the index expression can hit this function index
+SELECT id FROM goods WHERE JSON_VALUE(info, '$.price') = '10';
+```

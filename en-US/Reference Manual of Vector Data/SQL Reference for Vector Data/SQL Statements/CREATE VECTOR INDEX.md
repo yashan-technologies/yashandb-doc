@@ -12,9 +12,9 @@ HNSW (Hierarchical Navigable Small World) is an efficient algorithm for Approxim
 
 After creating a vector index, query performance will only be improved via the index if the SQL query meets the following conditions and using the index results in a lower performance cost.
 
-- The query SQL statement includes both an `order_by_clause` and a `fetch` clause;
-- The `order_by_clause` must be based on a vector column for which a vector index has been created, and the distance function of the vector index must match the one used in the query statement;
-- The `fetch` clause must specify the APPROXIMATE or APPROX keyword;
+- The query SQL statement includes both an `order_by_clause` and a `fetch` clause.
+- The `order_by_clause` must be based on a vector column for which a vector index has been created, and the distance function of the vector index must match the one used in the query statement.
+- The `fetch` clause must specify the APPROXIMATE or APPROX keyword.
 
 ## Statement Definition
 
@@ -145,7 +145,7 @@ If the degree of parallelism is not specified, it defaults to half the number of
 
 The degree of parallelism, acceptable values range from [1, server CPU core count * 2]. It can be omitted. If omitted and the current table has a data volume greater than 1G but less than the current DATA_BUFFER_SIZE parameter value, it defaults to half the number of CPU cores.
 
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
 CREATE TABLE VECTOR_TABLE(
@@ -160,8 +160,5 @@ CREATE VECTOR INDEX HNSW_INDEX
     TYPE HNSW, 
     M 16, 
     EFCONSTRUCTION 64
-  );
+  ) PARALLEL 4;
 ```
-
-
-

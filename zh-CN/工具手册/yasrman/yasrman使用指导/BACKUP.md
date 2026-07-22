@@ -29,8 +29,6 @@ PARAMS xbsa_parameter)}.
 
 ### COMPRESSION
 
-
-
 指定备份集的压缩属性，包括压缩算法和压缩级别。若仅指定COMPRESSION关键字（算法与级别均省略）则默认采用ZSTD算法和LOW级别进行压缩。
 
 增量备份的每个备份集允许采用不同的压缩算法及级别，不影响对其的恢复。
@@ -53,11 +51,7 @@ PARAMS xbsa_parameter)}.
 
 - HIGH
 
-
-
 ### ENCRYPTION
-
-
 
 指定备份集的加密属性，包括加密算法和密钥。若不明确指定加密算法，则默认采用SM4。
 
@@ -73,20 +67,13 @@ PARAMS xbsa_parameter)}.
 - AES256
 - SM4
 
-
 **密钥**
 
 加密备份时的密钥通过IDENTIFIED BY关键字指定，密钥的约束规则同[数据库用户的密码规则](../../../开发手册/SQL参考手册/SQL语句/CREATE USER.md#password)。
 
-
-
 ### PARALLELISM
 
-
-
 指定多线程备份的并行度，取值范围为[1,16]，省略时默认为2。
-
-
 
 ### DEST
 
@@ -116,8 +103,6 @@ PARAMS xbsa_parameter)}.
 
 ### SECTION SIZE
 
-
-
 指定文件的分片规格，超过该值的文件会被拆分为多个小文件执行备份，取值范围为[128M,32T]，省略时默认为系统自动计算的最优值。
 
 配置建议如下：
@@ -129,8 +114,6 @@ PARAMS xbsa_parameter)}.
 - 建议分片规格小于4G。
 
 若指定的数值不是1M的整数倍，会向下取整按1M对齐。
-
-
 
 ### SKIP VALIDATE
 
@@ -230,11 +213,7 @@ $ yasrman sys/********@192.168.1.2:1688 -c "backup archivelog all tag 'arch_all2
 
 ### TAG
 
-
-
 指定备份集的唯一标识，用于区分备份集，标识名最大长度为64（包含结束符'\\0'）。
-
-
 
 ### backupCommonSpecifier
 
@@ -316,11 +295,7 @@ TBS_NAME表示需要手动指定的表空间名，且该表空间必须存在于
 
 ### TAG
 
-
-
 指定备份集的唯一标识，用于区分备份集，标识名最大长度为64（包含结束符'\\0'）。
-
-
 
 ### backupCommonSpecifier
 
@@ -382,7 +357,6 @@ $ yasrman sys/********@192.168.1.2:1688 -c "backup tablespace user,system tag 's
 >
 > - 在容器数据库中，直连根容器时仅支持指定ALL、UNTIL TIME或UNTIL SCN指定归档日志范围，直连PDB时不受限制。
 
-
 ### FROM|BETWEEN … AND …|UNTIL
 
 配合SEQUENCE、SCN或时间指定备份起/止点，规则与定义同[BACKUP ARCHIVELOG](../../../开发手册/SQL参考手册/SQL语句/BACKUP ARCHIVELOG)语句中相关描述。
@@ -402,11 +376,7 @@ $ yasrman sys/********@192.168.1.2:1688 -c "backup archivelog all tag 'arch_all'
 
 ### TAG
 
-
-
 指定备份集的唯一标识，用于区分备份集，标识名最大长度为64（包含结束符'\\0'）。
-
-
 
 ### backupCommonSpecifier
 

@@ -1,3 +1,3 @@
 initno:1
 
-filename:Cluster Instances Scaling
+filename:Cluster Instance Scaling,Standby Cluster Scaling

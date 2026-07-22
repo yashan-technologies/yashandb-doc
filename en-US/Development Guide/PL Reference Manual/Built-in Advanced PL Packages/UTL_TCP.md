@@ -16,5 +16,5 @@ Represents the carriage return and line feed (CRLF) character sequence, used for
 UTL_TCP.CLOSE_ALL_CONNECTIONS;
 ```
 
-Closes all connections before PL/SQL program termination to prevent dangling connections. This operation is syntax-compatible only; it returns Succeed by default and has no functional impact.
+Closes all connections before PL program termination to prevent dangling connections. This operation is syntax-compatible only; it returns Succeed by default and has no functional impact.
 

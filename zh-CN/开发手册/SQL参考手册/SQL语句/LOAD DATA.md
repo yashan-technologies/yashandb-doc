@@ -18,20 +18,20 @@ CSV数据缓存区以一条完整的数据行开始，以一条完整的数据�
 
 若缓存区中存在一行数据插入失败，则整个缓存区数据插入失败，回滚当前事务。  
 
-**设置nologging导入**
+**设置NOLOGGING导入**
 
-如果是在数据迁移场景通过本语句执行数据导入，通过在options参数中指定nologging为true，可以实现nologging导入。
+如果是在数据迁移场景通过本语句执行数据导入，通过在options参数中指定NOLOGGING为true，可以实现NOLOGGING导入。
 
-只建议在数据迁移场景设置nologging属性，且需要关注如下事项：
+只建议在数据迁移场景设置NOLOGGING属性，且需要关注如下事项：
 
-- 主备环境不可启用nologging，需要在完成数据导入后再建备库。
-- 使用nologging导入后，执行一次全量checkpoint可以保证数据持久性，否则宕机后可能导致数据丢失。
-- 当表的属性为nologging，同时发生宕机时，重启后该表将被置为corrupted，只能通过truncate表进行恢复，且需要重新执行上述导入过程以恢复数据。
-- 如果一个事务失败，该事务内所有执行过插入数据操作的nologging表都会被标记为corrupted。
-- nologging属性的LSC表使用bulkload模式导入数据时，不受nologging属性影响（性能无变化，失败也不会被标记为corrupted）。
-- 当表为nologging时，不能对其执行update和delete操作，导入操作完成后需及时将其修改为logging。
-- 设置表状态为nologging属于DDL操作，会加表锁。如果并发执行DML语句，可能导致DML语句失败。
-- 当表为nologging，或使用nologging方式导入时，在违反约束条件时可能出现容错失败的现象，具体受违反约束的数据在所有数据中的位置影响。
+- 主备环境不可启用NOLOGGING，需要在完成数据导入后再建备库。
+- 使用NOLOGGING导入后，执行一次全量checkpoint可以保证数据持久性，否则宕机后可能导致数据丢失。
+- 当表的属性为NOLOGGING，同时发生宕机时，重启后该表将被置为corrupted，只能通过truncate表进行恢复，且需要重新执行上述导入过程以恢复数据。
+- 如果一个事务失败，该事务内所有执行过插入数据操作的NOLOGGING表都会被标记为corrupted。
+- NOLOGGING属性的LSC表使用bulkload模式导入数据时，不受NOLOGGING属性影响（性能无变化，失败也不会被标记为corrupted）。
+- 当表为NOLOGGING时，不能对其执行UPDATE和DELETE操作，导入操作完成后需及时将其修改为LOGGING。
+- 设置表状态为NOLOGGING属于DDL操作，会加表锁。如果并发执行DML语句，可能导致DML语句失败。
+- 当表为NOLOGGING，或使用NOLOGGING方式导入时，在违反约束条件时可能出现容错失败的现象，具体受违反约束的数据在所有数据中的位置影响。
 
 **导入环境准备**
 
@@ -366,11 +366,11 @@ INTO TABLE area(area_no,area_name);
 
 *列1数据 分隔符 列2数据 分隔符 ...*
 
-其中，每个文件内数据的最大列数为4096，且多个文件的同一位置列代表相同含义，单行数据长度上限为63KB。
+其中，每个文件内数据的最大列数为4096，且多个文件的同一位置列表示相同含义，单行数据长度上限为63KB。
 
 <u>数据加载对文件内数据的读取规则为</u>：
 
-- 每一行代表要导入的一条记录。
+- 每一行表示要导入的一条记录。
 - 数据列与目标表列字段的映射关系由[column_clause](#columnclause)语句决定。
 - 当存在未被映射到的数据列时，该数据列丢弃。
 - 当一个数据列以双引号开头时，该双引号将被识别为包围符，此时要求：
@@ -766,6 +766,28 @@ Table BRANCHES:
 该语句将导入模式指定为普通模式，将导入文件对应列的全部内容用于导入。 
 
 鉴于CSV格式文件存在数据大小限制，如需导入较大的数据文件，建议使用LLS模式进行部分导入或者LOBFILE模式进行全导入 。
+
+当导入的目标表有虚拟列时：
+
+- 如果CSV文件本身不包括虚拟列数据，直接指定列导入。
+
+- 如果CSV文件包括了虚拟列数据，需要指定实体列在CSV文件中的位置跳过虚拟列不做导入，或指定虚拟列为`FILLER`。
+
+示例：对含有虚拟列的表进行数据导入（HEAP表）
+
+```sql
+-- 创建包含虚拟列的业务表
+create table tab_virtual_col_exp_imp(c1 int, v1 as (c1 + c2), c2 int);
+
+-- CSV文件不包括虚拟列数据，跟普通表的导入没有差别，指定目标表的列即可将CSV数据按顺序导入目标表
+LOAD DATA INFILE '/ssd_data/yashandb/tab_virtual_col_exp_imp.csv' fields terminated by ',' into table tab_virtual_col_exp_imp(c1, c2);​
+
+--CSV文件包括了实体列和虚拟列数据，指定实体列C1、C2在CSV文件的位置进行导入
+LOAD DATA INFILE '/ssd_data/yashandb/tab_virtual_col_exp_imp.csv' fields terminated by ',' into table tab_virtual_col_exp_imp(c1 column(1), c2 column(3));​
+
+--CSV文件包括了实体列和虚拟列数据，指定虚拟列跳过的方式导入数据
+LOAD DATA INFILE '/ssd_data/yashandb/tab_virtual_col_exp_imp.csv' fields terminated by ',' into table tab_virtual_col_exp_imp(c1, v1 FILLER, c2);
+```
 
 ###### table_column_clause
 

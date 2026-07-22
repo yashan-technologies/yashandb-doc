@@ -13,10 +13,6 @@ The YashanDB JDBC driver has the following methods for the ParameterMetaData int
 |Method |Return Type |
 |---------------------------------|--------|
 | getParameterCount()             | int    |
-| getPrecision(int param)         | int    |
-| getScale(int param)             | int    |
-| getParameterType(int param)     | int    |
-| getParameterTypeName(int param) | String |
 
 ## Example
 

@@ -59,6 +59,12 @@ The YashanDB JDBC driver has the following methods for the Statement interface:
 | cancel()                                               | void        |
 | getMoreResults()                                       | boolean     |
 | getMoreResults(int current)                            | boolean     |
+| setFetchDirection(int direction)                       |   void      |
+| getFetchDirection()                                    | int         |
+| setCursorName(String name)                             | void        |
+| setEscapeProcessing(boolean enable)                    | void        |
+| getWarnings()                                          | SQLWarning  |
+| clearWarnings()                                        | void        |
 
 ## Example
 

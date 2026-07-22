@@ -5,13 +5,13 @@
 ## 函数声明
 
 ```c
-SQLRETURN SQLColAttribute (  
-      SQLHSTMT        StatementHandle,  
-      SQLUSMALLINT    ColumnNumber,  
-      SQLUSMALLINT    FieldIdentifier,  
-      SQLPOINTER      CharacterAttributePtr,  
-      SQLSMALLINT     BufferLength,  
-      SQLSMALLINT *   StringLengthPtr,  
+SQLRETURN SQLColAttribute (
+      SQLHSTMT        StatementHandle,
+      SQLUSMALLINT    ColumnNumber,
+      SQLUSMALLINT    FieldIdentifier,
+      SQLPOINTER      CharacterAttributePtr,
+      SQLSMALLINT     BufferLength,
+      SQLSMALLINT *   StringLengthPtr,
       SQLLEN *        NumericAttributePtr);
 ```
 
@@ -27,7 +27,7 @@ SQLRETURN SQLColAttribute (
 | StringLengthPtr (OUT)       | 指向缓冲区的指针，该缓冲区返回的总字节数（不包括字符数据的 null 终止字节数），可在 *CharacterAttributePtr 中返回。 |
 | NumericAttributePtr (OUT)   | 指向整数缓冲区的指针。                                       |
 
-FieldIdentifier参数的支持情况：
+## FieldIdentifier参数支持情况
 
 |  FieldIdentifier| 说明| 支持情况|
 | -------------------------- | ------------------------------------------------------------ | -------- |
@@ -40,7 +40,7 @@ FieldIdentifier参数的支持情况：
 | SQL_DESC_OCTET_LENGTH      | 等同于SQL_DESC_DISPLAY_SIZE               | 支持     |
 | SQL_DESC_PRECISION         | 精度         | 支持     |
 | SQL_DESC_SCALE             | 刻度         | 支持     |
-| SQL_DESC_TYPE              | 返回值根据sqlType不同<br />switch (sqlType) {<br/>    case SQL_TYPE_DATE:<br/>    case SQL_TYPE_TIME:<br/>    case SQL_TYPE_TIMESTAMP:<br/>        *value = SQL_DATETIME;<br/>        break;<br/>    case SQL_INTERVAL_DAY_TO_SECOND:<br/>    case SQL_INTERVAL_YEAR_TO_MONTH:<br/>        *value = SQL_INTERVAL;<br/>        break;<br/>    default:<br/>        *value = sqlType;<br/>        break;<br/>} | 支持     |
+| SQL_DESC_TYPE              | 返回值根据sqlType不同，详见下文返回值说明。 | 支持     |
 | SQL_DESC_UNSIGNED          | 是否为无符号       | 支持     |
 | SQL_DESC_AUTO_UNIQUE_VALUE |                       | 不支持   |
 | SQL_DESC_BASE_COLUMN_NAME  |                     | 不支持   |
@@ -57,3 +57,26 @@ FieldIdentifier参数的支持情况：
 | SQL_DESC_TYPE_NAME         |                      | 支持   |
 | SQL_DESC_UNNAMED           |                   | 不支持   |
 | SQL_DESC_UPDATABLE         |                       | 不支持   |
+
+## 返回值说明
+
+### SQL_DESC_TYPE
+
+返回值根据sqlType不同：
+
+```c
+switch (sqlType) {
+    case SQL_TYPE_DATE:
+    case SQL_TYPE_TIME:
+    case SQL_TYPE_TIMESTAMP:
+        *value = SQL_DATETIME;
+        break;
+    case SQL_INTERVAL_DAY_TO_SECOND:
+    case SQL_INTERVAL_YEAR_TO_MONTH:
+        *value = SQL_INTERVAL;
+        break;
+    default:
+        *value = sqlType;
+        break;
+}
+```

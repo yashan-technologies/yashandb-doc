@@ -18,3 +18,4 @@
 | FIRST\_UFBBLK | INTEGER | 第一个未初始化的undo block的ID |
 | XBLKS | INTEGER | undo segment管理的事务block数量（保留字段） |
 | FREE\_COUNT | INTEGER | 已提交事务归还的可以直接复用的undo block的数量 |
+| IS\_TEMP | BOOLEAN | 是否临时表空间的undo segment |

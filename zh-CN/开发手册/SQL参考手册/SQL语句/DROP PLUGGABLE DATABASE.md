@@ -13,17 +13,11 @@ DROP PLUGGABLE DATABASE用于删除PDB，同时会删除PDB所包含的持久化
 >
 > DROP PLUGGABLE DATABASE语句无法回滚，**请谨慎操作**。
 
-
-
-
-
 该语句的适用范围如下：
 
 - 该语句仅适用于容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE），且只能连接根容器执行。
 
 - 该语句不适用于存算一体分布式集群部署。
-
-
 
 执行该语句要求根容器处于OPEN状态、目标PDB处于关闭状态。
 
@@ -35,11 +29,11 @@ DROP PLUGGABLE DATABASE用于删除PDB，同时会删除PDB所包含的持久化
 = DROP PLUGGABLE DATABASE (pdb_name|ALL) [INCLUDING ARCHIVELOG | KEEP LOGFILE] [KEEP METADATA].
 ```
 
-#### pdb_name
+### pdb_name
 
 指定待删除的PDB名称，单次只能指定一个PDB。  
 
-#### ALL
+### ALL
 
 指定该关键字表示删除所有PDB，包括内置种子容器。
 

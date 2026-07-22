@@ -6,7 +6,7 @@
 | GROUP_NODE_ID | NUMBER | 组内节点ID |
 | INST\_ID | NUMBER  | 实例ID |
 | THREAD#  | TINYINT | 数据库的实例编号 |
-| STATUS | VARCHAR(16) | 数据库的回放状态<br>\* NONE：当前数据库无需回放日志<br>\* RUNNING：正在回放日志<br>\* PAUSED：已暂停回放日志<br>\* ERROR：当前数据库回放日志出现了故障|
+| STATUS | VARCHAR(16) | 数据库的回放状态<br>\* NONE：当前数据库无需回放日志<br>\* RUNNING：正在回放日志<br>\* PAUSED：已暂停回放日志<br>\* IDLE：当前数据库回放线程处于空闲状态|
 | PARALLELISM | SMALLINT | 并行回放线程数，不开启并行回放时值为0，开启时只能为2的幂次方 |
 | START\_RECOVERY\_TIME | DATE      | 启动回放的时间戳 |
 | STOP\_RECOVERY\_TIME | DATE      | 停止回放的时间戳 |

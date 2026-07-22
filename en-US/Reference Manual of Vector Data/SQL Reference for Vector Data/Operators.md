@@ -21,7 +21,7 @@ The operators and functions in the table below are synonyms for each other.
 |<#>|VECTOR_DISTANCE(expr1, expr2, DOT)|
 |<=>|VECTOR_DISTANCE(expr1, expr2, COSINE)|
 
-***Example*** for Standalone Deployment Heap tables
+***Example*** for Heap tables
 
 ```sql
 SELECT '[2.33,6.10,0.77,5.06,3.18]'<#>'[5.66,3.51,8.81,6.53,2.89]' AS col FROM dual;

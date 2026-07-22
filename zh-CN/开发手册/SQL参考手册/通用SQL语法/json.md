@@ -151,7 +151,7 @@ YashanDB支持使用标准的JSON格式来定义和计算json数据，包括其�
   - 输入值包含不合法字符。
   - 输入值超出此类型可以表达的范围。
 - 在匹配Number类型时，输入值为无限或非数字（NaN）；注意Number类型不支持此类值，但是Float和Double类型支持。
-- 在匹配Binary类型时，输入的base64编码字符串不符合其编码要求，例如 `{"$binary": "«»"}`。
+- 在匹配Binary类型时，输入的base64编码字符串不符合其编码要求，例如 `{"$binary": "??"}`。
 - 输入的字符串不满足解析要求的其他情况。
 
 当处于扩展模式时，JSON函数还会进一步处理未显式指示类型的数值数据：
@@ -229,7 +229,7 @@ YashanDB提供了一些内置函数实现对一个json数据内部的搜索查�
 **[json_path](#jsonpath)::=**
 
 ```ebnf
-= "$" [nonfunction_steps] [function_step].
+= "$" [(nonfunction_steps | filter_step){ " " (nonfunction_steps | filter_step)}] [function_step].
 ```
 
 **[nonfunction_steps](#nonfunctionsteps)::=**
@@ -256,6 +256,60 @@ YashanDB提供了一些内置函数实现对一个json数据内部的搜索查�
 = ".." key.
 ```
 
+**[filter_step](#filterstep)::=**
+
+```ebnf
+= "?" "(" condition ")".
+```
+
+**[condition](#filterstep)::=**
+
+```ebnf
+= predicate
+| "(" condition ")"
+| "!" "(" condition ")"
+| condition ("&&"|"||") condition
+| "exists" "(" relative_path ")".
+```
+
+**[predicate](#filterpredicate)::=**
+
+```ebnf
+= operand compare_op operand
+| operand keyword_predicate operand
+| operand "in" "(" [literal {"," literal}] ")".
+```
+
+**[compare_op](#filterpredicate)::=**
+
+```ebnf
+= "=="|"!="|"<>"|"<"|"<="|">"|">=".
+```
+
+**[keyword_predicate](#filterpredicate)::=**
+
+```ebnf
+= "like"|"starts with"|"has substring"|"like_regex"|"ci_like_regex"|"eq_regex"|"ci_regex".
+```
+
+**[operand](#filteroperand)::=**
+
+```ebnf
+= relative_path | literal.
+```
+
+**[relative_path](#filteroperand)::=**
+
+```ebnf
+= "@" [nonfunction_steps] [function_step].
+```
+
+**[literal](#filteroperand)::=**
+
+```ebnf
+= string | number | "true" | "false" | "null".
+```
+
 **[function_step](#functionstep)::=**
 
 ```ebnf
@@ -270,7 +324,7 @@ YashanDB提供了一些内置函数实现对一个json数据内部的搜索查�
 
 <span id="jsonpath" name="jsonpath"></span>
 
-路径表达式使用绝对路径，以符号`$`开始，其含义用于表述检索json数据时的匹配路径。`$`后面跟着零个或者多个nonfunction\_steps，以及一个可选的function\_step，即支持多步骤匹配；不跟任何内容时，表示与json数据完全一致的匹配路径。
+路径表达式使用绝对路径，以符号`$`开始，其含义用于表述检索json数据时的匹配路径。`$`后面跟着零个或者多个nonfunction\_steps或filter_step，以及一个可选的function\_step，即支持多步骤匹配；不跟任何内容时，表示与json数据完全一致的匹配路径。JSON_EXISTS、JSON_VALUE、JSON_QUERY函数均支持完整的路径表达式语法（含过滤表达式filter_step）。
 
 一个路径表达式会选择零个或者多个匹配的值。一般情况下，路径表达式会依次尝试匹配路径表达式中的每一个步骤。如果当前步骤匹配失败，则不会尝试匹配后续步骤，并且路径表达式匹配失败。如果每一个步骤都匹配成功，则路径表达式匹配成功。
 
@@ -364,6 +418,95 @@ RES
 [4,1,3] 
 ```
 
+<span id="filterstep" name="filterstep"></span>
+
+### filter_step
+
+过滤表达式步骤，用于按条件筛选此前步骤匹配到的值。对每一个已匹配到的值独立计算一次条件，条件为真则保留该值，为假则丢弃。
+
+filter_step以`?`开头，随后紧跟由括号`()`包围的条件表达式。它能够出现在object_step、array_step、descendent_step之后（或直接紧跟在`$`之后）。在一条路径中，filter_step允许多次出现，但不允许两个filter_step紧邻连写，且不能出现在function_step之后。
+
+<span id="filteroperand" name="filteroperand"></span>
+
+#### 操作数
+
+条件中的操作数（operand）可以为：
+
+- **相对路径**：以`@`开头，`@`代表当前正在被过滤的值。`@`后可以继续跟任意非函数步骤以及item\_method函数步骤，例如`@.a.b`、`@[0]`、`@.a.size()`。
+
+- **常量**：字符串（使用双引号，支持标准json string转义语法）、数字、`true`、`false`、`null`（必须全小写）。
+
+一个比较中至少一侧必须为常量，不允许两个相对路径直接比较。两侧类型需要兼容，类型不兼容时报语法错误或视为不匹配，兼容与匹配规则如下：
+
+- 数字与数字
+
+- 字符串与字符串
+
+- 布尔值与布尔值，且布尔值可以与内容为`"true"`/`"false"`（不区分大小写）的字符串常量比较
+
+- `null`只与`null`相等
+
+- 路径以item\_method结尾时，`type()`的结果只能与字符串比较，`size()`/`count()`的结果只能与数字比较
+
+- 若相对路径匹配到的值为数组，则按数组逐元素参与比较，任一元素满足条件即认为该比较为真（与宽松匹配语义一致）
+
+<span id="filterpredicate" name="filterpredicate"></span>
+
+#### 谓词与运算符
+
+- 比较运算符：`==`、`!=`、`<>`（等价于`!=`）、`<`、`<=`、`>`、`>=`。
+
+- 逻辑运算符：`&&`（与）、`||`（或）、`!`（非，作用于括号包围的条件）。复杂组合建议显式使用括号。
+
+- 关键字谓词（关键字必须全小写）：
+
+  | 谓词 | 说明 |
+  |---|---|
+  | `like` | 模式匹配，`%`匹配任意长度字符，`_`匹配单个字符，转义字符固定为反引号`` ` `` |
+  | `starts with` | 前缀匹配（区分大小写） |
+  | `has substring` | 子串包含匹配 |
+  | `like_regex` | 正则部分匹配（区分大小写），右侧必须为字符串常量 |
+  | `ci_like_regex` | 正则部分匹配（不区分大小写），右侧必须为字符串常量 |
+  | `eq_regex` | 正则全串匹配（区分大小写，自动按整串锚定），右侧必须为字符串常量 |
+  | `ci_regex` | 正则全串匹配（不区分大小写），右侧必须为字符串常量 |
+  | `in ( ... )` | 左侧值在常量列表中即为真；列表中非null元素必须为同一类型 |
+  | `exists ( ... )` | 括号内的相对路径能匹配到值即为真，也支持嵌套过滤条件 |
+
+  上述字符串类谓词中，左侧值为`null`时均判为不匹配；左侧值为非字符串标量时，系统尝试将其隐式转换为字符串后参与匹配，无法转换则判为不匹配。
+
+- 嵌套限制：条件表达式的括号嵌套深度上限为512层，整体复杂度（表达式节点深度）上限为256层，超出将报错。
+
+示例
+
+```sql
+SELECT JSON_QUERY(JSON('[{"a":1},{"a":2},{"a":3}]'), '$[*]?(@.a > 1)' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[{"a":2},{"a":3}]
+
+SELECT JSON_QUERY(JSON('[{"a":1},{"b":2},{"a":3}]'), '$[*]?(exists(@.b))' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[{"b":2}]
+
+SELECT JSON_QUERY(JSON('[{"name":"pen"},{"name":"book"},{"name":"bag"}]'),
+                  '$[*]?(@.name like "b%")' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[{"name":"book"},{"name":"bag"}]
+
+SELECT JSON_VALUE(JSON('{"items":[{"name":"pen","price":3},{"name":"book","price":12}]}'),
+                  '$.items[*]?(@.price > 10).name') RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+book
+
+SELECT JSON_QUERY(JSON('[1,2,3,4]'), '$[*]?(@ in (1, 3))' WITH WRAPPER) RES FROM dual;
+RES                                                              
+---------------------------------------------------------------- 
+[1,3]
+```
+
 <span id="functionstep" name="functionstep"></span>
 
 ### function_step
@@ -422,3 +565,18 @@ RES
   ---------------------------------------------------------------- 
   [1,2,3] 
   ```
+
+### 固定路径函数索引
+
+[JSON_VALUE](../内置函数/JSON_VALUE.md)属于确定性函数，支持用于创建函数索引。当查询频繁依据某一固定路径（且此路径表达式为常量字符串）从JSON数据中提取标量值进行过滤操作时，可基于该JSON_VALUE表达式创建函数索引，以此加速查询。
+
+示例
+
+```sql
+CREATE TABLE goods(id INT, info JSON);
+
+CREATE INDEX idx_goods_price ON goods(JSON_VALUE(info, '$.price'));
+
+-- 与索引表达式一致的查询条件可以命中该函数索引
+SELECT id FROM goods WHERE JSON_VALUE(info, '$.price') = '10';
+```

@@ -1,5 +1,5 @@
 ```ebnf
-variance = VARIANCE "(" [DISTINCT|ALL] expr ")" [keep_clause].
+variance = VARIANCE "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 ```
@@ -16,9 +16,11 @@ The return value types of the VARIANCE function are as follows:
 * When the value of expr is a literal, variable, or constant, it returns 0.
 * When the value of expr is of another type that cannot be converted to NUMBER, the calculation is not performed and a type conversion error is returned.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Indicates that the sample variance calculation is performed after filtering out duplicate input data.
+
+DISTINCT and UNIQUE are completely equivalent.
 
 **ALL**
 

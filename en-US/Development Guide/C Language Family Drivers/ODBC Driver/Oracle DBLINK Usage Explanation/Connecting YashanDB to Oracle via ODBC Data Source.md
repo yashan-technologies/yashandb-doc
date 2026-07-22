@@ -1,8 +1,8 @@
-This chapter will guide users to configure DBLINK in Oracle Database and connect to the YashanDB database through the ODBC data source. Users must ensure that the Oracle server and YashanDB ODBC driver are on the same machine.
+This chapter will guide users to configure DBLink in Oracle Database and connect to the YashanDB database through the ODBC data source. Users must ensure that the Oracle server and YashanDB ODBC driver are on the same machine.
 
 ## Step 1: Configure YashanDB ODBC Driver
 
-The operation to configure DBLINK and connect to YashanDB database in Oracle requires the ODBC driver. You can install and configure the ODBC driver by checking [ODBC Driver Installation (Linux)](../ODBC Driver Installation/Installing ODBC Driver (Linux)).
+The operation to configure DBLink and connect to YashanDB database in Oracle requires the ODBC driver. You can install and configure the ODBC driver by checking [ODBC Driver Installation (Linux)](../ODBC Driver Installation/Installing ODBC Driver (Linux)).
 
 ## Step 2: Create Data Source
 
@@ -26,7 +26,7 @@ Test whether the data source is successfully connected by executing the `isql -v
 
 ![](./image/test.png)
 
-## Step 4: Configure DBLINK File in Oracle
+## Step 4: Configure DBLink File in Oracle
 
 Check if the dg4odbc driver is installed by executing the `dg4odbc` command.
 
@@ -102,24 +102,24 @@ tnsping YASDBODBC
 
 ![](./image/tnsping.png)
 
-## Step 7: Create DBLINK
+## Step 7: Create DBLink
 
-Execute the following command to create DBLINK in the Oracle database, modifying the username and password as needed:
+Execute the following command to create DBLink in the Oracle database, modifying the username and password as needed:
 
 ```sql
 drop database link dblink_name; -- dblink_name to be specified
 create database link dblink_name connect to "sys" identified by "sys" using 'YASDBODBC'; -- the name after using should match the transparent gateway configuration init*.ora file name
 ```
 
-## Step 8: Test DBLINK
+## Step 8: Test DBLink
 
-Test whether the DBLINK is configured successfully with the following command, a successful query indicates that the dblink is configured successfully:
+Test whether the DBLink is configured successfully with the following command, a successful query indicates that the DBLink is configured successfully:
 
 ```sql
 select USERNAME,STATUS,TYPE from v$session@dblink_name;
 ```
 
-If you need to verify DBLINK Chinese support in sqlplus, set the Oracle NLS_LANG client character set to match the terminal, for example:
+If you need to verify DBLink Chinese support in sqlplus, set the Oracle NLS_LANG client character set to match the terminal, for example:
 
 ```bash
 export NLS_LANG=american_america.AL32UTF8

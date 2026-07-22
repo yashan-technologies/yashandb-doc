@@ -1,5 +1,5 @@
 ```ebnf
-min = MIN "(" [DISTINCT|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
+min = MIN "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause|OVER "(" analytic_clause ")"].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 
@@ -16,9 +16,11 @@ In multi-row calculations, the function will ignore rows where the expr value is
 
 This aggregate function cannot be nested with group_id, grouping, grouping_id, and UDF aggregate functions. The expr can be other aggregate functions or other general expressions. The nesting level of aggregate functions cannot exceed one layer. Its data type can be any type except for BOOLEAN, large object types, JSON, and UDT.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Indicates that duplicate rows are filtered out when calculating the minimum value.
+
+DISTINCT and UNIQUE are completely equivalent.
 
 **ALL**
 

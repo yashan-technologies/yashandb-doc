@@ -33,7 +33,7 @@ The DECRYPT function is used to decrypt data.
 | -------- | ------------------------------------------------------------ |
 | src         | The ciphertext data to be decrypted, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
 | typ         | The algorithm and its configuration for encryption and decryption, must be INTEGER type. |
-| key         | The key used for decryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
+| key         | The key used for decryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. The key lengths for the DES, 3DES, and 3DES_2KEY algorithms must be valid. |
 | iv          | Optional parameter, the initialization vector for block ciphers, must be RAW type or another type that can be implicitly converted to RAW, default is NULL. |
 
 This function follows these rules:
@@ -103,7 +103,7 @@ The ENCRYPT function is used to encrypt data.
 | -------- | ------------------------------------------------------------ |
 | src         | The source data to be encrypted, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
 | typ         | The encryption algorithm and its configuration, must be INTEGER type. |
-| key         | The key used for encryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
+| key         | The key used for encryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. The key lengths for the DES, 3DES, and 3DES_2KEY algorithms must be valid. |
 | iv          | Optional parameter, the initialization vector for block ciphers, must be RAW type or another type that can be implicitly converted to RAW, default is NULL. |
 
 This function follows these rules:

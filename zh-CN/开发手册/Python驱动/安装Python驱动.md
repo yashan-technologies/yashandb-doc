@@ -1,19 +1,15 @@
+YashanDB Python驱动支持Windows和Linux平台，本章将分别介绍YashanDB Python驱动在这两个平台环境下的安装配置过程。
+
 ## 步骤1：Python环境准备
 
-通用Python应用程序连接YashanDB需要先安装并配置Python开发环境，YashanDB Python驱动支持3.6.0及以上版本的Python。
+验证Python环境和pip，若未安装请下载安装。
 
-YashanDB Python驱动支持Windows和Linux平台，本手册将分别介绍YashanDB Python驱动在这两个平台环境下的安装配置过程。
+首先验证Python和pip是否已安装。安装YashanDB Python驱动需要使用pip，正常情况下pip已内置在Python中无需再次安装。
 
-1. 下载并安装Python开发环境。
+若尚未安装Python，请从[Python官网](https://www.python.org/downloads/)下载并安装符合Python 3.6及以上版本的Python包，或联系技术人员获取安装包，自行配置Python环境。
 
-    请在官方路径中下载并安装符合上述要求版本的Python包，自行配置Python环境。
-
-2. 验证Python环境和pip。
-
-    安装YashanDB Python驱动需要使用pip，正常情况下pip已内置在Python中无需再次安装。
-
-    ::: tabs
-    == Windows
+::: tabs
+== Windows
 
 在Windows系统中，可通过执行python --version命令验证Python环境是否正常，可通过执行pip3 --version命令验证是否安装pip。
 
@@ -23,7 +19,7 @@ C:\>python --version
 C:\>pip3 --version
 ```
 
-    == Linux
+== Linux
 
 在Linux系统中，可通过执行python3 --version命令验证Python环境是否正常，可通过执行pip3 --version命令验证是否安装pip。
 
@@ -32,7 +28,7 @@ C:\>pip3 --version
 # Python 3.6.15
 # pip3 --version
 ```
-    :::
+:::
 
 ## 步骤2：安装YashanDB C驱动
 
@@ -40,10 +36,19 @@ C:\>pip3 --version
 
 ### 步骤2.1：下载C驱动安装包
 
+::: tabs
+== Windows
 
 1. 从[YashanDB官网下载中心](https://download.yashandb.com/download)，或者联系我们的技术支持获取对应的软件包。
+2. 将包名为`YashanDB Connector/C xxx`并标记为Windows的驱动包下载并解压到本地路径，例如`D:\yasdb-driver-c\`。
 
-2. 将YashanDB客户端安装包下载并解压到本地路径，例如/home/yasdb-driver-c/。
+   安装包解压后在lib文件夹中可得到文件名为`yascli.dll`的文件：
+
+
+== Linux
+
+1. 从[YashanDB官网下载中心](https://download.yashandb.com/download)，或者联系我们的技术支持获取对应的软件包。
+2. 将包名为`YashanDB Connector/C xxx`并标记为Linux的驱动包下载并解压到本地路径，例如`/home/yasdb-driver-c/lib`。
 
    安装包解压后可得到C驱动所需文件：
 
@@ -51,14 +56,12 @@ C:\>pip3 --version
 
    * C驱动的库文件：位于lib文件夹中。
 
-
+:::
 
 ### 步骤2.2：设置动态库依赖路径
 
 ::: tabs
 == Windows
-
-
 
 将C驱动的库文件所在文件夹设置到Windows环境变量PATH中，具体操作为：
 
@@ -74,11 +77,7 @@ C:\>pip3 --version
 
 6. 单击【确定】保存配置。
 
-
-
 == Linux
-
-
 
 1. 编辑bashrc文件：
 
@@ -94,13 +93,11 @@ C:\>pip3 --version
 
 3. 保存并退出。
 
-4. 刷新系统变量配置。
+4. 加载bash配置，让修改生效
 
    ```shell
    $ source ~/.bashrc
    ```
-
-
 :::
 
 ## 步骤3：安装YashanDB Python驱动
@@ -109,7 +106,7 @@ C:\>pip3 --version
 
     > **Note**:
     >
-    > 如需选用yaspy驱动包，Windows平台应选择yaspy-xx.xx-cp36-cp36m-win_amd64.whl，Linux平台应选择yaspy-xx.xx-cp36-cp36m-linux-x86_64.whl或yaspy-xx.xx-cp36-cp36m-linux-aarch_64.whl。
+    > 如需选用yaspy驱动包，wheel文件名中的`cp3x-cp3xm`需与本地Python版本匹配（通过`python --version`查看，如Python 3.12对应`cp312-cp312`）。Windows平台推荐选择`yaspy-xx.xx-cp3x-cp3xm-win_amd64.whl`，Linux平台推荐选择`yaspy-xx.xx-cp3x-cp3xm-linux_x86_64.whl`或`yaspy-xx.xx-cp3x-cp3xm-linux_aarch_64.whl`。
 
 2. 将压缩包下载到本地路径，例如/path/YASDB Python。
 
@@ -119,18 +116,18 @@ C:\>pip3 --version
     == Windows
 
 ```bash
-C:\>pip3 install yaspy-1.0.0-cp38-cp38-win_amd64.whl
+C:\>pip3 install yaspy-xx.xx-cp312-cp312-win_amd64.whl
 ```
 
     == Linux
 
-> **Note**: 
+> **Note**:
 >
-> Linux平台安装驱动时需先切换至root用户。
+> Linux平台若系统全局安装驱动，可能需要切换至root用户。使用虚拟环境时通常不需要。
 
 ```shell
-# pip3 install yaspy-1.0.0-cp36-cp36m-linux_x86_64.whl
+# pip3 install yaspy-xx.xx-cp3x-cp3xm-linux_x86_64.whl
 ```
     :::
 
-安装成功后，Python应用程序可通过引用yaspy模块的方式对YashanDB数据库的进行访问操作。
+安装成功后，Python应用程序可通过引用yaspy模块的方式对YashanDB数据库进行访问操作。

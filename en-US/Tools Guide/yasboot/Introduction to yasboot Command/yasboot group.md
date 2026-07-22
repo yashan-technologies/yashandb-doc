@@ -229,11 +229,12 @@ $ yasboot group add -t yashandb_add.toml -c yashandb
 
 ## group remove
 
-This command is used to reduce the DN group(s) in ISC Distributed Cluster Deployment.
+This command is used to reduce the standby cluster(s) in YAC Deployment or the DN group(s) in ISC Distributed Cluster Deployment.
 
 |Option |Meaning |
 |-----------------|-------------------------------------------|
 | *-c, --cluster*      | The cluster name of YashanDB                      |
+| *--ce*                | A flag for the YAC cluster indicating the deletion of the standby cluster         |
 | *--group-ids*        | Group ID (can be viewed via the `yasboot cluster status` command; the value before the hyphen in nodeid is the group-id, for example, the group ID for `1-1:1` is 1), supports multiple, separated by commas |
 | *-f, --force*        | Skip confirmation and execute the command directly |
 | *--purge*            | Delete the data of the reduced nodes             |

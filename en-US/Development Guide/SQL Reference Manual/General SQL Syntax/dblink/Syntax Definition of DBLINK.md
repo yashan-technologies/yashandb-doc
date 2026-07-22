@@ -5,32 +5,42 @@
 = "@" dblink_name.
 ```
 
-This syntax is used for table operations on remote databases (destination) by YashanDB (source), where the destination can be either a homogeneous database (YashanDB) or a heterogeneous database (Oracle).  
+This syntax is used for table operations on remote databases (destination) by YashanDB (source), where the destination can be either a homogeneous database (YashanDB) or a heterogeneous database (Oracle, DAMENG Database, or KingbaseES Database).
 
 dblink_name refers to the remote database name created during [CREATE DATABASE LINK](../../SQL Statements/CREATE DATABASE LINK).  
 
 ## Usage Instructions  
 
-When using dblink functionality, YashanDB will initiate a [sandbox process](./yex_server Sandbox Process Management) for related data operations.  
+When using DBLink functionality, YashanDB will initiate a [sandbox process](./yex_server Sandbox Process Management) for related data operations.  
 
-- When operating on remote database tables through dblink, the following requirements must be met:  
+- When operating on remote database tables through DBLink, the following requirements must be met:  
   >**Note**:
   >
   > In ISC Distributed Cluster Deployment, when operating on remote tables, column storage is used. In addition to the data type requirements listed in the table below, you must **follow the supported range of [data types](../../Data Types/00Data Types) for column storage**.  
 
-  |Destination is Oracle |Destination is YashanDB |
-  |--------------------|--------------------------------------|
-  | Remote table fields must be of the following data types:<br/>SMALLINT<br/>INT<br/>FLOAT/BINARY_FLOAT<br/>BINARY_DOUBLE<br/>NUMBER/DECIMAL<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>NCHAR<br/>VARCHAR2<br/>NVARCHAR2<br/>RAW<br/>BLOB (not applicable when the source is ISC Distributed Cluster Deployment)<br/>CLOB (not applicable when the source is ISC Distributed Cluster Deployment)<br/>NCLOB (not applicable when the source is ISC Distributed Cluster Deployment)  | Remote table fields must be of the following data types:<br/>TINYINT<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/BINARY_FLOAT<br/>DOUBLE/BINARY_DOUBLE<br/>NUMBER<br/>BIT<br/>BOOLEAN<br/>DATE<br/>TIME<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>RAW<br/>ROWID (not applicable when the source is ISC Distributed Cluster Deployment)  |  
+  |Destination is Oracle |Destination is YashanDB |Destination is DAMENG Database |Destination is KingbaseES Database |
+  |--------------------|--------------------------------------|--------------------------------------|--------------------------------------|
+  | Remote table fields must be of the following data types:<br/>SMALLINT<br/>INT<br/>FLOAT/BINARY_FLOAT<br/>BINARY_DOUBLE<br/>NUMBER/DECIMAL<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>NCHAR<br/>VARCHAR2<br/>NVARCHAR2<br/>RAW<br/>BLOB (not applicable when the source is ISC Distributed Cluster Deployment)<br/>CLOB (not applicable when the source is ISC Distributed Cluster Deployment)<br/>NCLOB (not applicable when the source is ISC Distributed Cluster Deployment)  | Remote table fields must be of the following data types:<br/>TINYINT<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/BINARY_FLOAT<br/>DOUBLE/BINARY_DOUBLE<br/>NUMBER<br/>BIT<br/>BOOLEAN<br/>DATE<br/>TIME<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>CHAR<br/>VARCHAR<br/>RAW<br/>ROWID (not applicable when the source is ISC Distributed Cluster Deployment)  | Remote table fields must be of the following data types:<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/DOUBLE<br/>NUMBER/DECIMAL<br/>CHAR<br/>VARCHAR<br/>VARCHAR2<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>TEXT<br/>BLOB (not applicable when the source is ISC Distributed Cluster Deployment)<br/>CLOB (not applicable when the source is ISC Distributed Cluster Deployment)  | Remote table fields must be of the following data types:<br/>SMALLINT<br/>INT<br/>BIGINT<br/>FLOAT/DOUBLE<br/>NUMBER/DECIMAL<br/>CHAR<br/>VARCHAR<br/>VARCHAR2<br/>DATE<br/>TIMESTAMP<br/>INTERVAL YEAR TO MONTH<br/>INTERVAL DAY TO SECOND<br/>TEXT<br/>BLOB (not applicable when the source is ISC Distributed Cluster Deployment)  |
 
 - In ISC Distributed Cluster Deployment, operations such as INSERT, UPDATE, DELETE, SEQUENCE, PROCEDURE, and FUNCTION on remote database tables are not permitted.  
 
-- In scenarios using dblink, it does not support guaranteeing that all resources commit or roll back a transaction simultaneously through [Two-phase Commit](../../../../Product Concepts/Appx Glossary.md#2para).  
+- In scenarios using DBLink, it does not support guaranteeing that all resources commit or roll back a transaction simultaneously through [Two-phase Commit](../../../../Product Concepts/Appx Glossary.md#2para).  
 
-- When performing transaction operations on a dblink remote database, only the READ COMMITTED transaction isolation level is supported.  
+- When performing transaction operations on a DBLink remote database, only the READ COMMITTED transaction isolation level is supported.  
 
 - Temporary tables are not currently supported; operations on remote temporary tables may produce unexpected results.  
 
 ## Configuring Sandbox Process Parameters  
+
+### DBLINK_CHECK_HEARTBEAT_TIME
+
+The interval in minutes for the sandbox process background thread to periodically check the remote database connection status. The default value is 10, and the value must be a positive integer or 0 with a valid range of [1,UINT64_MAX].
+
+When the remote database is an Oracle database, the value setting should reference the IDLE_TIME parameter-related configuration of the target database. It is recommended to set the DBLINK_CHECK_HEARTBEAT_TIME parameter to a value less than the IDLE_TIME parameter. Otherwise, once the session idle time exceeds the IDLE_TIME parameter value, Oracle will clean up idle connections, which will affect the normal use of DBLink.
+
+If this value is adjusted to 0, no error will be reported, but the actual effect still uses the minimum value 1.
+
+When the parameter value is UINT64_MAX, or when the current time plus the parameter value exceeds the upper limit of the TIMESTAMP type (9999-12-31 23:59:59.999999), the background thread detection will not be performed.
 
 ### DBLINK_ROWARRAY_SIZE
 
@@ -42,7 +52,7 @@ If this value is adjusted to be less than the minimum value of 1K, no error will
 
 Memory page size; YDBC_BUFFER will automatically split based on this parameter value. The default value is 512K, and the numeric part of the parameter value must be a positive integer or 0 with a valid range of [64K,1T].
 
-If this value is adjusted to be less than the minimum value of 64K, no error will be reported, but the minimum value will still take effect.  
+If this value is adjusted to be less than the minimum value of 64K, no error will be reported, but the minimum value will still take effect.
 
 ### EXS_MAX_XACTS
 
@@ -62,6 +72,12 @@ In concurrent scenarios, when different user sessions access the same DBLink, th
 
 If this value is adjusted to an integer less than the minimum value of 1024, no error will be reported, but the actual effect still uses the minimum value.
 
+<span id="max_dblink_objects" name="max_dblink_objects"></span>
+
+### MAX_DBLINK_OBJECTS
+
+The maximum number of DBLink objects that can be used simultaneously in the current process. The default value is 1024, and the value must be a positive integer or 0 with a valid range of [1024,16384].
+
 ## Querying Remote Tables  
 
 When performing [SELECT](../../SQL Statements/SELECT) operations on remote tables, the following constraints exist:  
@@ -77,7 +93,7 @@ When performing [SELECT](../../SQL Statements/SELECT) operations on remote table
 conn sys/********
 create table table_test(c1 int);
 
--- Create dblink and access the remote table  
+-- Create DBLink and access the remote table  
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 select * from table_test@link_test;
@@ -112,7 +128,7 @@ When performing [INSERT](../../SQL Statements/INSERT) operations on remote table
 conn sys/********
 create table table_test(c1 int, c2 int);
 
--- Create dblink and access the remote table  
+-- Create DBLink and access the remote table  
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 select * from table_test@link_test;
@@ -141,7 +157,7 @@ When performing [UPDATE](../../SQL Statements/UPDATE) operations on remote table
 conn sys/********
 create table table_test(c1 int, c2 int);
 
--- Create dblink  
+-- Create DBLink  
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 
@@ -168,7 +184,7 @@ When performing [DELETE](../../SQL Statements/DELETE) operations on remote table
 conn sys/********
 create table table_test(c1 int);
 
--- Create dblink  
+-- Create DBLink  
 conn sales/sales
 create database link link_test connect to sys identified by sys using '192.168.1.2:1688';
 
@@ -233,7 +249,7 @@ create or replace package body pkg_test as
 end pkg_test;
 /
 
--- Create dblink  
+-- Create DBLink  
 conn sales/sales
 create database link link_test connect to oradb identified by oradb using 'oracle:192.168.1.3:1521/orainst';
 

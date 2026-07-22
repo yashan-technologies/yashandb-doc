@@ -22,10 +22,7 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
 >
 > 如需在运行着SCAN的集群服务器上重启网络，请先手动执行ycsctl stop scan停止该节点正在运行的SCAN，待网络重启完成后，再执行ycsctl start scan重新启动SCAN。
 
-
 ## 配置要求
-
-
 
 - 服务器的网卡必须为以太网卡，且支持ARP/NDP协议。
 
@@ -34,8 +31,6 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
 - 需为集群规划1 - 3个SCAN VIP地址，且统一采用IPv4或IPv6。
 
 - 配置SCAN后，通过SCAN域名连接数据库的驱动或客户端应为配套的23.4.4.100及以上版本；通过SCAN域名连接PDB的客户端应为配套的27.1.1.100及以上版本。
-
-
 
 <span id="scan_configuration" name="scan_configuration"></span>
 
@@ -59,12 +54,9 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
     ……
     ```
 
-
-
 ### 步骤1：配置公网子网 
 
 1. 以安装用户登录数据库安装服务器。
-
 
 2. 查看集群信息，确认是否已配置公网和服务端口。
 
@@ -93,8 +85,6 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
     ```shell
     $ ycsctl add network -subnet 192.168.1.0/24/ens192
     ```
-
-
 
 ### 步骤2：配置并启动SCAN 
 
@@ -163,43 +153,31 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
 >
 > 在调整相应配置前，请确保上层业务暂时不依赖基于SCAN的连接信息。
 
-### 更新SCAN配置 
+### 更新SCAN配置
 
-如需更新SCAN域名、端口或SCAN VIP地址，需先删除旧SCAN资源再配置新SCAN资源。
+更新SCAN配置包括更新SCAN域名、端口或SCAN VIP地址，更新任一配置后均会自动停止当前集群的SCAN资源，需执行ycsctl start scan命令将其启动后才能正常使用域名连接数据库。
 
- 
+#### 更新SCAN域名
 
-1. 以安装用户登录数据库安装服务器。
+1. 根据新域名规划在DNS服务器上更新DNS解析规则。
 
+2. 以安装用户登录数据库安装服务器。
 
-2. 停止所有SCAN VIP。
+3. 更新SCAN域名。
 
-    ```shell
-    $ ycsctl stop scan
-    ```
-
-3. 删除现有SCAN配置。
+    单独更新域名时，需将-scanname参数指定为新域名值（例如scan.new_example.com），而-p应指定为原端口号。
 
     ```shell
-    $ ycsctl remove scan
+    $ ycsctl modify scan -scanname scan.new_example.com -p 1688
     ```
 
-
-4. 如需更新SCAN VIP地址或SCAN域名，需在DNS服务器上更新DNS解析规则。
-
-5. 添加新的SCAN配置信息。
-
-    ```shell
-    $ ycsctl add scan -scanname scan_new.example.com -p 1688
-    ```
-
-6. 重新启动所有SCAN VIP。
+4. 重新启动所有SCAN VIP。
 
     ```shell
     $ ycsctl start scan
     ```
 
-7. 查看集群配置，确认修改结果。
+5. 查看集群配置，确认修改结果。
 
     ```shell
     $ ycsctl show config
@@ -208,7 +186,7 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
 
         Network: 192.168.1.0/24
         Resource SCAN: enabled
-        SCAN name: scan_new.example.com, listening port: 1688
+        SCAN name: scan.new_example.com, listening port: 1688
         SCAN VIP: 192.168.1.100, ordinal number: 1
         SCAN VIP: 192.168.1.101, ordinal number: 2
         SCAN VIP: 192.168.1.102, ordinal number: 3
@@ -226,23 +204,96 @@ SCAN的启停和高可用管理需要YCSRA进程在线以提供特权操作代�
             VIP: 192.168.1.63/24/ens192, home node: host0002
     ```
 
-8. 查看集群的拓扑状态。
+#### 更新SCAN端口
+
+1. 以安装用户登录数据库安装服务器。
+
+2. 更新SCAN端口。
+
+    单独更新端口号时，需将-p应指定为新端口号（例如4688），而-scanname参数应指定为原域名。
 
     ```shell
-    $ ycsctl status
-    ---------------------------------------------------------------------------------------------
-    Self Host ID|Cluster Master ID|YasFS Master ID|YasDB Master ID|Active Host Count
-    ---------------------------------------------------------------------------------------------
-    1            1                 1               1               2
-    ---------------------------------------------------------------------------------------------
-    Host ID   |Target    |State     |YasFS     |YasDB     |VIP
-    ---------------------------------------------------------------------------------------------
-    1          online     online     online     online     host1.online
-    2          online     online     online     online     host2.online
-    ---------------------------------------------------------------------------------------------
-    SCAN VIP 1: host2.online   SCAN VIP 2: host1.online   SCAN VIP 3: host1.online
+    $ ycsctl modify scan -scanname scan.example.com -p 4688
     ```
 
+3. 重新启动所有SCAN VIP。
+
+    ```shell
+    $ ycsctl start scan
+    ```
+
+4. 查看集群配置，确认修改结果。
+
+    ```shell
+    $ ycsctl show config
+        Cluster name: yashandb, config version: 7
+        ……
+
+        Network: 192.168.1.0/24
+        Resource SCAN: enabled
+        SCAN name: scan.example.com, listening port: 4688
+        SCAN VIP: 192.168.1.100, ordinal number: 1
+        SCAN VIP: 192.168.1.101, ordinal number: 2
+        SCAN VIP: 192.168.1.102, ordinal number: 3
+        Resource vip: enabled
+        ……
+        
+        Nodes in cluster:
+        Node name: host0001, yascs/yasfs inter connect URL: 172.16.1.2:1788, Node ID: 1
+            public service port: 1688
+            yasdb instance name:yasdb-1-1, yasdb instance id:1
+            VIP: 192.168.1.62/24/ens192, home node: host0001
+        Node name: host0002, yascs/yasfs inter connect URL: 172.16.1.3:1788, Node ID: 2
+            public service port: 1688
+            yasdb instance name:yasdb-1-2, yasdb instance id:1
+            VIP: 192.168.1.63/24/ens192, home node: host0002
+    ```
+
+#### 更新SCAN VIP
+
+>**Note**:
+>
+> 本文主要介绍在同一公网子网内更换其他IP地址作为新的SCAN VIP。
+>
+> 如需更换整个公网子网配置，则需执行ycsctl remove scan命令移除已配置的SCAN、执行ycsctl remove vip命令移除已配置的VIP资源，再执行ycsctl modify network命令更新公网子网配置，然后再按需添加并启用SCAN资源和VIP资源。
+
+1. 根据新的SCAN VIP规划在DNS服务器上更新DNS解析规则，例如192.168.1.200 - 201。
+
+2. 以安装用户登录数据库安装服务器。
+
+3. 重新启动所有SCAN VIP。
+
+    ```shell
+    $ ycsctl start scan
+    ```
+
+4. 查看集群配置，确认修改结果。
+
+    ```shell
+    $ ycsctl show config
+        Cluster name: yashandb, config version: 6
+        ……
+
+        Network: 192.168.1.0/24
+        Resource SCAN: enabled
+        SCAN name: scan.example.com, listening port: 1688
+        SCAN VIP: 192.168.1.200, ordinal number: 1
+        SCAN VIP: 192.168.1.201, ordinal number: 2
+        SCAN VIP: 192.168.1.202, ordinal number: 3
+        Resource vip: enabled
+        ……
+        
+        Nodes in cluster:
+        Node name: host0001, yascs/yasfs inter connect URL: 172.16.1.2:1788, Node ID: 1
+            public service port: 1688
+            yasdb instance name:yasdb-1-1, yasdb instance id:1
+            VIP: 192.168.1.62/24/ens192, home node: host0001
+        Node name: host0002, yascs/yasfs inter connect URL: 172.16.1.3:1788, Node ID: 2
+            public service port: 1688
+            yasdb instance name:yasdb-1-2, yasdb instance id:1
+            VIP: 192.168.1.63/24/ens192, home node: host0002
+    ```
+    
 ### 手动迁移SCAN VIP 
 
 SCAN VIP具备自动迁移能力，通常无需维护SCAN VIP与数据库实例节点的对应关系。
@@ -256,7 +307,6 @@ SCAN VIP具备自动迁移能力，通常无需维护SCAN VIP与数据库实例�
 手动迁移的步骤如下：
 
 1. 以安装用户登录数据库安装服务器。
-
 
 2. 查询SCAN VIP的序号（即ordinal number字段）。
 
@@ -301,7 +351,6 @@ SCAN VIP具备自动迁移能力，通常无需维护SCAN VIP与数据库实例�
 
 1. 以安装用户登录数据库安装服务器。
 
-
 2. 停止所有SCAN VIP。
 
     ```shell
@@ -315,16 +364,13 @@ SCAN VIP具备自动迁移能力，通常无需维护SCAN VIP与数据库实例�
     ```
  
 
-
  
 
 ### 删除公网配置 
 
 删除公网配置前，必须先删除所有VIP和SCAN配置才能删除公网。
 
-
 1. 以安装用户登录数据库安装服务器。
-
 
 2. 删除公网配置。
 

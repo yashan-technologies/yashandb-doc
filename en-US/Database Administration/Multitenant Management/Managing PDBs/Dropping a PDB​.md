@@ -227,7 +227,7 @@ As a preceding operation for PDB operations, scenarios where PDB needs to be tem
     DROP PLUGGABLE DATABASE pdb2 KEEP METADATA;
 
     -- Retain metadata
-    DROP PLUGGABLE DATABASE pdb2 KEEP METADATA INCLUDING ARCHIVELOG;
+    DROP PLUGGABLE DATABASE pdb2 INCLUDING ARCHIVELOG KEEP METADATA;
     ```
 
     == Execute SQL statements in the target PDB

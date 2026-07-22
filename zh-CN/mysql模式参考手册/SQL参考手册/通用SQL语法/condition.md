@@ -141,7 +141,7 @@ LIKE语法需要指定匹配的字符表达式char1与模式串char2，通过匹
 
 char1 \[NOT\] LIKE char2 \[ESCAPE esc\_char\].
 
-其中，char1 代表要匹配的字符表达式，char2代表要匹配的模式，esc\_char代表escape字符。
+其中，char1表示要匹配的字符表达式，char2表示要匹配的模式，esc\_char表示escape字符。
 
 LIKE语句执行如下规则：
 

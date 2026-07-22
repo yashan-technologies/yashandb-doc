@@ -284,7 +284,7 @@ If any of the following conditions occur, the INSERT parallelism will not be eff
 
 - PARALLEL DML DISABLED: Only when PARALLEL DML is explicitly ENABLED in the session will the PARALLEL hint in the INSERT statement be effective.
 - INSERT MULTI VALUES, multi-table INSERT, and INSERT ON DUPLICATE cannot be parallel.
-- Lists, temporary tables, DBLINKS, and materialized view base tables are not allowed to be parallel.
+- Lists, temporary tables, DBLinkS, and materialized view base tables are not allowed to be parallel.
 - Tables with foreign key constraints, INSERT TRIGGERs, and LOB columns do not allow parallel.
 - XA transactions do not allow parallel; once a local parallel transaction is started, a new XA transaction cannot be STARTed; after STARTing an XA transaction, parallelism will not be effective.
 - Serializable transactions do not allow parallel.

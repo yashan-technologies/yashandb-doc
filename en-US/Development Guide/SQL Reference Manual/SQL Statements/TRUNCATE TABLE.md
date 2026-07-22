@@ -7,6 +7,8 @@ The TRUNCATE operation will delete all data in the table at once, cannot be roll
 
 For parent tables with foreign key constraints defined on child tables, if data already exists in the child table, the parent table cannot be TRUNCATE.
 
+In YAC/Distributed Cluster Deployment, TRUNCATE TABLE on the LSC table can only be performed on the master instance (the instance with INSTANCE_ROLE = MASTER in the GV$INSTANCE view).
+
 The REUSE STORAGE option listed in this document does not apply to ISC Distributed Cluster Deployment.
 
 Statement Definition

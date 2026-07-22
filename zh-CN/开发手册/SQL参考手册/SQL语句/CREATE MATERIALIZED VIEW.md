@@ -94,7 +94,7 @@ CREATE MATERIALIZED VIEW mv2 BUILD IMMEDIATE AS SELECT * FROM area;
 
 刷新模式最多能够指定一项，省略则默认为ON DEMAND。
 
-当物化视图的基表包含DBLINK远端表时，不支持配置刷新模式为ON COMMIT。
+当物化视图的基表包含DBLink远端表时，不支持配置刷新模式为ON COMMIT。
 
 #### START WITH date|NEXT date
 
@@ -134,7 +134,7 @@ AS SELECT area_no,area_name FROM area;
 - 物化视图不允许包含可变的内置函数（例如时间相关函数）、自定义函数和自定义高级包等。
 - 物化视图不允许包含表函数。
 - 物化视图不允许包含伪列。
-- 物化视图的基表不允许为dblink远端表。
+- 物化视图的基表不允许为DBLink远端表。
 - 当物化视图基于的表定义修改，导致物化视图失效，此时该物化视图不可进行查询重写。表定义修改包括：
   - 选中的基表列字段数据类型更改
   - 选中的基表列字段删除

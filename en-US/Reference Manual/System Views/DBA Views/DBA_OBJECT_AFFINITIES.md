@@ -2,7 +2,7 @@ This view displays the affinity information of all objects in the database.
 
 |Field |Type |Description |
 | --- | --- |-----------------------------------------------------------------------------------------|
-| OWNER      | VARCHAR(64) | Object owner username                 |
+ OWNER      | VARCHAR(64) | Object owner username                 |
 | OBJECT\_NAME       | VARCHAR(64) | Object name                            |
 | SUBOBJECT\_NAME    | VARCHAR(64) | Sub-object name                       |
 | OBJECT\_ID         | BIGINT      | Object ID                            |

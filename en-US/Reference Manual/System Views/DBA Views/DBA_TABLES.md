@@ -2,7 +2,7 @@ This view displays all tables, including information about system tables.
 
 |Field |Type |Description |
 | --- |-------------|-------------------------------------------------------------------------------------|
-|  OWNER                | VARCHAR(64)   | The username of the table                                                                     |
+  OWNER                | VARCHAR(64)   | The username of the table                                                                     |
 | TABLE_NAME           | VARCHAR(64)   | The name of the table                                                                         |
 | TABLE_TYPE           | VARCHAR(8)    | Type of the table<br>* HEAP table<br/>* TAC table<br/>* LSC table<br/>* EXTERNAL table       |
 | TABLESPACE_NAME      | VARCHAR(64)   | The name of the tablespace where the table is located                                         |

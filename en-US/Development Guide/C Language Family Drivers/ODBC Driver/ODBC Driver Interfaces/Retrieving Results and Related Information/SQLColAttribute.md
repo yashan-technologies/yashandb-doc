@@ -5,13 +5,13 @@ Describes the properties of the columns in the result set.
 ## Function Declaration
 
 ```c
-SQLRETURN SQLColAttribute (  
-      SQLHSTMT        StatementHandle,  
-      SQLUSMALLINT    ColumnNumber,  
-      SQLUSMALLINT    FieldIdentifier,  
-      SQLPOINTER      CharacterAttributePtr,  
-      SQLSMALLINT     BufferLength,  
-      SQLSMALLINT *   StringLengthPtr,  
+SQLRETURN SQLColAttribute (
+      SQLHSTMT        StatementHandle,
+      SQLUSMALLINT    ColumnNumber,
+      SQLUSMALLINT    FieldIdentifier,
+      SQLPOINTER      CharacterAttributePtr,
+      SQLSMALLINT     BufferLength,
+      SQLSMALLINT *   StringLengthPtr,
       SQLLEN *        NumericAttributePtr);
 ```
 
@@ -27,7 +27,7 @@ SQLRETURN SQLColAttribute (
 | StringLengthPtr (OUT)         | Pointer to the cache that returns the total number of bytes (excluding null-termination byte) in *CharacterAttributePtr. |
 | NumericAttributePtr (OUT)     | Pointer to the integer cache.                              |
 
-Supported status of FieldIdentifier parameter:
+## FieldIdentifier Parameter Support
 
 |FieldIdentifier |Description |Support Status |
 | -------------------------- | ------------------------------------------------------------ | -------- |
@@ -40,7 +40,7 @@ Supported status of FieldIdentifier parameter:
 | SQL_DESC_OCTET_LENGTH        | Equivalent to SQL_DESC_DISPLAY_SIZE      | Supported       |
 | SQL_DESC_PRECISION           | Precision      | Supported       |
 | SQL_DESC_SCALE               | Scale            | Supported       |
-| SQL_DESC_TYPE                | Return value varies based on sqlType<br />switch (sqlType) {<br/>    case SQL_TYPE_DATE:<br/>    case SQL_TYPE_TIME:<br/>    case SQL_TYPE_TIMESTAMP:<br/>        *value = SQL_DATETIME;<br/>        break;<br/>    case SQL_INTERVAL_DAY_TO_SECOND:<br/>    case SQL_INTERVAL_YEAR_TO_MONTH:<br/>        *value = SQL_INTERVAL;<br/>        break;<br/>    default:<br/>        *value = sqlType;<br/>        break;<br/>} | Supported       |
+| SQL_DESC_TYPE                | Return value varies based on sqlType, see Return Value Description below. | Supported       |
 | SQL_DESC_UNSIGNED            | Whether it is unsigned          | Supported       |
 | SQL_DESC_AUTO_UNIQUE_VALUE   |                      | Not Supported   |
 | SQL_DESC_BASE_COLUMN_NAME    |                | Not Supported   |
@@ -57,3 +57,26 @@ Supported status of FieldIdentifier parameter:
 | SQL_DESC_TYPE_NAME           |                         | Supported   |
 | SQL_DESC_UNNAMED             |                      | Not Supported   |
 | SQL_DESC_UPDATABLE           |                    | Not Supported   |
+
+## Return Value Description
+
+### SQL_DESC_TYPE
+
+Return value varies based on sqlType:
+
+```c
+switch (sqlType) {
+    case SQL_TYPE_DATE:
+    case SQL_TYPE_TIME:
+    case SQL_TYPE_TIMESTAMP:
+        *value = SQL_DATETIME;
+        break;
+    case SQL_INTERVAL_DAY_TO_SECOND:
+    case SQL_INTERVAL_YEAR_TO_MONTH:
+        *value = SQL_INTERVAL;
+        break;
+    default:
+        *value = sqlType;
+        break;
+}
+```

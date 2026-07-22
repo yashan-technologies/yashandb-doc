@@ -186,7 +186,7 @@
    $ javac -d . Jdbcexample.java
    ```
 
-4. 执行如下命令执行程序，如输出如下结果，则代表数据库连接成功：
+4. 执行如下命令执行程序，如输出如下结果，则表示数据库连接成功：
 
    ```shell
    $ java -Djdbc.drivers=com.yashandb.jdbc.Driver jdbc0.Jdbcexample

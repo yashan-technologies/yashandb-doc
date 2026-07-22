@@ -1,5 +1,5 @@
 ```ebnf
-to_timestamp_tz = TO_TIMESTAMP_TZ "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format] ")".
+to_timestamp_tz = TO_TIMESTAMP_TZ "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format [","nls_calendar]] ")".
 ```
 
 TO\_TIMESTAMP\_TZ函数将[expr](../通用SQL语法/expr)的值转换为TIMESTAMP WITH TIME ZONE类型数据。

@@ -1,1 +1,5 @@
-In YAC Deployment, users can scale cluster instances as needed in a running environment, which means adding or deleting instances to a specific cluster (including YCS instances and database instances).
+In YAC Deployment, users can perform scaling configuration as needed in a running environment:
+
+- [Cluster Instance Scaling](./Cluster Instance Scaling): Add or remove instances (including YCS instances and database instances) for YAC.
+
+- [Standby Cluster Scaling](./Standby Cluster Scaling): Add or remove standby clusters for YAC.

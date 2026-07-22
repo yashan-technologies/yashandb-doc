@@ -1,6 +1,5 @@
 initno:1
 
-filename:安装Python驱动,Python驱动使用介绍,Python驱动使用示例,Python接口支持说明,Python驱动数据类型映射关系
+filename:安装Python驱动,Python快速入门,Python进阶配置,Python使用指南,Python参考信息
 
-enName:YashanDB Python Driver Installation,YashanDB Python Driver Usage Introduction,YashanDB Python Driver Usage Examples,Status of Support for YashanDB Python Interfaces,Data Type Mapping Relationships in YashanDB Python Driver
-
+enName:Installing YashanDB Python Driver,YashanDB Python Driver Quick Start,YashanDB Python Driver Advanced Configuration,YashanDB Python Driver User Guide,YashanDB Python Driver Reference

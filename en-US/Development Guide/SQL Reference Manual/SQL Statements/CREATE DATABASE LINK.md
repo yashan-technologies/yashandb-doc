@@ -9,7 +9,7 @@ Depending on the structure of the database system, there are two types of databa
 
 - Homogeneous database link: Database link between YashanDB and YashanDB
 
-- Heterogeneous database link: Database link between YashanDB and Oracle, which requires [heterogeneous database link configuration](../General SQL Syntax/dblink/Example of DBLINK)
+- Heterogeneous database link: Database link between YashanDB and Oracle, DAMENG Database, or KingbaseES Database, which requires [heterogeneous database link configuration](../General SQL Syntax/dblink/Example of DBLink)
 
 Statement Definition
 ----
@@ -42,7 +42,7 @@ Statement Definition
 **[database\_type](#databasetype)::=**
 
 ```ebnf
-= [YASHAN | ORACLE].
+= [YASHAN | ORACLE | DM | KING].
 ```
 
 <span id="createdatabaselink" name="createdatabaselink"></span>
@@ -83,7 +83,7 @@ The correctness of the connection string is not validated when creating the DATA
 
 #### database\_type
 
-This statement is used to specify the remote database system or standard interface label name, supporting identification of Yashan and Oracle; the default is Yashan if omitted.
+This statement is used to specify the remote database system or standard interface label name, supporting identification of Yashan, Oracle, DM, and KING; the default is Yashan if omitted.
 
 #### url
 
@@ -93,9 +93,9 @@ If the remote database is YashanDB, for the format and description of the connec
 
 #### db\_name
 
-This statement is used to specify the name of the remote Oracle database.
+This statement is used to specify the name of the remote Oracle database or KingbaseES Database.
 
-If the remote database is YashanDB, the database name cannot be specified.
+If the remote database is YashanDB or DAMENG Database, the database name cannot be specified.
 
 ***Example***
 
@@ -105,4 +105,10 @@ CREATE DATABASE LINK dblink_yashan CONNECT TO sales identified BY sales USING '1
 
 -- Database link between YashanDB and Oracle, visible to all users
 CREATE PUBLIC DATABASE LINK dblink_oracle CONNECT TO REGRESS identified BY REGRESS USING 'oracle:192.168.1.2:1521/orcl';
+
+-- Database link between YashanDB and DAMENG Database
+CREATE DATABASE LINK dblink_dm CONNECT TO DMUSER IDENTIFIED BY DMPWD USING 'dm:192.168.1.3:5236';
+
+-- Database link between YashanDB and KingbaseES Database
+CREATE DATABASE LINK dblink_king CONNECT TO KINGUSER IDENTIFIED BY KINGPWD USING 'king:192.168.1.4:54321/TEST';
 ```

@@ -1,5 +1,5 @@
 ```ebnf
-stddev = STDDEV "(" [DISTINCT|ALL] expr ")" [keep_clause].
+stddev = STDDEV "(" [DISTINCT|UNIQUE|ALL] expr ")" [keep_clause].
 
 keep_clause = KEEP "(" DENSE_RANK (FIRST|LAST) order_by_clause ")".
 ```
@@ -20,9 +20,11 @@ The value of expr should be numeric or convertible to NUMBER type character stri
 
 In multi-row calculations, the system ignores rows with NULL values, and when all rows are NULL, the calculation result is NULL.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Indicates that duplicate input data is filtered out before calculating the sample standard deviation.
+
+DISTINCT and UNIQUE are completely equivalent.
 
 **ALL**
 

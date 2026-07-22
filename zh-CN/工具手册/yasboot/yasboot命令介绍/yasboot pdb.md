@@ -8,8 +8,59 @@
 | *--pdb*      | PDB的名称（必传参数）                         |
 | *--pdb-config* | 指定[PDB配置文件](../配置文件/PDB配置文件.md)，使用yasboot部署YashanDB为容器数据库时，将在$YASDB_HOME目录生成该文件                    |
 | *-u, --username*     | 指定数据库用户，不指定则默认使用sys用户           |
-| *-p, --password* | 数据库用户的密码<br/>若使用sys用户且已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码                         |
-| *-m, --mode*          | 数据库的语法模式，可选项[yashan,mysql]<br/>* yashan：表示创建yashan模式的PDB，省略时默认为该值，创建后无法直接切换至mysql模式<br/>* mysql：表示创建mysql模式的PDB     |
+| *-p, --password* | 数据库用户的密码<br/>若使用sys用户且已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码                        |
+| *-h,--help*        | 查看当前命令的帮助信息 |
+| *--mode*          | 数据库的语法模式，可选项[yashan,mysql]<br/>* yashan：表示创建yashan模式的PDB，省略时默认为该值，创建后无法直接切换至mysql模式<br/>* mysql：表示创建mysql模式的PDB     |
+| *--policy* | 指定PDB启动策略，可选[automatic&#124;manual]，默认为automatic<br/>* automatic：PDB跟随根容器启停<br />* manual：PDB不跟随根容器启动，需手动启动PDB<br />共享集群部署中可按需指定，单机部署中则始终表现为PDB跟随根容器启动 |
+| *-m, --start-mode* | 指定共享集群部署中的PDB默认的启动阶段选项，可选[mount&#124;nomount&#124;open]，默认为open <br />指定后在后续启动PDB时，若未单独指定启动选项，则直接复用此处指定的值作为默认值 |
+| *-h, --help*        | 查看当前命令的帮助信息  |
+| *-w, --nowait*  | 运行后不等待执行命令结果     |
+| *-d, --child*   | 展示任务以及子任务信息                          |
+| *--disable*     | 屏蔽运行的进度信息                              |
+
+示例
+
+```shell
+$ yasboot pdb add -c yashandb --pdb pdb2 --pdb-config pdb_add.toml
+```
+
+## pdb build
+
+本命令用于对PDB备库进行重建处理。
+
+|  选项| 含义|
+| --------------- | ----------------------------------------------- |
+| *-c, --cluster* | 集群名称（必传参数）                                        |
+| *--pdb*        | 待操作的PDB名称，须为指定节点上的PDB，多个名称间使用逗号分隔，指定为all表示重建所有PDB（不含种子容器）    |
+| *-n, --node-id* | 节点ID（例如1-1，可以通过yasboot cluster status命令查看，不需要冒号及后面的数字）（必传参数） |
+| *-u, --username*     | 指定数据库用户，不指定则默认使用sys用户           |
+| *-p, --password* | 数据库用户的密码<br/>若使用sys用户且已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码                        |
+| *-h,--help*        | 查看当前命令的帮助信息 |
+| *-f, --force* | 清理操作是否进行二次确认，省略则默认需确认 |
+| *-h, --help*        | 查看当前命令的帮助信息  |
+| *-w, --nowait*  | 运行后不等待执行命令结果     |
+| *-d, --child*   | 展示任务以及子任务信息                          |
+| *--disable*     | 屏蔽运行的进度信息                              |
+
+示例
+
+```shell
+$ yasboot pdb build -c yashandb -n 1-2 --pdb pdb1,pdb2
+```
+
+## pdb clean
+
+本命令用于在恢复PDB或重建PDB前清理PDB数据，执行完成后将目标PDB将启动至NOMOUNT阶段。
+
+|  选项| 含义|
+| --------------- | ----------------------------------------------- |
+| *-c, --cluster* | 集群名称（必传参数）                                        |
+| *--pdb*    | 待操作的PDB名称，须为指定节点上的PDB，多个名称间使用逗号分隔，指定为all表示清理所有PDB（不含种子容器）<br />只能指定为处于**关闭**状态的PDB**备库**，指定为all时会自动跳过不符合状态和角色要求的PDB |
+| *-u, --username*     | 指定数据库用户，不指定则默认使用sys用户           |
+| *-p, --password* | 数据库用户的密码<br/>若使用sys用户且已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码                        |
+| *--with-arch*   | 清理时是否同时清理归档文件，默认为否              |
+| *-f, --force*   | 清理操作是否进行二次确认，省略则默认需确认              |
+| *-r, --restore*   | 仅用于兼容，无实际作用              |
 | *-h, --help*        | 查看当前命令的帮助信息  |
 | *-w, --nowait*  | 运行后不等待执行命令结果     |
 | *-d, --child*   | 展示任务以及子任务信息                          |
@@ -19,7 +70,9 @@
 示例
 
 ```shell
-$ yasboot pdb add -c yashandb --pdb pdb2 --pdb-config pdb_add.toml
+$ yasboot pdb clean -c yashandb --pdb pdb1,pdb2 -f
+
+$ yasboot pdb clean -c yashandb --pdb pdb1 --with-arch -f
 ```
 
 ## pdb status
@@ -56,13 +109,14 @@ $ yasboot pdb status -c yashandb --pdb pdb1
 | *-c, --cluster*    | YashanDB的集群名（必传参数）                                |
 | *-n, --node-id*    | 节点ID（例如1-1，可以通过yasboot cluster status命令查看，不需要冒号及后面的数字）        |
 | *--pdb*    | 待启动的PDB名称，须为指定节点上的PDB，多个名称间使用逗号分隔，指定为all表示启动指定节点上的所有PDB    |
-| *-m, --start-mode* | 启动到哪个阶段，可选[mount&#124;nomount&#124;open]，默认为open |
+| *-m, --start-mode* | 启动到哪个阶段，可选[mount&#124;nomount&#124;open]<br/>在单机部署中，默认为open <br/> 在共享集群/分布式集群部署中，默认使用yasboot pdb add命令或ycsctl add pdb命令指定的PDB默认的启动阶段选项 |
 | *-u, --username*     | 指定数据库用户，不指定则默认使用sys用户           |
 | *-p, --password*  | 数据库用户的密码<br/>若使用sys用户且已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码   |
 | *-h, --help*        | 查看当前命令的帮助信息  |
 | *-w, --nowait*  | 运行后不等待执行命令结果     |
 | *-d, --child*   | 展示任务以及子任务信息                          |
 | *--disable*     | 屏蔽运行的进度信息                              |
+
 
 示例
 
@@ -82,7 +136,7 @@ $ yasboot pdb start -c yashandb -n 1-1 --pdb pdb2 -m nomount
 | *-n, --node-id*    | 节点ID（例如1-1，可以通过yasboot cluster status命令查看，不需要冒号及后面的数字）        |
 | *--pdb*    | 待重启的PDB名称，须为指定节点上的PDB，多个名称间使用逗号分隔，指定为all表示重启指定节点上的所有PDB    |
 | *-s, --stop-mode*     | 关库方式，可选[normal&#124;immediate]，默认为normal  |
-| *-m, --start-mode* | 启动到哪个阶段，可选[mount&#124;nomount&#124;open]，默认为open |
+| *-m, --start-mode* | 启动到哪个阶段，可选[mount&#124;nomount&#124;open]<br/>在单机部署中，默认为open <br/> 在共享集群/分布式集群部署中，默认使用yasboot pdb add命令或ycsctl add pdb命令指定的PDB默认的启动阶段选项 |
 | *-u, --username*     | 指定数据库用户，不指定则默认使用sys用户           |
 | *-p, --password*  | 数据库用户的密码<br/>若使用sys用户且已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码   |
 | *-f, --force*      | 是否强制停止PDB，默认不强制                     |

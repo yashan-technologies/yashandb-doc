@@ -176,8 +176,33 @@ This procedure is used to configure the maximum number of rows of SQL query data
 |Parameter |Purpose |
 | --- | --- |
 | ctx    | Pass the return value of the NEWCONTEXT function as input.   |
-| skipRows  | Configures the skip number of rows to convert.    | 
+| skipRows  | Configures the skip number of rows to convert.    |
 
+###  SETROWTAG Procedure
+
+```plsql
+DBMS_XMLGEN.SETROWTAG(ctx IN CTXHANDLE, rowTagName IN VARCHAR2);
+```
+
+This procedure is used to specify and customize the tag name for each row's node when generating XML-formatted documents. By default, the tag name for each row is `ROW`.
+
+|Parameter |Purpose |
+| --- | --- |
+| ctx    | Pass the return value of the NEWCONTEXT function as input.   |
+| rowTagName  | Customizes the tag name for each row's node.   |
+
+###  SETROWSETTAG Procedure
+
+```plsql
+DBMS_XMLGEN.SETROWSETTAG(ctx IN CTXHANDLE, rowsTagName IN VARCHAR2);
+```
+
+This procedure is used to specify and customize the outer tag name of the result set when generating XML-formatted documents. By default, the outer tag name of the result set is `ROWSET`.
+
+|Parameter |Purpose |
+| --- | --- |
+| ctx    | Pass the return value of the NEWCONTEXT function as input.   |
+| rowsTagName  | Customizes the outer tag name for the result set.   |
 
 ### Example
 
@@ -376,6 +401,58 @@ Top 5 highest paid employees in XML format:
 </ROWSET>
 
 Number of rows processed: 5
+
+PL/SQL Succeed.
+```
+
+The following example demonstrates customizing XML tag names, including the row node tag and the result set outer node tag.
+
+```plsql
+DECLARE
+    ctx_handle NUMBER;
+    xml_result CLOB;
+BEGIN
+    DBMS_LOB.CREATETEMPORARY(xml_result);
+    -- Create context for XML generation
+    ctx_handle := DBMS_XMLGEN.newContext('SELECT employee_id, first_name, last_name FROM xmlgen_basic_employees WHERE employee_id <= 3 ORDER BY employee_id');
+
+    -- Customize the row tag name to "EMPLOYEE"
+    DBMS_XMLGEN.setRowTag(ctx_handle, 'EMPLOYEE');
+
+    -- Customize the rowset tag name to "STAFF"
+    DBMS_XMLGEN.setRowSetTag(ctx_handle, 'STAFF');
+
+    -- Generate XML output
+    xml_result := DBMS_XMLGEN.getXML(ctx_handle);
+
+    DBMS_OUTPUT.PUT_LINE('XML with custom tags:');
+    DBMS_OUTPUT.PUT_LINE(xml_result);
+
+    -- Close the context
+    DBMS_XMLGEN.closeContext(ctx_handle);
+    DBMS_LOB.FREETEMPORARY(xml_result);
+END;
+/
+
+XML with custom tags:
+<?xml version="1.0" encoding="UTF-8"?>
+<STAFF>
+  <EMPLOYEE>
+    <EMPLOYEE_ID>1</EMPLOYEE_ID>
+    <FIRST_NAME>John</FIRST_NAME>
+    <LAST_NAME>Smith</LAST_NAME>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <EMPLOYEE_ID>2</EMPLOYEE_ID>
+    <FIRST_NAME>Jane</FIRST_NAME>
+    <LAST_NAME>Doe</LAST_NAME>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <EMPLOYEE_ID>3</EMPLOYEE_ID>
+    <FIRST_NAME>Michael</FIRST_NAME>
+    <LAST_NAME>Johnson</LAST_NAME>
+  </EMPLOYEE>
+</STAFF>
 
 PL/SQL Succeed.
 ```

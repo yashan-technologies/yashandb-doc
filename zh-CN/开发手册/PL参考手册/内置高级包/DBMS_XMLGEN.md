@@ -178,6 +178,31 @@ DBMS_XMLGEN.SETSKIPROWS(ctx IN CTXHANDLE, skipRows IN NUMBER);
 | ctx    | 将NEWCONTEXT函数返回值作为入参。   |
 | skipRows  | 配置跳过行数。    |
 
+###  SETROWTAG Procedure
+
+```plsql
+DBMS_XMLGEN.SETROWTAG(ctx IN CTXHANDLE, rowTagName IN VARCHAR2);
+```
+
+该存储过程用于在生成XML格式文档时自定义指定每行数据对应节点的标签名称。默认情况下，每行数据对应的节点标签为`ROW`。
+
+|  参数| 用途|
+| --- | --- |
+| ctx    | 将NEWCONTEXT函数返回值作为入参。   |
+| rowTagName  | 自定义每行数据节点的标签名称。   |
+
+###  SETROWSETTAG Procedure
+
+```plsql
+DBMS_XMLGEN.SETROWSETTAG(ctx IN CTXHANDLE, rowsTagName IN VARCHAR2);
+```
+
+该存储过程用于在生成XML格式文档时自定义指定结果集外层节点的标签名称。默认情况下，结果集外层节点标签为`ROWSET`。
+
+|  参数| 用途|
+| --- | --- |
+| ctx    | 将NEWCONTEXT函数返回值作为入参。   |
+| rowsTagName  | 自定义结果集外层节点的标签名称。   |
 
 ### 示例
 
@@ -376,6 +401,58 @@ Top 5 highest paid employees in XML format:
 </ROWSET>
 
 Number of rows processed: 5
+
+PL/SQL Succeed.
+```
+
+以下示例为自定义XML标签名称，包括行节点标签和结果集外层节点标签。
+
+```plsql
+DECLARE
+    ctx_handle NUMBER;
+    xml_result CLOB;
+BEGIN
+    DBMS_LOB.CREATETEMPORARY(xml_result);
+    -- Create context for XML generation
+    ctx_handle := DBMS_XMLGEN.newContext('SELECT employee_id, first_name, last_name FROM xmlgen_basic_employees WHERE employee_id <= 3 ORDER BY employee_id');
+
+    -- Customize the row tag name to "EMPLOYEE"
+    DBMS_XMLGEN.setRowTag(ctx_handle, 'EMPLOYEE');
+
+    -- Customize the rowset tag name to "STAFF"
+    DBMS_XMLGEN.setRowSetTag(ctx_handle, 'STAFF');
+
+    -- Generate XML output
+    xml_result := DBMS_XMLGEN.getXML(ctx_handle);
+
+    DBMS_OUTPUT.PUT_LINE('XML with custom tags:');
+    DBMS_OUTPUT.PUT_LINE(xml_result);
+
+    -- Close the context
+    DBMS_XMLGEN.closeContext(ctx_handle);
+    DBMS_LOB.FREETEMPORARY(xml_result);
+END;
+/
+
+XML with custom tags:
+<?xml version="1.0" encoding="UTF-8"?>
+<STAFF>
+  <EMPLOYEE>
+    <EMPLOYEE_ID>1</EMPLOYEE_ID>
+    <FIRST_NAME>John</FIRST_NAME>
+    <LAST_NAME>Smith</LAST_NAME>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <EMPLOYEE_ID>2</EMPLOYEE_ID>
+    <FIRST_NAME>Jane</FIRST_NAME>
+    <LAST_NAME>Doe</LAST_NAME>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <EMPLOYEE_ID>3</EMPLOYEE_ID>
+    <FIRST_NAME>Michael</FIRST_NAME>
+    <LAST_NAME>Johnson</LAST_NAME>
+  </EMPLOYEE>
+</STAFF>
 
 PL/SQL Succeed.
 ```

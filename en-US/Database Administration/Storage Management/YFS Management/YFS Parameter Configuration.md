@@ -250,7 +250,7 @@ The name of the YFS parameter file is `yasfs.ini`, which cannot be changed and m
 
 *   Default Value: 512
 
-*   Value Range/Format: [512, infinity)
+*   Value Range/Format: [1, 4294967295000)
 
 *   Parameter Description: IO timeout duration. If a disk failure causes an IO timeout, it will report the disk failure to the YFS server for processing. The unit is milliseconds.
 

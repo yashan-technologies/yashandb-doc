@@ -17,3 +17,4 @@ This view displays a summary of the undo segment information for all nodes in th
 | FIRST\_UFBBLK | INTEGER | The ID of the first uninitialized undo block |
 | XBLKS | INTEGER | The number of transaction blocks managed by the undo segment |
 | FREE\_COUNT | INTEGER | The number of undo blocks which can be reused immediate after returned by committed transactions |
+| IS\_TEMP | BOOLEAN | Whether to use an undo segment for the temporary tablespace |

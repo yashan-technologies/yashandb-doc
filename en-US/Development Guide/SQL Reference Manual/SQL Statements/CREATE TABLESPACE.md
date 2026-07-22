@@ -19,7 +19,7 @@ Statement Definition
 **create tablespace::=**
 
 ```ebnf
-= CREATE (permanent_tablespace_clause | temporary_tablespace_clause | swap_tablespace_clause).
+= CREATE (permanent_tablespace_clause | temporary_tablespace_clause | swap_tablespace_clause | cache_tablespace_clause).
 ```
 
 **[permanent_tablespace_clause](#permanenttablespaceclause)::=**
@@ -38,6 +38,12 @@ Statement Definition
 
 ```ebnf
 = (SWAP TABLESPACE | LOCAL SWAP TABLESPACE) tablespace_name [datafile_clause].
+```
+
+**[cache_tablespace_clause](#cachetablespaceclause)::=**
+
+```ebnf
+= LOCAL CACHE TABLESPACE tablespace_name [datafile_clause].
 ```
 
 **[datafile_clause](#datafileclause)::=**
@@ -228,11 +234,39 @@ CREATE SWAP TABLESPACE shared_swap TEMPFILE '+DG0/dbfiles/shared_swap' SIZE 4M;
 CREATE LOCAL SWAP TABLESPACE local_swap TEMPFILE '?/dbfiles/local_swap' SIZE 4M;
 ```
 
+<span id="cachetablespaceclause" name="cachetablespaceclause"></span>
+
+### cache\_tablespace\_clause
+
+This statement is used to create a local cache tablespace in YAC/Distributed Cluster Deployment to store local disk cache data of LSC tables, improving the query performance of LSC tables.
+
+The local cache tablespace is only applicable to YAC/Distributed Cluster Deployment. When  it is created, independent data files will be created for each instance within the cluster. The data in the local cache tablespace is persistent and corresponding data will not be cleared upon database restart. However, the reliability of the cache is not guaranteed. (The cache may get corrupted, and in case of corruption, the data will be reread from the source file.)
+
+- This statement is only applicable to YAC/Distributed Cluster Deployment.
+
+- The file path must be a local path. If only a relative path is specified, it defaults to the $YASDB_DATA/dbfiles directory.
+
+- Only one local cache tablespace is allowed per cluster, and the name must be `cache` (case-insensitive).
+
+- In primary-standby cluster deployment, the standby cluster does not synchronize when the primary cluster creates a local cache tablespace.
+
+- Local cache tablespaces are only used as disk cache for LSC tables. Tables cannot be created in a local cache tablespace.
+
+
+***Example*** for YAC/Distributed Cluster Deployment
+
+```sql
+CREATE LOCAL CACHE TABLESPACE cache DATAFILE '?/dbfiles/local_cache' SIZE 128M;
+```
+
 ### tablespace\_name
 
 This statement is used to specify the name of the tablespace to be created. This cannot be omitted and must comply with YashanDB's [object naming conventions](../Basic SQL Elements/Identifiers).
 
-In ISC Distributed Cluster Deployment, be aware that the name of the tablespace being created must not match the names of existing tablespaces, or an error will be returned.
+- In YAC/Distributed Cluster Deployment, the name of the local cache tablespace must be specified as `cache` (case-insensitive).
+
+- In ISC Distributed Cluster Deployment, the name of the tablespace being created must not be the same as the names of existing tablespaces, or an error will be returned.
+
 
 ***Example***
 
@@ -272,9 +306,17 @@ Specifies the name of the data file.
 
 - In YAC/Distributed Cluster Deployment, different types of file storage paths have different requirements:
 
-  - DATAFILE: Must be a [YFS](../../../Database Administration/Storage Management/YFS Management/00YFS Management) path. You can use filename without path (e.g., `yashan`) or the full disk group path (e.g., `+DG0/dbfiles/yashan`). When using filename without path, the actual file creation will take the default disk group path `+DG0/dbfiles`.
+  - DATAFILE：
+  
+    - Local cache tablespace: Must be a local disk path, same rules as standalone deployment.
 
-  - TEMPFILE: Local temporary tablespaces and local SWAP tablespace temporary files support YFS paths or local disk paths. YFS paths follow the same rules as DATAFILE, and local disk paths follow the same rules as Standalone Deployment.
+    - Others: Must be a [YFS](../../../Database Administration/Storage Management/YFS Management/00YFS Management) path. You can use filename without path (e.g., `yashan`) or the full disk group path (e.g., `+DG0/dbfiles/yashan`). When using filename without path, the actual file creation will take the default disk group path +DG0/dbfiles.
+
+  - TEMPFILE：
+
+    - Temporary tablespaces and SWAP tablespace temporary files: Must be YFS paths, same rules as DATAFILE.
+
+    - Local temporary tablespaces and local SWAP tablespace temporary files: Support YFS paths or local disk paths. YFS paths follow the same rules as DATAFILE, and local disk paths follow the same rules as Standalone Deployment.
 
 - In ISC Distributed Cluster Deployment, you can use filename without path (e.g., `yashan`) or relative paths replacing `$YASDB_DATA` with `?` or `.` (e.g., `?/dbfiles/yashan` or `./dbfiles/yashan`). The actual file creation will take the system's default data file path `$YASDB_DATA/dbfiles`.
 
@@ -290,10 +332,11 @@ The size of a data file equals the database block size multiplied by the number 
 
 ##### autoextend on|autoextend off
 
-This enables or disables automatic extension for the created data file. The default value is off if this statement is omitted. When automatic extension is enabled:
+Specifies whether automatic extension is enabled for the created data files. The default value is off if this statement is omitted. When automatic extension is enabled:
 
-*   NEXT size_clause: This specifies the size by which the data file automatically extends each time; the default is 8192 blocks.
-*   MAXSIZE UNLIMITED/size_clause: This determines the maximum extent to which the data file can extend; the default is 64MB blocks. UNLIMITED means no maximum limit.
+* NEXT size_clause: Specifies the size of each automatic extension for the data file, in Bytes. The value range is [512,32768] BLOCK sizes. If omitted, the default is 8M BLOCK sizes.
+
+* MAXSIZE UNLIMITED/size_clause: Specifies the maximum capacity that the data file can expand to, in Bytes. UNLIMITED means unlimited. If omitted, the default is 64M BLOCK sizes.
 
 AUTOEXTEND ON cannot be specified for MMS tablespaces.
 
@@ -327,6 +370,7 @@ This statement is used to specify the allocation method for extents when objects
 *   If a temporary tablespace is created without specifying an extent allocation method, the default is UNIFORM with a size of 8 blocks.
 *   The extent allocation method cannot be specified for SWAP tablespaces; the default is UNIFORM with a size of 8 blocks.
 *   If a non-temporary tablespace is created without specifying an extent allocation method, the default is AUTOALLOCATE.
+*   The extent allocation method cannot be specified for local cache tablespace; the default is AUTOALLOCATE.
 *   Each data file in a tablespace using the UNIFORM allocation method must be larger than the UNIFORM SIZE.
 
 ***Example***
@@ -338,8 +382,9 @@ CREATE TABLESPACE yashan3 DATAFILE 'yashan3' SIZE 4M AUTOEXTEND ON NEXT 4M MAXSI
 
 ### memory mapped
 
-When the MEMORY MAPPED keyword is specified, it indicates that all pages of the files created for the tablespace will be mapped into memory (AIM: all in memory). YashanDB refers to this type of tablespace as a memory mapped space (MMS). MMS cannot be created in YAC/Distributed Cluster Deployment.
+When the MEMORY MAPPED keyword is specified, it indicates that all pages of the files created for the tablespace will be mapped into memory (AIM: all in memory). YashanDB refers to this type of tablespace as a memory mapped space (MMS). 
 
+MMS cannot be created in YAC/Distributed Cluster Deployment.
 
 In Distributed In Memory Database, even if MEMORY MAPPED is not explicitly specified when creating a tablespace, the created tablespace will still default to MMS. All functional constraints remain consistent with MMS.
 
@@ -363,11 +408,11 @@ Specifies the path information for the object storage directory. Multiple paths 
 
 You can view all the information of the buckets created in the current system by querying the V$DATABUCKET view.
 
-YashanDB allows a maximum of 64 data buckets to be mounted under a single tablespace. The total maximum number of data buckets that can be mounted in the database depends on the database creation parameters. Please refer to the maxdatabuckets statement description in the [CREATE DATABASE](CREATE DATABASE) section.
+- Local cache tablespaces cannot mount DataBuckets.
 
-LSC tables must have their data bucket mounted in the corresponding tablespace before they can be created.
+- YashanDB allows a maximum of 64 data buckets to be mounted under a single tablespace. The total maximum number of data buckets that can be mounted in the database depends on the database creation parameters. Please refer to the maxdatabuckets statement description in the [CREATE DATABASE](CREATE DATABASE) section.
 
-In YAC/Distributed Cluster Deployment, specifying the databucket_clause is not allowed.
+- LSC tables must have their data bucket mounted in the corresponding tablespace before they can be created.
 
 <span id="bucketclause" name="bucketclause"></span>
 
@@ -379,15 +424,17 @@ YashanDB supports creating local storage buckets and S3 (Simple Storage Service)
 
 > **Note**: 
 >
-> The S3 bucket functionality is not enabled by default. If you wish to use it, please contact our technical support for assistance.
+> In YAC Deployment or Distributed Cluster Deployment, only local storage buckets can be configured.
+>
+> In Standalone Deployment or ISC Distributed Cluster Deployment, the S3 bucket functionality is not enabled by default. If you wish to use it, please contact our technical support for assistance.
 
 ##### bucket_name
 
 For different bucket types, bucket_name has different meanings:
 
-- For local storage buckets, bucket_name can be specified as a logical name or an absolute or relative path in the local file system. However, in the context of the database, it is treated as a path. If only the bucket name is specified, a directory created with that bucket name will default to the $YASDB_DATA/local_fs directory. If a bucket path is specified, the system will perform the following validity checks on the specified path:
+- For locally stored buckets, bucket_name can be specified as a logical name or as an absolute or relative path in the local filesystem. However, in the database context, they are equivalent to paths. If only the bucket name is specified, a directory with that bucket name will be created by default in the $YASDB_DATA/local_fs directory (in Standalone Deployment or ISC Distributed Cluster Deployment) or +DG0/local_fs directory (in YAC Deployment or Distributed Cluster Deployment). If a bucket path is specified, the system will perform validity checks on the specified path:
 
-  - The specified directory can only be under the $YASDB_DATA/local_fs directory.
+  - In Standalone Deployment or ISC Distributed Cluster Deployment, the specified directory must be within the $YASDB_DATA/local_fs directory. In YAC Deployment or Distributed Cluster Deployment, the specified directory must be a YFS path.
 
   - The specified directory must not be the same as other buckets, nor can it be a parent or child directory of them.
 
@@ -397,7 +444,7 @@ For different bucket types, bucket_name has different meanings:
 
 - For S3 buckets, bucket_name is a logical name and must consist of letters, digits, or underscores. It is used to query specific bucket information within the database.
 
-***Example*** for Standalone Deployment and ISC Distributed Cluster Deployment
+***Example*** 
 
 ```sql
 -- The following statement will create a new lsc_tb tablespace and simultaneously create two buckets, lscfile1 and lscfile2, under the $YASDB_DATA/local_fs directory. It will also default to creating a data file named LSC_TB0.
@@ -428,7 +475,7 @@ Access key; it cannot be omitted and has a maximum length of 127 bytes.
 
 ##### MAXSIZE size_clause
 
-Used to specify the size of the bucket, with a minimum value of 1048576 (1M) and a maximum value of 9223372036854775807. It can be omitted; if omitted, the default value is UNLIMITED.
+Used to specify the size of the bucket, with a minimum value of 1048576 (1M) and a maximum value of 9223372036854775807. It can be omitted; if omitted, the default value is UNLIMITED. In YAC/Distributed Cluster Deployment, MAXSIZE is only allowd to be UNLIMITED.
 
 ***Example*** for Standalone Deployment
 
@@ -446,7 +493,7 @@ This statement is used to specify the encryption properties of the tablespace, b
 The rules for using encrypted tablespaces are as follows:
 
 - In Standalone/YAC/Distributed Cluster Deployment, before creating an encrypted tablespace, key management-related configurations must be completed, including creating wallets, enabling wallets, setting master keys, etc. For specific operations, refer to [Configuring Wallet](../../../Product Security/Encryption/Storage Encryption/Key Management.md#configuringwallet).
-- Built-in tablespaces and temporary tablespaces cannot be specified as encrypted tablespaces.
+- Built-in tablespaces, temporary tablespaces, and local cache tablespaces cannot be specified as encrypted tablespaces.
 - For table objects within encrypted tablespaces, indexes and ACs created on them must also reside in an encrypted tablespace.
 - The encryption property specified during the creation of the tablespace cannot be changed later.
 
@@ -482,11 +529,11 @@ This statement is used to specify the compression properties of the tablespace, 
 When specified as COMPRESS, it indicates that the created tablespace is a compressed tablespace, meaning that the data stored on the medium corresponding to this tablespace will be compressed. YashanDB has the following constraints for compressed tablespaces:
 
 - Built-in tablespaces cannot be specified as compressed tablespaces.
+- In YAC/Distributed Cluster Deployment, only local temporary tablespaces or local SWAP tablespaces using local disk files can be specified as compressed tablespaces; other scenarios do not allow specifying compress_clause.
 - The compression property specified during the creation of the tablespace cannot be changed later.
 - If the file system where the data file of the tablespace resides does not support punch hole or its page size is not 1024, 2048, or 4096, a compressed tablespace cannot be created.
 - Some file systems do not support compressed tablespaces; common supported file systems include: XFS, ext4, Btrfs, tmpfs(5), gfs2(5), etc.
 
-In YAC/Distributed Cluster Deployment, creating local temporary tablespaces or local swap tablespaces with local disk files allows the specification of compress_clause; other tablespace creation operations do not allow the specification of compress_clause.
 
 ***Example*** for Standalone Deployment and ISC Distributed Cluster Deployment
 

@@ -6,7 +6,7 @@
 | ----------------- | ---------------------------------- |
 | *-c, --cluster*   | YashanDB的集群名（必传参数）                   |
 | *-n, --node-id*   | 目标节点的ID（例如`1-2`，可通过yasboot cluster status命令查看数据库信息取`nodeid`冒号前的数字串）（必传参数） |
-| *-q, --query*     | 查询组配置中单个或多个参数（可以模糊匹配）             |
+| *-q, --query*     | 查询节点配置中单个或多个参数（可以模糊匹配）             |
 | *--parameter* | 配置的详情                         |
 | *-a, -all*        | 查询所有参数，包括未设置的参数     |
 | *-u, --username*     | 指定数据库用户，不指定则默认使用sys用户           |
@@ -94,6 +94,8 @@ $ yasboot node status -c yashandb -n 1-1
 
 本命令用于停止运行中的节点。
 
+当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，本命令会同时关闭目标节点上的所有PDB。
+
 |  选项| 含义|
 | --------------- | ----------------------------------------- |
 | *-c, --cluster* | YashanDB的集群名（必传参数）                          |
@@ -117,6 +119,8 @@ $ yasboot node stop -c yashandb -n 4-1
 ## node start
 
 本命令用于启动节点。
+
+当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，本命令会同时启动目标节点上随根容器启动的PDB（即创建时未指定--policy或指定为automatic的PDB）。
 
 |  选项| 含义|
 | ------------------ | ------------------------------------------------ |
@@ -142,6 +146,8 @@ $ yasboot node start -c yashandb -n 4-1 -m nomount
 ## node restart
 
 本命令用于重启节点。
+
+当YashanDB部署为容器数据库（配置参数ENABLE_PLUGGABLE_DATABASE=TRUE）时，本命令会同时关闭目标节点上的所有PDB，但只会重新启动其中随根容器启动的PDB（即创建时未指定--policy或指定为automatic的PDB）。
 
 |  选项| 含义|
 | ------------------ | ------------------------------------------------ |
@@ -264,7 +270,6 @@ $ yasboot node remove -c yashandb -n 4-1 --purge
 | *-t, --toml*    | yasboot config node gen命令生成的集群扩容配置文件`{集群名称}_add.toml`的路径（必传参数）                              |
 | *-d, --child*   | 展示任务以及子任务信息                          |
 | *--disable*     | 屏蔽运行的进度信息                              |
-| *--no-primary*  | 是否在单机主备部署中允许在无主库的情况下执行操作（此参数仅对单机部署有效），默认为false |
 | *-p, --password* | 数据库sys用户对应的密码<br/>若已开启[操作系统认证](../../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（安装后默认开启）则无需指定密码                          |
 | *--max-protection-timeout* | 修改保护模式的超时时间（单位：秒），默认值为7200，超过该值未修改成功视为任务失败并中断操作                     |
 | *--wait-timeout* | 命令执行超时时间（隐藏参数）                  |

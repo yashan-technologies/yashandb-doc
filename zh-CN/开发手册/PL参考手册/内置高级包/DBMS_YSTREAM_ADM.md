@@ -86,7 +86,7 @@ YStream服务创建后的默认解析范围是数据库中的所有表（包括�
 
   - 若某个服务的解析范围为所有表，在其STARTED或RUNNING状态无法通过ADD_TABLES指定具体的解析对象（即缩小解析范围），需先停止服务再执行ADD_TABLES。
 
-  - 如需将存量表添加到某个Ystream服务的解析范围中，不建议在服务处于STARTED或RUNNING状态时操作。否则，必须确保执行ADD_TABLES前目标表未开启[表级附加日志](../../SQL参考手册/SQL语句/ALTER TABLE.md#addsupplementalloggingclause)；并且在执行ADD_TABLES后，需手动开启该表的表级附加日志Ystream服务才会对该表进行解析。
+  - 如需将存量表添加到某个YStream服务的解析范围中，不建议在服务处于STARTED或RUNNING状态时操作。否则，必须确保执行ADD_TABLES前目标表未开启[表级附加日志](../../SQL参考手册/SQL语句/ALTER TABLE.md#addsupplementalloggingclause)；并且在执行ADD_TABLES后，需手动开启该表的表级附加日志YStream服务才会对该表进行解析。
 - 在高可用环境中，仅允许在主库/主集群上调用该函数。
 - 系统不会校验table_names和schemas参数所传入的表名和schema名称是否存在，方便扩展配置（可预先将规划中暂未创建的表或schema加至YStream服务）。
 - 允许table_names和schemas参数传入重复的表名、shcema名称，系统会自动去重，且不会报错。

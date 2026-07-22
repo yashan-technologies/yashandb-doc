@@ -82,6 +82,34 @@ An index is an independent object that has its own segment. The default tablespa
 
 The rows in the index correspond one-to-one with the table, used to store the values of indexed columns and the RowId of corresponding rows in the table. The index is strictly ordered according to the values of indexed columns (when values are the same, ordered by RowId).
 
+### Partitioned Indexes
+
+Indexes support partitioned tables and can be created as LOCAL or GLOBAL indexes.
+
+**LOCAL Partitioned Index**
+
+The partition data of a LOCAL partitioned index is consistent with the base table partition data. If the original data of the base table belongs to a certain partition, the index data also belongs to the corresponding index partition.
+
+**GLOBAL Partitioned Index**
+
+A GLOBAL partitioned index is a global index and does not change with the partitions of the base table.
+
+**Impact of Partition DDL on Partitioned Indexes**
+
+When partition DDL operations are performed on the base table, the partitioned index will perform corresponding partition operations synchronously:
+
+- **ADD PARTITION**: When a partition is added to the base table, the index will also add a corresponding partition.
+
+- **DROP PARTITION**: When a partition is dropped from the base table, the index will also drop the corresponding partition.
+
+- **TRUNCATE PARTITION**: When partition data is truncated from the base table, the index will also truncate the corresponding partition data.
+
+- **SPLIT PARTITION**: When a partition is split from the base table, the index will synchronously perform partition split operations.
+
+- **MERGE PARTITION**: When partitions are merged from the base table, the index will synchronously perform partition merge operations.
+
+- **INTERVAL Partition Extension**: When INTERVAL partition extension is performed on the base table, the index will also synchronously perform partition extension.
+
 ### Maintenance of Indexes
 
 An index is an optional structure of the table and changes with the changes of the table:
@@ -251,6 +279,32 @@ The full-text index in YashanDB takes the words after text segmentation as the c
 During the construction of the full-text index, invalid words (such as modal particles and punctuation marks) are automatically filtered, and normalization processing (such as case unification and text encoding unification) is performed on the tokens, improving retrieval accuracy and efficiency.
 
 Full-text index retrieval is achieved through token matching. After a text query condition is given, the query condition is first split into corresponding tokens by a tokenizer. Then, the entries corresponding to the tokens in the index are located, and the text rows containing the target tokens are filtered out. Finally, the results that meet the conditions are returned, greatly improving the retrieval efficiency of text data.
+
+### Tokenizer
+
+YashanDB full-text index uses the jieba tokenizer for text segmentation. The tokenizer splits text content into meaningful lexical units, supporting both Chinese and English text segmentation.
+
+### Index Behavior
+
+**Inserting Data**
+
+When data is inserted into a table, the full-text index automatically performs segmentation on the text column and establishes index mapping relationships for each token after segmentation.
+
+**Deleting Data**
+
+When data is deleted from a table, the full-text index automatically deletes the index mapping relationships corresponding to that row of data.
+
+**Updating Data**
+
+When the text column in a table is updated, the full-text index first deletes the old index mapping relationships, and then establishes index mapping relationships for the new text content.
+
+**Querying Data**
+
+When executing a text query, the system performs segmentation on the query condition, and then matches the corresponding tokens in the full-text index to quickly locate the text rows containing the target tokens.
+
+**Rebuilding Indexes**
+
+For full-text indexes, the rebuild operation will re-perform segmentation on the base table data and construct new index data.
 
 ## BITMAP Index
 

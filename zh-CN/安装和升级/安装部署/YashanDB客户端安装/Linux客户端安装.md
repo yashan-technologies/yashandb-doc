@@ -77,7 +77,7 @@ rpm安装方式仅适用于CentOS Linux平台，且必须以root用户执行安�
 6. 在~/.bashrc中配置PATH和LD_LIBRARY_PATH。
 
    ```shell
-   $ vi ~/.bashrc
+   # vi ~/.bashrc
    export PATH=$PATH:/usr/local/yashandb_client/bin
    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/yashandb_client/lib
    ```

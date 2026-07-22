@@ -2,7 +2,7 @@ ASH view, displaying historical session information collected by the MMNL backgr
 
 |Field |Type |Description |
 | --- | --- | --- |
-|  SAMPLE\_ID | BIGINT       | Sample ID                                             |
+  SAMPLE\_ID | BIGINT       | Sample ID                                             |
 | SAMPLE\_TIME | TIMESTAMP(6) | Sample time                                           |
 | SAMPLE\_TIME\_UTC | TIMESTAMP(6) | Sample UTC time                                       |
 | USECS\_PER\_ROW | BIGINT       | Time consumed for collection                          |

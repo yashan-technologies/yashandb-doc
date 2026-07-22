@@ -2,7 +2,7 @@
 
 The OCIDescriptorFree function is used to free a previously allocated descriptor.
 
-Before calling the OCIDescriptorFree function, the [OCILobFreeTemporary](../LOB Functions/OCILobFreeTemporary) function must first be called.
+Before calling the OCIDescriptorFree function, the [OCIDescriptorAlloc](./OCIDescriptorAlloc.md) function must first be called.
 
 ## Function Declaration
 

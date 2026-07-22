@@ -46,6 +46,7 @@ $ yasldr USERNAME/PASSWORD@IP:PORT {LOAD OPTIONS} {LOAD STATEMENT}
 
 - 对待导入数据的目标表应具备写权限和查询权限。
 - 在存算一体分布式集群部署中，用户还应至少为SELECT_CATALOG_ROLE角色并具备ROUTE$，NODE_INFO$，DIST$，OBJ$，DISTCOL$，TAB$，USER$，PARTOBJ$以及PARTCOL$系统表权限。
+- 在共享集群部署中，如果需要对配置了亲和属性的表或一级分区对象进行亲和导入，导入用户还需拥有SELECT_CATALOG_ROLE角色权限。
 
 ```sql
 -- 为用户授权SELECT_CATALOG_ROLE角色
@@ -74,7 +75,8 @@ yasldr提供多个可选的命令行控制参数，方便用户调整和设置�
 
   > **Note**:
   >
-  > 当导入FVECS二进制向量数据文件时，MODE必须设置为BASIC。
+  > - 当导入FVECS二进制向量数据文件时，MODE必须设置为BASIC。
+  > - 共享集群部署时，对于配置了亲和属性的普通表对象或一级分区对象，如果希望获得更高的导入效率，需要打开AFFINITY_SEND参数开关，此时要求MODE=BATCH且LOAD STATEMENT中NOLOGGING=FALSE。
 
 更多命令行参数的描述见[yasldr命令行参数](yasldr参数说明.md)。
 
@@ -227,6 +229,7 @@ enclosed_by_char支持以下表示方法：
 - 单个单字节字符
 - 单个十六进制
 - 单个整数
+- 空值（即无包围符）
 
 取值范围：ASCII码1-126对应的字符，换行符、空格除外。
 
@@ -318,6 +321,12 @@ $ cat /home/yasdb/area.bad
 
 该语句用于指定待导入表中的列与CSV文件的映射关系，其中table_column_name用于指定需要导入数据的列名。
 
+当导入的目标表有虚拟列时：
+
+- 如果CSV文件本身不包括虚拟列数据，直接指定列导入。
+
+- 如果CSV文件包括了虚拟列数据，需指定虚拟列为`FILLER`。
+
 **filler_column_clause**
 
 ```ebnf
@@ -368,51 +377,6 @@ yasldr支持导入指定函数的计算值数据，最终插入的数据是经�
 
 - func_name用于指定函数名。
 - func_arg用于指定函数参数，可以使用`?`表示对应CSV文件中的数据列，其他任何形式的参数将会完整的传递给函数。
-
-示例1：行外LOB数据导入
-
-```bash
-#准备本地lob1.dat和lob2.dat文件，文件位于/home/yasdb/，内容均为：
-abcdefg
-
-#创建/home/yasdb/load_lob.csv文件，内容为：
-"1"|"lob1.dat"|"lob1.dat.1.7/"
-
-#创建表bad_load表
-CREATE TABLE sqlldr_lob(c1 int,c2 clob,c3 clob);
-
-#执行导入指令
-$ yasldr sales/sales@127.0.0.1:1688 batch_size=4032 control_text="'LOAD DATA INFILE '/home/yasdb/load_lob.csv' FIELDS TERMINATED BY '|' OPTIONALLY ENCLOSED BY '\"' INTO TABLE sqlldr_lob(c1,file1 filler,c2 lobfile(file1), c3 LLS)'"
-```
-
-示例2：GIS数据导入
-
-```bash
-#准备gis数据文件load_gis_demo.csv，其中部分gis列坐标值和坐标系值相邻存放，部分GIS列只有坐标值，内容如下：
-1,"POINT(0 0)", 4326,11,"POINT(0 0)", "yashandb"
-2,"LINESTRING(1 2,4 5)", 2018,22,"LINESTRING(1 2,4 5)", "postgresql"
-3,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", 2025,33,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", "mysql"
-4,"MULTIPOINT ((1 1),(2 2))", 4326,44,"MULTIPOINT ((1 1),(2 2))", "yashandb"
-
-#创建待导入的GIS表
-CREATE TABLE YASLDR_LOAD_GIS_DEMO (C1 INT, C2 ST_GEOMETRY, C3 INT, C4 ST_GEOMETRY, C5 VARCHAR(20));
-
-#执行导入指令
-$ yasldr sales/sales mode=basic control_text="'load data options(degree_of_parallelism=3) infile './load_gis_demo.csv' into table YASLDR_LOAD_GIS_DEMO(c1, c2 \"ST_GeomFromText(?,?)\", c3, c4 \"ST_GeomFromText(?, 3256)\", c5)'"
-```
-
-示例3：BFILE数据导入
-```bash
-#准备含有bfile列的数据文件load_bfile.csv，内容如下：
-1|"MY_DIR"|"a.txt"|"sss1"|"MY_DIR"|"b.txt"|"MY_DIR"|"b1.txt"|"lobdata1"
-2|"MY_DIR"|"testfile"|"sss2"|"MY_DIR"|"testimage"|"MY_DIR"|"b2.txt"|"lobdata2"
-
-#创建待导入的BFILE表
-CREATE TABLE T_BFILE(C1 INT,C2 BFILE,C3 VARCHAR(10),C4 BFILE, C5 BFILE, C6 CLOB);
-
-#执行导入指令
-$ yasldr sales/sales mode=basic control_text="'load data OPTIONS(degree_of_parallelism=3) infile './load_bfile.csv' fields terminated by '|' optionally enclosed by '\"' append into table t_bfile (c1, c2 \"BFILENAME(?,?)\", c3, c4 \"BFILENAME(?,?)\", c5 \"BFILENAME(?,?)\", c6)'"
-```
 
 ###### directory_clause
 
@@ -468,6 +432,117 @@ yasldr工具的导入过程为并行导入，会依据`Load statements`中设置
 - CONTROLLER线程：即主线程，负责`Load Options`和`Load Statement`的解析，将待导入的CSV数据文件进行切分，启动READER线程和SENDER线程进行数据导入。
 - READER线程：负责读取和解析CSV文件，对数据进行解码，并按照分区组织数据后，将数据交给SENDER线程发送。
 - SENDER线程：负责将READER线程提交的数据发送到服务端，并解析处理服务端返回的消息。
+
+
+示例1：行外LOB数据导入
+
+```bash
+#准备本地lob1.dat和lob2.dat文件，文件位于/home/yasdb/，内容均为：
+abcdefg
+
+#创建/home/yasdb/load_lob.csv文件，内容为：
+"1"|"lob1.dat"|"lob1.dat.1.7/"
+
+#创建表bad_load表
+CREATE TABLE sqlldr_lob(c1 int,c2 clob,c3 clob);
+
+#执行导入指令
+$ yasldr sales/sales@127.0.0.1:1688 batch_size=4032 control_text="'LOAD DATA INFILE '/home/yasdb/load_lob.csv' FIELDS TERMINATED BY '|' OPTIONALLY ENCLOSED BY '\"' INTO TABLE sqlldr_lob(c1,file1 filler,c2 lobfile(file1), c3 LLS)'"
+```
+
+示例2：GIS数据导入
+
+```bash
+#准备gis数据文件load_gis_demo.csv，其中部分gis列坐标值和坐标系值相邻存放，部分GIS列只有坐标值，内容如下：
+1,"POINT(0 0)", 4326,11,"POINT(0 0)", "yashandb"
+2,"LINESTRING(1 2,4 5)", 2018,22,"LINESTRING(1 2,4 5)", "postgresql"
+3,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", 2025,33,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", "mysql"
+4,"MULTIPOINT ((1 1),(2 2))", 4326,44,"MULTIPOINT ((1 1),(2 2))", "yashandb"
+
+#创建待导入的GIS表
+CREATE TABLE YASLDR_LOAD_GIS_DEMO (C1 INT, C2 ST_GEOMETRY, C3 INT, C4 ST_GEOMETRY, C5 VARCHAR(20));
+
+#执行导入指令
+$ yasldr sales/sales mode=basic control_text="'load data options(degree_of_parallelism=3) infile './load_gis_demo.csv' into table YASLDR_LOAD_GIS_DEMO(c1, c2 \"ST_GeomFromText(?,?)\", c3, c4 \"ST_GeomFromText(?, 3256)\", c5)'"
+```
+
+示例3：BFILE数据导入
+```bash
+#准备含有bfile列的数据文件load_bfile.csv，内容如下：
+1|"MY_DIR"|"a.txt"|"sss1"|"MY_DIR"|"b.txt"|"MY_DIR"|"b1.txt"|"lobdata1"
+2|"MY_DIR"|"testfile"|"sss2"|"MY_DIR"|"testimage"|"MY_DIR"|"b2.txt"|"lobdata2"
+
+#创建待导入的BFILE表
+CREATE TABLE T_BFILE(C1 INT,C2 BFILE,C3 VARCHAR(10),C4 BFILE, C5 BFILE, C6 CLOB);
+
+#执行导入指令
+$ yasldr sales/sales mode=basic control_text="'load data OPTIONS(degree_of_parallelism=3) infile './load_bfile.csv' fields terminated by '|' optionally enclosed by '\"' append into table t_bfile (c1, c2 \"BFILENAME(?,?)\", c3, c4 \"BFILENAME(?,?)\", c5 \"BFILENAME(?,?)\", c6)'"
+```
+
+示例4：共享集群亲和性导入
+
+共享集群部署时，对于配置了亲和属性的普通表对象或一级分区对象，如果希望获得更高的导入效率，需要打开AFFINITY_SEND参数开关，此时要求MODE=BATCH且LOAD STATEMENT中NOLOGGING=FALSE。
+
+```bash
+# 为yasldr导入用户授权SELECT_CATALOG_ROLE角色
+grant select_catalog_role to sales;
+
+# 创建表并配置亲和属性
+CREATE TABLE branches (
+ branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ address VARCHAR2(200)
+) OBJECT AFFINITY AUTO;
+
+# 查看对象是否配置了亲和属性（可选）
+SELECT * FROM ALL_OBJECT_AFFINITIES WHERE OBJECT_NAME = 'BRANCHES';
+
+OWNER          OBJECT_NAME        SUBOBJECT_NAME    OBJECT_ID      DATA_OBJECT_ID     OBJECT_TYPE     AFFINITY_INSTANCE
+-------------- ------------------ ----------------- -------------- ------------------ --------------- -----------------
+SALES          BRANCHES                                       3243               3243 TABLE           1
+
+# 准备CSV数据文件（以/home/yasdb/branches.csv为例）
+$ vi /home/yasdb/branches.csv
+0001|Shenzhen|
+0101|Shanghai|Jingan District, Shanghai
+0102|Nanjing|City of Nanjing
+0103|Fuzhou|
+0104|Xiamen|Xiamen
+0401|Beijing|
+0402|Tianjin|
+0403|Dalian|Dalian City
+0404|Shenyang|
+0201|Chengdu|
+0501|Wuhan|
+0502|Changsha|
+
+# 准备控制文件
+$ vi /home/yasdb/load.ctl
+LOAD DATA INFILE '/home/yasdb/branches.csv' FIELDS TERMINATED BY '|' optionally enclosed by '"' INTO TABLE branches (branch_no,branch_name,address)
+
+# 执行亲和性导入
+$ yasldr sales/sales@192.168.4.20:2688 batch_size=4032 mode=batch packet_size=131072 control_file=./load.ctl affinity_send=true
+YashanDB Loader Enterprise Edition Release 23.5.2.7 x86_64 d76fd9e2b6
+12 rows successfully loaded.
+[YASLDR] import succeeded
+```
+
+示例5：对含有虚拟列的表进行数据导入（HEAP表）
+
+```sql
+-- 在目标数据库中创建包含虚拟列的业务表
+create table tab_virtual_test (c1 int, v1 as (c1 + c2), c2 int);
+```
+
+```bash
+# 在yasldr工具端准备CSV文件virtual_col.csv
+$ echo '"1","2","5"' >> $YASDB_DATA/c5csv/virtual_col.csv
+$ echo '"6","2","5"' >> $YASDB_DATA/c5csv/virtual_col.csv
+$ echo '"7","2","5"' >> $YASDB_DATA/c5csv/virtual_col.csv
+
+# CSV文件包括了实体列和虚拟列数据，指定虚拟列跳过的方式导入数据，导入模式必须为basic
+$ yasldr user_name/passwd control_text="'LOAD DATA INFILE '?/c5csv/virtual_col.csv' FIELDS TERMINATED BY ',' optionally enclosed by '\"' INTO TABLE tab_virtual_test (C1, V1 FILLER, C2)'" mode=basic
+```
 
 ### 导入日志
 

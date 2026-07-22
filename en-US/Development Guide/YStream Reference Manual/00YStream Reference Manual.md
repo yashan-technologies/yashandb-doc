@@ -93,6 +93,8 @@ In addition, there are the following constraints for tables using some special f
 
 - For tables containing identity columns, YStream cannot parse the table data.
 
+- For HEAP tables containing virtual columns, YStream only supports parsing DDL, not DML.
+
 - HEAP tables with encrypted columns and encrypted HEAP tables do not record supplemental logs, so YStream cannot parse encrypted tables.
 
 - TAC tables with dictionary-encoded columns do not record supplemental logs, so YStream cannot parse TAC tables.

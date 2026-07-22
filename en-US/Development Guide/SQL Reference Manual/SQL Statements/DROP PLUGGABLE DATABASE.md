@@ -13,17 +13,11 @@ DROP PLUGGABLE DATABASE is used to delete the current database and remove the pe
 >
 > The DROP PLUGGABLE DATABASE statement cannot be rolled back. **Please proceed with caution**.  
 
-
-
-
-
 The applicable scope for this statement is as follows:
 
 - This statement is only applicable to a CDB (with configuration parameter ENABLE_PLUGGABLE_DATABASE=TRUE) and can only be executed when connected to the CDB root.
 
 - This statement is not applicable to ISC Distributed Cluster Deployment.
-
-
 
 Executing this statement requires the CDB root to be in OPEN state and the target PDB to be in closed state.
 
@@ -35,11 +29,11 @@ Executing this statement requires the CDB root to be in OPEN state and the targe
 = DROP PLUGGABLE DATABASE (pdb_name|ALL) [INCLUDING ARCHIVELOG | KEEP LOGFILE] [KEEP METADATA].
 ```
 
-#### pdb_name
+### pdb_name
 
 Specify the name of the PDB to be deleted. Only one PDB can be specified per operation.
 
-#### ALL
+### ALL
 
 Specifying this keyword indicates deletion of all PDBs, including the built-in PDB seed.  
 

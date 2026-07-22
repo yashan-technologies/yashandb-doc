@@ -11,7 +11,7 @@ The objects that can be imported with the *imp* tool include:
 - AC
 - Synonyms
 - Views/Materialized Views
-- Tables
+- Tables (excluding tables with virtual columns)
 - Indexes/Partition Indexes
 - Primary Keys
 - Foreign Keys

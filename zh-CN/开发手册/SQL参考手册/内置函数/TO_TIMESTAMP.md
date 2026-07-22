@@ -1,5 +1,5 @@
 ```ebnf
-to_timestamp = TO_TIMESTAMP "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format] ")".
+to_timestamp = TO_TIMESTAMP "("expr [DEFAULT replace_expr ON CONVERSION ERROR] ["," format [","nls_calendar]] ")".
 ```
 
 TO\_TIMESTAMP函数将[expr](../通用SQL语法/expr)的值转换为TIMESTAMP类型数据，返回值格式为TIMESTAMP类型的默认格式。

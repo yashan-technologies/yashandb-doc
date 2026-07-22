@@ -22,6 +22,6 @@ sword OCINumberToReal ( OCIError            *err,
 
 部分参数目前仅支持以下取值：
 
-|  参数| 有效值|
+|  参数   | 有效值    |
 | ---- |---------------|
-| rsl_length | sizeof({float | double})  |
+| rsl_length | sizeof({float / double})  |

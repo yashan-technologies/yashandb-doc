@@ -1,5 +1,5 @@
 ```ebnf
-listagg = LISTAGG "(" [ALL|DISTINCT] expr ["," separator] [listagg_overflow_clause] ")"
+listagg = LISTAGG "(" [ALL|DISTINCT|UNIQUE] expr ["," separator] [listagg_overflow_clause] ")"
   [WITHIN GROUP order_by_clause] [OVER query_partition_clause].
 ```
 
@@ -11,13 +11,13 @@ expr cannot be of type BIT, BOOLEAN, timezone types, or UDT types.
 
 If expr is of RAW type, the function returns RAW type; otherwise, the function returns VARCHAR type.
 
-**DISTINCT**
+**DISTINCT|UNIQUE**
 
 Filters out duplicate rows within the same group when calculating the final concatenated result.
 
+DISTINCT and UNIQUE are completely equivalent.
 
 DISTINCT does not support LOB data.
-
 
 **ALL**
 

@@ -45,7 +45,8 @@ The database username, password, and address for executing the import command, w
 The privilege requirements for this user are:
 
 - Must have write privilege and query privilege on the target table for the imported data.
-- In an ISC Distributed Cluster Deployment, the user must also have the SELECT_CATALOG_ROLE role and privileges on the system tables ROUTE$, NODE_INFO$, DIST$, OBJ$, DISTCOL$, TAB$, USER$, PARTOBJ$, and PARTCOL$.
+- In an ISC Distributed Cluster deployment, the user must also have the SELECT_CATALOG_ROLE role and privileges on the system tables ROUTE$, NODE_INFO$, DIST$, OBJ$, DISTCOL$, TAB$, USER$, PARTOBJ$, and PARTCOL$.
+- In YAC deployment, affinity import requires the yasldr operation user to have SELECT_CATALOG_ROLE role privileges. 
 
 ```sql
 -- Grant SELECT_CATALOG_ROLE role to the user
@@ -74,7 +75,8 @@ The LOAD OPTIONS section is used to set command line parameters for running *yas
 
   > **Note**:
   >
-  > When importing FVECS binary vector data files, MODE must be set to BASIC.
+  > - When importing FVECS binary vector data files, MODE must be set to BASIC.
+  > - In YAC deployment, for regular table objects or level-1 partition objects with affinity properties configured, if higher import efficiency is desired, you need to turn on the AFFINITY_SEND parameter switch, which requires MODE=BATCH and NOLOGGING=FALSE in the LOAD STATEMENT. 
 
 Refer to [yasldr Command Line Parameters](Explanation of yasldr Parameters) for more descriptions of command line parameters.
 
@@ -227,6 +229,7 @@ The enclosed_by_char supports the following representations:
 - A single single-byte character
 - A single hexadecimal
 - A single integer
+- Null value (i.e., no surrounding delimiter)
 
 Value range: ASCII codes 1-126, excluding line breaks and spaces.
 
@@ -318,6 +321,12 @@ When the number of data columns in the import file exceeds the number of columns
 
 This statement is used to specify the mapping relationship between the columns in the target table and those in the CSV file. Here, table_column_name is used to specify the column names that need to import data.
 
+When importing into a target table that contains virtual columns：
+
+- If the CSV file itself does not include data for the virtual columns, simply specify the columns to import directly.
+
+- If the CSV file includes data for the virtual columns, you need to set the vritual columns as `FILLER`.
+
 **filler_column_clause**
 
 ```ebnf
@@ -368,51 +377,6 @@ This statement is used to specify the function and its parameters, which can onl
 
 - func_name is used to specify the function name.
 - func_arg is used to specify the function parameters, where `?` can be used to represent the corresponding data column in the CSV file, and any other form of parameters will be passed to the function as is.
-
-***Example***1: Importing out-of-line LOB data
-
-```bash
-# Prepare local files lob1.dat and lob2.dat, located in /home/yasdb/, with the contents:
-abcdefg
-
-# Create the /home/yasdb/load_lob.csv file with the contents:
-"1"|"lob1.dat"|"lob1.dat.1.7/"
-
-# Create the bad_load table
-CREATE TABLE sqlldr_lob(c1 int,c2 clob,c3 clob);
-
-# Execute the import command
-$ yasldr sales/sales@127.0.0.1:1688 batch_size=4032 control_text="'LOAD DATA INFILE '/home/yasdb/load_lob.csv' FIELDS TERMINATED BY '|' OPTIONALLY ENCLOSED BY '\"' INTO TABLE sqlldr_lob(c1,file1 filler,c2 lobfile(file1), c3 LLS)'"
-```
-
-***Example***2: Importing GIS data
-
-```bash
-# Prepare the GIS data file load_gis_demo.csv, where part of the GIS column coordinate values and coordinate system values are stored adjacently, and some GIS columns only have coordinate values, the content is as follows:
-1,"POINT(0 0)", 4326,11,"POINT(0 0)", "yashandb"
-2,"LINESTRING(1 2,4 5)", 2018,22,"LINESTRING(1 2,4 5)", "postgresql"
-3,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", 2025,33,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", "mysql"
-4,"MULTIPOINT ((1 1),(2 2))", 4326,44,"MULTIPOINT ((1 1),(2 2))", "yashandb"
-
-# Create the target GIS table
-CREATE TABLE YASLDR_LOAD_GIS_DEMO (C1 INT, C2 ST_GEOMETRY, C3 INT, C4 ST_GEOMETRY, C5 VARCHAR(20));
-
-# Execute the import command
-$ yasldr sales/sales mode=basic control_text="'load data options(degree_of_parallelism=3) infile './load_gis_demo.csv' into table YASLDR_LOAD_GIS_DEMO(c1, c2 \"ST_GeomFromText(?,?)\", c3, c4 \"ST_GeomFromText(?, 3256)\", c5)'"
-```
-
-***Example***3: Importing BFILE data
-```bash
-# Prepare a data file load_bfile.csv containing BFILE columns, with the content as follows:
-1|"MY_DIR"|"a.txt"|"sss1"|"MY_DIR"|"b.txt"|"MY_DIR"|"b1.txt"|"lobdata1"
-2|"MY_DIR"|"testfile"|"sss2"|"MY_DIR"|"testimage"|"MY_DIR"|"b2.txt"|"lobdata2"
-
-# Create the table to import BFILE
-CREATE TABLE T_BFILE(C1 INT,C2 BFILE,C3 VARCHAR(10),C4 BFILE, C5 BFILE, C6 CLOB);
-
-# Execute the import command
-$ yasldr sales/sales mode=basic control_text="'load data OPTIONS(degree_of_parallelism=3) infile './load_bfile.csv' fields terminated by '|' optionally enclosed by '\"' append into table t_bfile (c1, c2 \"BFILENAME(?,?)\", c3, c4 \"BFILENAME(?,?)\", c5 \"BFILENAME(?,?)\", c6)'"
-```
 
 ###### directory_clause
 
@@ -468,6 +432,117 @@ The threads involved in the import process are divided into three types:
 - CONTROLLER thread: the main thread, responsible for parsing the `Load Options` and `Load Statement`, splitting the CSV data file to be imported, and starting READER and SENDER threads for data import.
 - READER thread: responsible for reading and parsing the CSV file, decoding the data, and organizing the data by partition before passing it to the SENDER thread for sending.
 - SENDER thread: responsible for sending the data submitted by the READER thread to the server and parsing the messages returned by the server.
+
+
+***Example*** 1: Importing out-of-line LOB data
+
+```bash
+# Prepare local files lob1.dat and lob2.dat, located in /home/yasdb/, with the contents:
+abcdefg
+
+# Create the /home/yasdb/load_lob.csv file with the contents:
+"1"|"lob1.dat"|"lob1.dat.1.7/"
+
+# Create the bad_load table
+CREATE TABLE sqlldr_lob(c1 int,c2 clob,c3 clob);
+
+# Execute the import command
+$ yasldr sales/sales@127.0.0.1:1688 batch_size=4032 control_text="'LOAD DATA INFILE '/home/yasdb/load_lob.csv' FIELDS TERMINATED BY '|' OPTIONALLY ENCLOSED BY '\"' INTO TABLE sqlldr_lob(c1,file1 filler,c2 lobfile(file1), c3 LLS)'"
+```
+
+***Example*** 2: Importing GIS data
+
+```bash
+# Prepare the GIS data file load_gis_demo.csv, where part of the GIS column coordinate values and coordinate system values are stored adjacently, and some GIS columns only have coordinate values, the content is as follows:
+1,"POINT(0 0)", 4326,11,"POINT(0 0)", "yashandb"
+2,"LINESTRING(1 2,4 5)", 2018,22,"LINESTRING(1 2,4 5)", "postgresql"
+3,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", 2025,33,"POLYGON ((1 0,1 1,2 2,1 0),(0 0,6 6,8 8,0 0))", "mysql"
+4,"MULTIPOINT ((1 1),(2 2))", 4326,44,"MULTIPOINT ((1 1),(2 2))", "yashandb"
+
+# Create the target GIS table
+CREATE TABLE YASLDR_LOAD_GIS_DEMO (C1 INT, C2 ST_GEOMETRY, C3 INT, C4 ST_GEOMETRY, C5 VARCHAR(20));
+
+# Execute the import command
+$ yasldr sales/sales mode=basic control_text="'load data options(degree_of_parallelism=3) infile './load_gis_demo.csv' into table YASLDR_LOAD_GIS_DEMO(c1, c2 \"ST_GeomFromText(?,?)\", c3, c4 \"ST_GeomFromText(?, 3256)\", c5)'"
+```
+
+***Example*** 3: Importing BFILE data
+```bash
+# Prepare a data file load_bfile.csv containing BFILE columns, with the content as follows:
+1|"MY_DIR"|"a.txt"|"sss1"|"MY_DIR"|"b.txt"|"MY_DIR"|"b1.txt"|"lobdata1"
+2|"MY_DIR"|"testfile"|"sss2"|"MY_DIR"|"testimage"|"MY_DIR"|"b2.txt"|"lobdata2"
+
+# Create the table to import BFILE
+CREATE TABLE T_BFILE(C1 INT,C2 BFILE,C3 VARCHAR(10),C4 BFILE, C5 BFILE, C6 CLOB);
+
+# Execute the import command
+$ yasldr sales/sales mode=basic control_text="'load data OPTIONS(degree_of_parallelism=3) infile './load_bfile.csv' fields terminated by '|' optionally enclosed by '\"' append into table t_bfile (c1, c2 \"BFILENAME(?,?)\", c3, c4 \"BFILENAME(?,?)\", c5 \"BFILENAME(?,?)\", c6)'"
+```
+
+***Example*** 4: Affinity Import in YAC
+
+In YAC deployment, for regular table objects or level-1 partition objects with affinity properties configured, if higher import efficiency is desired, you need to turn on the AFFINITY_SEND parameter switch, which requires MODE=BATCH and NOLOGGING=FALSE in the LOAD STATEMENT. 
+
+```bash
+# Grant SELECT_CATALOG_ROLE role to the user
+grant select_catalog_role to sales;
+
+# Create table and specify affinity attributes 
+CREATE TABLE branches (
+ branch_no CHAR(4) PRIMARY KEY,
+ branch_name VARCHAR2(200) NOT NULL,
+ address VARCHAR2(200)
+) OBJECT AFFINITY AUTO;
+
+# Check if objects have affinity properties configured (optional)
+SELECT * FROM ALL_OBJECT_AFFINITIES WHERE OBJECT_NAME = 'BRANCHES';
+
+OWNER          OBJECT_NAME        SUBOBJECT_NAME    OBJECT_ID      DATA_OBJECT_ID     OBJECT_TYPE     AFFINITY_INSTANCE
+-------------- ------------------ ----------------- -------------- ------------------ --------------- -----------------
+SALES          BRANCHES                                       3243               3243 TABLE           1
+
+# Prepare CSV data file (example: /home/yasdb/branches.csv)
+$ vi /home/yasdb/branches.csv
+0001|Shenzhen|
+0101|Shanghai|Jingan District, Shanghai
+0102|Nanjing|City of Nanjing
+0103|Fuzhou|
+0104|Xiamen|Xiamen
+0401|Beijing|
+0402|Tianjin|
+0403|Dalian|Dalian City
+0404|Shenyang|
+0201|Chengdu|
+0501|Wuhan|
+0502|Changsha|
+
+# Prepare control file
+$ vi /home/yasdb/load.ctl
+LOAD DATA INFILE '/home/yasdb/branches.csv' FIELDS TERMINATED BY '|' optionally enclosed by '"' INTO TABLE branches (branch_no,branch_name,address)
+
+# Execute affinity import
+$ yasldr sales/sales@192.168.4.20:2688 batch_size=4032 mode=batch packet_size=131072 control_file=./load.ctl affinity_send=true
+YashanDB Loader Enterprise Edition Release 23.5.2.7 x86_64 d76fd9e2b6
+12 rows successfully loaded.
+[YASLDR] import succeeded
+```
+
+***Example***5：Importing data to the HEAP table with virtual columns
+
+```sql
+-- Create a business table containing virtual columns in the target database
+create table tab_virtual_test (c1 int, v1 as (c1 + c2), c2 int);
+```
+
+```bash
+# Prepare a data file virtual_col.csv on the yasldr tool side
+$ echo '"1","2","5"' >> $YASDB_DATA/c5csv/virtual_col.csv
+$ echo '"6","2","5"' >> $YASDB_DATA/c5csv/virtual_col.csv
+$ echo '"7","2","5"' >> $YASDB_DATA/c5csv/virtual_col.csv
+
+# When the CSV file includes both physical and virtual column data, import data while explicitly skipping the virtual column in BASIC import mode
+$ yasldr user_name/passwd control_text="'LOAD DATA INFILE '?/c5csv/virtual_col.csv' FIELDS TERMINATED BY ',' optionally enclosed by '\"' INTO TABLE tab_virtual_test (C1, V1 FILLER, C2)'" mode=basic
+```
 
 ### Import Log
 

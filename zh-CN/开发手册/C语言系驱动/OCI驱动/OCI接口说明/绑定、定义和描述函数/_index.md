@@ -1,5 +1,5 @@
 initno:1
 
-filename:OCIBindArrayOfStruct,OCIBindByName,OCIBindByPos,OCIDefineByPos,OCIDescribeAny,OCIBindDynamic,OCIDefineDynamic
+filename:OCIBindArrayOfStruct,OCIBindByName,OCIBindByPos,OCIDefineByPos,OCIDefineByPos2,OCIDescribeAny,OCIBindDynamic,OCIDefineDynamic
 
-enName:OCIBindArrayOfStruct,OCIBindByName,OCIBindByPos,OCIDefineByPos,OCIDescribeAny,OCIBindDynamic,OCIDefineDynamic
+enName:OCIBindArrayOfStruct,OCIBindByName,OCIBindByPos,OCIDefineByPos,OCIDefineByPos2,OCIDescribeAny,OCIBindDynamic,OCIDefineDynamic

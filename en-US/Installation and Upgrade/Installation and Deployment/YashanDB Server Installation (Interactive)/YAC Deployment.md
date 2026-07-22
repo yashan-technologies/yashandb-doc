@@ -303,9 +303,9 @@ During the environment verification process, if there are no issues, the program
       please enter scan name > scan.example.com
       ```
 
-7. Detect shared storage and other devices/environments to verify whether [I/O Fencing based on SCSI persistent reservation](../Pre-Installation Preparation/Preparing the Servers) can be used.
+7. Detect shared storage and other devices/environments to verify whether [Reservation-based IO Fencing](../Pre-Installation Preparation/Preparing the Servers) can be used.
 
-    Even if detection errors occur, they will not block installation and deployment, but the I/O Fencing method for YAC will be configured to use the in-flight I/O protection algorithm. If you still need to use I/O Fencing based on SCSI persistent reservations, please make adjustments according to the corresponding error prompts.
+    Even if detection errors occur, they will not block installation and deployment, but the I/O Fencing method for YAC will be configured to use the in-transit I/O protection algorithm. If you still need to use reservation-based IO fencing, please make adjustments according to the corresponding error prompts.
 
     ```shell
     If you want to use SCSI I/O Fencing, please make sure user of host has  sudo permission with no password
@@ -482,7 +482,7 @@ After successful database deployment, you can perform the following configuratio
 
 - Configure the monit daemon and set to start automatically on boot
 
-   This operation only configures the database to start automatically. If [SCSI persistent reservation I/O Fencing functionality](../../../Database Administration/Cluster Management/IO Fencing/SCSI IO Fencing) has been enabled, the startup of the *ycsrootagent* process should also be configured. Please refer to [Configure Boot Autostart](../Initial Environment after Installation/Configuring Boot Autostart) for steps.
+   This operation only configures the database to start automatically. If [SCSI persistent reservation I/O Fencing functionality](../../../Database Administration/Cluster Management/IO Fencing/Reservation-based IO Fencing) has been enabled, the startup of the *ycsrootagent* process should also be configured. Please refer to [Configure Boot Autostart](../Initial Environment after Installation/Configuring Boot Autostart) for steps.
     
    
 

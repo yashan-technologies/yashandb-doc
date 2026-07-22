@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCIStmtPrepare2函数用于准备需要执行的SQL或PL语句。
+OCIStmtPrepare2函数是OCIStmtPrepare函数的扩展版本，用于准备需要执行的SQL或PL语句。与OCIStmtPrepare的主要区别在于支持语句缓存功能和独立的语句句柄管理。
 
 ## 函数声明
 

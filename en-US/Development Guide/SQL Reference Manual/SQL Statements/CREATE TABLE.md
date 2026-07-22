@@ -1,25 +1,30 @@
 ## General Description
 
-The CREATE TABLE statement is used to create a table object. The table types can be categorized as HEAP tables, TAC tables, and LSC tables. In ISC Distributed Cluster Deployment, this statement can also specify the distribution type of the table object: [sharded table](#shardtable) or [duplicated table](#duplicatetable), with the default being a sharded table.
+The CREATE TABLE statement is used to create a table object. The table types can be categorized as HEAP tables, TAC tables, and LSC tables. In ISC Distributed Cluster Deployment, this statement can also specify the distribution type of the table object: [Sharded Table](#shardtable) or [Duplicated Table](#duplicatetable), with the default being Sharded Table.
 
-YashanDB supports specifying the default table type when creating a table object through the configuration of the DEFAULT_TABLE_TYPE parameter (HEAP|TAC|LSC), and this parameter allows for online switching. Additionally, the table type can be specified during the creation of the table object using the [ORGANIZATION](#organizationclause) syntax. Once the table object is created successfully, the table type cannot be modified.
+The table types provided by YashanDB are shown in the following table. Once a table is successfully created, its type cannot be modified. Please select the table type appropriately according to the actual business scenario. For example, LSC tables are recommended for analytical business scenarios. You can specify the default table type by configuring the DEFAULT_TABLE_TYPE parameter, and this parameter allows online switching. Also, you can specify the table type separately through the [ORGANIZATION](#organizationclause) syntax when creating a table. 
 
 |Type |Storage Method |Storage Structure |Applicable Deployment Forms |
 | ------------------ | -------- | ---------- | -------------------------------------- |
-| HEAP Table          | Row Storage    | Segment Page Structure | <li>Standalone Deployment</li><li>YAC/Distributed Cluster Deployment</li><li>ISC Distributed Cluster Deployment</li> |
-| LSC Table           | Column Storage  | Column Storage Structure | <li>Standalone Deployment</li><li>ISC Distributed Cluster Deployment</li> |
+| HEAP Table          | Row Storage    | Segment Page Structure | <li>Standalone Deployment</li><li>YAC Deployment</li><li>Distributed Cluster Deployment</li><li>ISC Distributed Cluster Deployment</li> |
+| LSC Table           | Column Storage  | Column Storage Structure | <li>Standalone Deployment</li><li>YAC Deployment</li><li>Distributed Cluster Deployment</li><li>ISC Distributed Cluster Deployment</li> |
 | TAC Table           | Column Storage  | Segment Page Structure | <li>Standalone Deployment</li><li>ISC Distributed Cluster Deployment</li> |
 
-In analyzing business scenarios, it is recommended to use LSC tables.
+The pre-conditions and suggestions for creating business data tables are as follows:
 
-Before creating an LSC table, it must be ensured that the tablespace it resides in has mounted a bucket (data bucket). Regular users created with the [CREATE USER](CREATE USER) statement will have their default tablespace automatically mounted with a bucket, allowing them to create LSC tables directly. System users, however, may vary based on product architecture:
+- In actual production environments, it is recommended to plan the tablespace and users reasonably before creating business tables; please refer to [CREATE TABLESPACE](CREATE TABLESPACE) and [CREATE USER](CREATE USER) for related statements.
 
--  In Standalone Deployment, the SYSTEM tablespace does not mount a bucket by default, and system users (such as SYS) cannot create LSC tables directly; they must first execute the [ALTER TABLESPACE](ALTER TABLESPACE) statement to mount a bucket for the SYSTEM tablespace before creating the LSC table.
-- In ISC Distributed Cluster Deployment, since the table objects created by system users default to the users' tablespace and the users' tablespace is also mounted with a bucket by default, they can create LSC tables directly without extra operations.
+- Before creating an LSC table, ensure that the target tablespace has been mounted with a data bucket (bucket). The bucket information can be viewed through the DBA_DATA_BUCKETS view. YashanDB will mount a data bucket for the built - in USERS tablespace by default. Therefore:
 
-> **Note**: 
->
-> In actual production environments, it is recommended to plan the tablespace and users reasonably before creating business tables; please refer to [CREATE TABLESPACE](CREATE TABLESPACE) and [CREATE USER](CREATE USER) for related statements.
+    - For the system user sys:
+
+        - In Standalone Deployment, YAC Deployment, or Distributed Cluster Deployment, the default tablespace of the system user is the SYSTEM tablespace, which is not mounted with a data bucket in the initial state. You need to first execute the [ALTER TABLESPACE](./ALTER TABLESPACE) statement to mount a data bucket for it before creating an LSC table, or you must manually specify the new table to another tablespace that has been mounted with a data bucket when creating the LSC table.
+
+        - In ISC Distributed Cluster Deployment, tables created by the system user are stored in the USERS tablespace by default, and you can create an LSC table directly without additional operations.
+
+    - For regular users created through the [CREATE USER](./CREATE USER) statement: Tables created by regular users are stored in the USERS tablespace by default, and you can create an LSC table directly without additional operations.
+
+- In YAC Deployment or Distributed Cluster Deployment, the LSC table and the resource affinity function are mutually exclusive. the resource affinity function is enabled by default. If you need to create an LSC table, please contact our technical support to turn off the resource affinity function first.
 
 ## Statement Definition
 
@@ -37,8 +42,8 @@ Before creating an LSC table, it must be ensured that the tablespace it resides 
 **[relation\_properties](#relationproperties)::=**
 
 ```ebnf
-= (column_definition|out_of_line_constraint) 
-{"," (column_definition|out_of_line_constraint)}.
+= (column_definition|virtual_column_definition|out_of_line_constraint) 
+{"," (column_definition|virtual_column_definition|out_of_line_constraint)}.
 ```
 
 **[object\_table](#objecttable)::=**
@@ -54,6 +59,12 @@ Before creating an LSC table, it must be ensured that the tablespace it resides 
 ```ebnf
 = column_name dataType [VISIBLE|INVISIBLE] [identity_clause] [(DEFAULT default_expr|codec_expr|inline_constraint)
 {" " (DEFAULT default_expr|codec_expr|inline_constraint)}].
+```
+
+**[virtual_column_definition](#virtualcoldef)::=**
+
+```ebnf
+= column_name [datatype] [VISIBLE|INVISIBLE] [GENERATED ALWAYS] AS "(" column_expression ")" [VIRTUAL].
 ```
 
 **[identity_clause](#identityclause)::=**
@@ -910,6 +921,148 @@ For constraint items defined for tables other than LSC tables, parallel constrai
 
 When setting the degree of parallelism, YashanDB automatically detects the current data volume of the table. If the detected data volume is greater than 1G but less than the current value of the DATA_BUFFER_SIZE parameter, a concurrent check of constraints will be conducted with a degree of parallelism equal to half the number of CPUs on the server.
 
+<span id="virtualcoldef" name="virtualcoldef"></span>
+
+#### virtual_column_definition
+
+This statement is used to create a virtual column. Virtual columns do not store data; instead, their values are dynamically computed at query time based on the defined expression.
+
+- Virtual columns can only be created on HEAP tables.
+
+- It is not allowed to create indexes, partitions, constraints, or other objects based on virtual columns.
+
+- Virtual columns cannot be encrypted, but virtual columns may be defined based on encrypted columns.
+
+- Masking policies cannot be configured on virtual columns or on physical columns that virtual columns depend on. Any existing masking policy on a physical column becomes ineffective once a virtual column is created based on it.
+
+- Virtual columns are read-only and cannot be updated or assigned values. The returned value is validated during queries.
+
+- When inserting data into a table containing virtual columns, if the INSERT statement does not specify column names, the VALUES clause must include all columns, and the value for the virtual column must be explicitly set to DEFAULT; And if column names are specified, either omit the virtual column entirely, or if included, its value must be DEFAULT.
+
+**column_name**
+
+The name of the column field, which cannot be omitted and must comply with YashanDB's [object naming conventions](../Basic SQL Elements/Identifiers).
+
+**dataType**
+
+Specifies the data type of the column field. 
+
+- The data type of a virtual column cannot be LOB or user-defined types.
+
+- After a virtual column is created, its attributes (including data type) cannot be altered. To change the data type, you must drop the column using `ALTER TABLE DROP column_name` and then re-add it with `ALTER TABLE ADD COLUMN`.
+
+- This parameter is optional. If omitted, the data type of the virtual column is inferred from the expression.
+
+- During virtual column creation, the system validates and infers the data type of the expression. If the explicitly specified data type differs from the inferred type, the database automatically applies the following conversion rules, which are recorded as the `DATA_DEFAULT` of the virtual column:
+
+    - If the target column type is NUMBER, conversion is performed using the TO_NUMBER function.
+    -If the target column type is a numeric type other than NUMBER, conversion uses the CAST function.
+    - If the inferred type is numeric and the target type is character, conversion uses TO_CHAR.
+    - When the inferred expression type is character and the specified target column type is DATE, conversion is performed using the TO_DATE function with the `date_format` of the current session. This format is permanently fixed as the `DATA_DEFAULT` of the virtual column once creating, even if the `date_format` of the session changes the value will not affect the existing conversion rule.
+    - When the inferred expression type is character and the specified target column type is TIMESTAMP, conversion is performed using the TO_TIMESTAMP function with the `timestamp_format` of the current session. This format is permanently fixed as the `DATA_DEFAULT` of the virtual column once creating, even if the `timestamp_format` of the session changes the value will not affect the existing conversion rule.
+    - If the inferred type is character and the target type is TIMESTAMP WITH TIME ZONE, conversion uses TO_TIMESTAMP_TZ.
+
+- If the specified data type belongs to the same category as the inferred type, the system validates length and precision of the computed result during queries, according to the following rules:
+
+    - Character types: If the actual computed length exceeds the defined column length, an error is returned.
+    - Numeric types: If the computed SCALE exceeds the defined scale, an error is returned. If the computed PRECISION exceeds the defined precision, the result is truncated before output.
+    - Timestamp types: If the computed fractional second precision exceeds the defined precision, the result is truncated before output.
+
+> **Note**:
+>
+> When the data type is not explicitly specified, the inferred type may differ from what the application expects, leading to compatibility issues. It is recommended to explicitly define the data type of the virtual column to match the expected type of the application.
+
+**VISIBLE|INVISIBLE**
+
+This keyword is used to specify whether a column field is visible or not. The default value is VISIBLE.  
+
+**GENERATED ALWAYS**
+
+This optional keyword indicates that the value is computed on-the-fly during queries.
+
+**column_expression**
+
+Defines the computation expression for the virtual column.
+
+- The expression can only reference columns from the same table and cannot reference other virtual columns.
+
+- Virtual columns may reference LOB-type columns but cannot reference user-defined type columns.
+
+- Built-in functions used in the expression must be deterministic and non-aggregate (e.g., SYSDATE, USERENV, and SUM are not allowed).
+
+- When using user-defined functions (UDFs), the table owner must have EXECUTE privilege on the UDF, and the UDF must be deterministic.
+
+- Once created, the expression of a virtual column cannot be modified. To change it, drop the column (ALTER TABLE DROP column_name) and re-add it with the new expression.
+
+- If the expression uses a UDF, dropping the UDF will cause queries on the virtual column to fail. Re-creating the UDF restores functionality. If a materialized view depends on the virtual column, it must be refreshed using [DBMS_MVIEW](../../PL Reference Manual/Built-in Advanced PL Packages/DBMS_MVIEW) after the UDF is dropped or re-created.
+
+- The expression of a virtual column must not duplicate any existing virtual column or function-based index expression.
+
+**VIRTUAL**
+
+This optional keyword explicitly denotes the column as virtual.
+
+```sql
+-- Define a virtual column by concatenating fields
+create table tab_virtual_col1(emp_id NUMBER, first_name VARCHAR2(50), last_name VARCHAR2(50), full_name AS (first_name || ' ' || last_name) VIRTUAL);
+insert into tab_virtual_col1 values(1, 'Zhang', 'sam', default);
+insert into tab_virtual_col1(emp_id, first_name, last_name) values(2, 'Li', 'siri');
+
+-- When inserting data, if the virtual column is specified, its value must be DEFAULT
+insert into tab_virtual_col1(emp_id, first_name, last_name, full_name) values(3, 'Tom', 'Jerry', 'Tom Jerry');
+YAS-10007 cannot insert into a virtual column
+
+insert into tab_virtual_col1(emp_id, first_name, last_name, full_name) values(3, 'Tom', 'Jerry', default);
+
+select * from tab_virtual_col1;
+
+     EMP_ID FIRST_NAME                                            LAST_NAME                                             FULL_NAME
+----------- ----------------------------------------------------- ----------------------------------------------------- ----------------------------------------------------------------
+          1 Zhang                                                 sam                                                   Zhang sam
+          2 Li                                                    siri                                                  Li siri
+          3 Tom                                                   Jerry                                                 Tom Jerry
+
+-- Define a virtual column with a numeric type; validation occurs only at query time
+CREATE TABLE tab_virtual_number(real_col number(5), virtual_col number(4) as (real_col + 1) virtual);
+INSERT INTO tab_virtual_number(real_col) VALUES (12345);
+
+select * from tab_virtual_number;
+YAS-00025 value is larger than specified precision allowed for this column
+
+-- Create a virtual column with a CHAR type shorter than the expression result; error occurs at query time
+drop table if exists tab_virtual_char;
+CREATE TABLE tab_virtual_char (real_col varchar(5), virtual_col char(4) as (upper(real_col)) virtual);
+insert into tab_virtual_char(real_col) values('abcde');
+
+select * from tab_virtual_char;
+YAS-04008 VIRTUAL_COL size exceeding limit 4
+
+drop table tab_virtual_char purge;
+
+-- Create a virtual column with lower numeric precision; result is truncated at query time
+CREATE TABLE tab_virtual_number1 (real_col number(5, 2), virtual_col number(5, 1) as (real_col + 1) virtual);
+INSERT INTO tab_virtual_number1(real_col) VALUES (123.45);
+
+select * from tab_virtual_number1;
+
+   REAL_COL VIRTUAL_COL 
+----------- ----------- 
+     123.45       124.5
+
+drop table tab_virtual_number1 purge;
+
+-- Create a virtual column of timestamp type; fractional seconds are truncated per column precision
+CREATE TABLE tab_virtual_col_datatype_timestamp (real_col timestamp(4), virtual_col timestamp(2) as (FROM_TZ(real_col, '+09:00')) virtual);
+
+insert into tab_virtual_col_datatype_timestamp(real_col) values(to_timestamp('2025-7-31 12:34:56.1234', 'yyyy-mm-dd hh24:mi:ss.ff4'));
+
+select * from tab_virtual_col_datatype_timestamp;
+
+REAL_COL                                                         VIRTUAL_COL
+---------------------------------------------------------------- ----------------------------------------------------------------
+2025-07-31 12:34:56.1234                                         2025-07-31 03:34:56.12
+```
+
 #### out\_of\_line\_constraint
 
 This clause is used to define out-of-line constraint items of the table. For detailed descriptions of out-of-line constraints, please refer to the General SQL syntax [constraint](../General SQL Syntax/constraint). 
@@ -1029,11 +1182,13 @@ This clause is used to specify the physical storage properties of the created ta
 
 This clause specifies the tablespace where the table is located.
 
-For [temporary tables](#temptable), only a temporary type tablespace can be specified. If omitted, the default will be the tablespace of the user to which the table belongs (a default temporary tablespace is specified when the database is created).
+- For [temporary tables](#temptable), only a temporary type tablespace can be specified. If omitted, the default will be the tablespace of the user to which the table belongs (a default temporary tablespace is specified when the database is created).
 
-For LSC tables, the specified tablespace must have the bucket attribute, see the description of [CREATE TABLESPACE](CREATE TABLESPACE). The default tablespace of the system (DEFAULT tablespace) already has a bucket attribute by default and can serve as the tablespace for LSC tables.
+- For LSC tables, the specified tablespace must have the bucket attribute, see the description of [CREATE TABLESPACE](CREATE TABLESPACE). The default tablespace of the system (DEFAULT tablespace) already has a bucket attribute by default and can serve as the tablespace for LSC tables.
 
-In ISC Distributed Cluster Deployment, this clause cannot specify the tablespace when creating a sharded table.
+- Tables cannot be created in a local cache tablespace (unique to YAC/Distributed Cluster Deployment).
+
+- In ISC Distributed Cluster Deployment, this clause cannot specify the tablespace when creating a sharded table.
 
 ##### TABLESPACE SET tablespace_set\_name
 
@@ -2253,6 +2408,8 @@ ORDER BY (year,month,branch);
 
 This statement is used to define the maximum lifecycle for mutable data in an LSC table.
 
+This statement does not apply to YAC/Distributed Cluster Deployment.
+
 In YashanDB, data inserted into LSC tables is first stored as mutable data (MCOL), and under certain conditions, a background thread will be triggered to convert mutable data to stable data (SCOL, non-mutable data) into the data bucket (bucket, object storage directory).
 
 This value guarantees that data inserted by users will be retained in the mutable data region for at least half of the MCOL TTL time, and at most for the entire MCOL TTL time.
@@ -2263,7 +2420,7 @@ After specifying the maximum lifecycle for mutable data, the system will use thi
 
 Lifecycle value, which must follow the format representation of INTERVAL YEAR TO MONTH or INTERVAL DAY TO SECOND data types, such as `'1' YEAR(9)`, `'30:59.9' MINUTE TO SECOND(6)`; for details, please refer to the description of these two types in [Date-Time Types](../Data Types/Date-Time Types).
 
-***Example*** for LSC tables
+***Example*** for LSC tables in Standalone Deployment or ISC Distributed Cluster Deployment
 
 ```sql
 -- Create an LSC table with a mutable data lifecycle of 1 month; that is, after 1 month, MCOL data will be converted to SCOL data
@@ -2289,7 +2446,7 @@ LSC tables default have the capability to convert, merge, and generate AC data t
 
 In some cases, if you want to set certain background data conversion capabilities at table creation time, you can use this syntax to turn them off or on. After the table creation is completed, you can also use the [ALTER TABLE](ALTER TABLE) statement to enable or disable the background data conversion capabilities.
 
-***Example*** for LSC tables
+***Example*** for LSC tables in Standalone Deployment or ISC Distributed Cluster Deployment
 
 ```sql
 -- Create an LSC table with merge capability disabled
@@ -2302,6 +2459,8 @@ create table lsc_compact_disable(x int) disable compact;
 #### mcolability_clause
 
 Specifies whether to enable MCOL at table creation time. If not specified, it depends on the configuration item LSC_MCOL_ENABLED to determine whether to enable MCOL, which is disabled by default.
+
+This statement does not apply to YAC/Distributed Cluster Deployment.
 
 MCOL is more oriented towards TP business, with good concurrency for small transaction processing capabilities, but is not as good as SCOL in terms of data compression rates and batch import and query performance.
 

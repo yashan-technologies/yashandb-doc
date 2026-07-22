@@ -7,7 +7,7 @@
 
 1. 从[YashanDB官网下载中心](https://download.yashandb.com/download)，或者联系我们的技术支持获取对应的软件包。
 
-2. 将YashanDB客户端安装包下载并解压到本地路径，例如/home/yasdb-driver-c/。
+2. 将包名为`YashanDB Connector/C xxx`并标记为Linux的驱动包下载并解压到本地路径，例如`/home/yasdb-driver-c/lib`。
 
    安装包解压后可得到C驱动所需文件：
 
@@ -18,8 +18,6 @@
 
 
 ## 步骤2：设置动态库依赖路径
-
-
 
 1. 编辑bashrc文件：
 
@@ -35,7 +33,7 @@
 
 3. 保存并退出。
 
-4. 刷新系统变量配置。
+4. 加载bash配置，让修改生效
 
    ```shell
    $ source ~/.bashrc

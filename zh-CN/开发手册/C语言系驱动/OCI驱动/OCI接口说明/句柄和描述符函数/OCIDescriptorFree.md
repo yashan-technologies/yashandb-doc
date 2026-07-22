@@ -2,7 +2,7 @@
 
 OCIDescriptorFree函数用于释放先前分配的描述符。
 
-调用OCIDescriptorFree函数前，必须先调用[OCILobFreeTemporary](../LOB函数/OCILobFreeTemporary.md)函数。
+调用OCIDescriptorFree函数前，必须先调用[OCIDescriptorAlloc](./OCIDescriptorAlloc.md)函数。
 
 ## 函数声明
 

@@ -1,8 +1,8 @@
-The DBMS_OUTPUT package provides a set of built-in stored procedures mainly used for debugging PL/SQL by outputting the values of variables, expressions, etc.
+The DBMS_OUTPUT package provides a set of built-in stored procedures mainly used for debugging PL by outputting the values of variables, expressions, etc.
 
 > **Note**:
 >
-> - Executing the command `set serveroutput on` calls `DBMS_OUTPUT.ENABLE(NULL)` and opens the print switch. When the switch is on, executing a SQL statement or calling an anonymous PL/SQL block will trigger `DBMS_OUTPUT.GET_LINES()` to retrieve the remaining information in the cache and print it.
+> - Executing the command `set serveroutput on` calls `DBMS_OUTPUT.ENABLE(NULL)` and opens the print switch. When the switch is on, executing a SQL statement or calling an anonymous PL block will trigger `DBMS_OUTPUT.GET_LINES()` to retrieve the remaining information in the cache and print it.
 > - Executing the command `set serveroutput off` calls `DBMS_OUTPUT.DISABLE()` and closes the print switch. By default, both the cache and the print switch are off.
 > - Only the client *yasql* supports the set serveroutput option.
 > - The size of each line in the cache cannot exceed 65534 bytes.

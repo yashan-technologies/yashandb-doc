@@ -2,6 +2,8 @@
 
 ALTER DATABASE is used to modify the properties of a database.
 
+This statement is first parsed according to the yashan mode syntax rules (i.e., [ALTER DATABASE](../../../Development Guide/SQL Reference Manual/SQL Statements/ALTER DATABASE.md)). If the parsing fails, it is then parsed according to the MySQL-compatible syntax rules (i.e., as described in this document). If both rules fail to match, the system returns an error.
+
 Statement Definition
 ----
 

@@ -37,9 +37,9 @@ YAS-00521 process permission is insufficient.
 
 <span id="scsi_clear" name="scsi_clear"></span>
 
-## ycsrootagent scsi {allow|ban|clear}
+## ycsrootagent resv {allow|ban|clear}
 
-在需要自动化检测存储设备是否支持SCSI I/O Fencing的场景中，yasboot会自行调用fenceScsiCheck脚本从而调用执行本命令的相关子命令。如需手动进行相应检测，请直接执行[fenceScsiCheck脚本](../数据库管理/集群管理/IO Fencing/基于SCSI持久预留的IO Fencing.md#fenceScsiCheck_usage)，**不建议用户直接执行本命令**。
+在需要自动化检测存储设备是否支持基于预留的IO Fencing的场景中，yasboot会自行调用fenceResvCheck脚本从而调用执行本命令的相关子命令。如需手动进行相应检测，请直接执行[fenceResvCheck脚本](../数据库管理/集群管理/IO Fencing/基于预留的IO Fencing.md#fenceResvCheck_usage)，**不建议用户直接执行本命令**。
 
 clear子命令用于清理存储设备上残留的持久预留信息，仅在收到明确的清理提示或YAS-00341错误码时可**按需谨慎执行**。
 
@@ -56,7 +56,7 @@ clear子命令用于清理存储设备上残留的持久预留信息，仅在收
 
 ## ycsrootagent pingdisk
 
-在需要自动化检测存储设备是否支持SCSI I/O Fencing的场景中，yasboot会自行调用fenceScsiCheck脚本从而调用执行本命令。如需手动进行相应检测，请直接执行[fenceScsiCheck脚本](../数据库管理/集群管理/IO Fencing/基于SCSI持久预留的IO Fencing.md#fenceScsiCheck_usage)，**不建议用户直接执行本命令**。
+在需要自动化检测存储设备是否支持SCSI I/O Fencing的场景中，yasboot会自行调用fenceResvCheck脚本从而调用执行本命令。如需手动进行相应检测，请直接执行[fenceResvCheck脚本](../数据库管理/集群管理/IO Fencing/基于预留的IO Fencing.md#fenceResvCheck_usage)，**不建议用户直接执行本命令**。
 
 >**Warn**:
 >

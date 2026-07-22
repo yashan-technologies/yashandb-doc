@@ -7,7 +7,8 @@ In YashanDB, the configuration parameter files can be divided into server parame
 > **Caution**: 
 >
 > **Do not** edit the configuration parameter file directly to avoid unpredictable exceptions. If you need to adjust parameter configurations, use the [ALTER SYSTEM](../../../Development Guide/SQL Reference Manual/SQL Statements/ALTER SYSTEM) statement.
-
+>
+> In YAC Deployment or Distributed Cluster Deployment, to ensure that some parameters remain consistent across multiple instances, an additional parameter file is retained in the config path of the YFS system disk group. This file is mainly used to record such parameter information. The configuration recorded in this file has higher priority than files with the same name in the local path $YASDB_DATA/config on the database server.
 
 |Characteristics   |Server Parameter File      |Parameter File      |
 | --------------------- | ---------------------------- | ----------------------------- |

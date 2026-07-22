@@ -1,6 +1,6 @@
 ## Functionality Introduction
 
-The OCIBindByPos function is used to bind program variables to placeholders in a SQL statement or PL/SQL block, and the number of variables must be no less than the number of placeholders in the SQL statement or PL/SQL block. If the number of bound variables exceeds the number of placeholders, the excess will be ignored.
+The OCIBindByPos function is used to bind program variables to placeholders in a SQL statement or PL block, and the number of variables must be no less than the number of placeholders in the SQL statement or PL block. If the number of bound variables exceeds the number of placeholders, the excess will be ignored.
 
 ## Function Declaration
 

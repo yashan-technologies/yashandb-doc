@@ -429,3 +429,80 @@ Run the application in a Windows environment:
 ```shell
 python test_vector.py
 ```
+
+## ## Example with JDBC Driver 
+
+```java
+package quickstart;
+import java.sql.*;
+import java.util.*;
+
+public class VectorWithPreparedStatementExample {
+    public static void main(String[] args) {
+        String url = "jdbc:yasdb://192.168.1.2:1688/yasdb";
+        Properties info = new Properties();
+        info.setProperty("user", "sales");
+        info.setProperty("password", "sales");
+        
+        try {
+            Class.forName("com.yashandb.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Driver not found: " + e.getMessage());
+            return;
+        }
+
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(url, info);
+            
+            String createTableSql = "CREATE TABLE VECTOR_DATA1 (" +
+                    "ID INT PRIMARY KEY," +
+                    "C1 VECTOR(4, FLOAT64))";
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(createTableSql);
+                System.out.println("Table created or already exists");
+            } catch (SQLException e) {
+                System.out.println("Create table info: " + e.getMessage());
+            }
+            
+            String sql ="insert into VECTOR_DATA1 values (?,?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                ps.setInt(1,i);
+                ps.setObject(2,Vector.ofFloat64Values(new double[]{0.1,0.2,0.3,0.4}));
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println("Error in batch processing: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            try (Statement statement = conn.createStatement()) {
+                
+                String sql ="select * from VECTOR_DATA1";
+                ResultSet resultSet = statement.executeQuery(sql);
+                while (resultSet.next()) {
+
+                    Vector vector = (Vector) resultSet.getObject(2);
+                    double[] doublesValue = vector.toDoubleArray();
+                    System.out.println(Arrays.toString(doublesValue));// [0.1, 0.2, 0.3, 0.4]
+
+                }
+            } catch (SQLException e) {
+                System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```

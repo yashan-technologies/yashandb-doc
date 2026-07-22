@@ -2,7 +2,6 @@
 
 OCILobFreeTemporary函数用于释放临时LOB。
 
-调用[OCIDescriptorFree](../句柄和描述符函数/OCIDescriptorFree.md)函数前，必须先调用OCILobFreeTemporary函数。
 
 ## 函数声明
 

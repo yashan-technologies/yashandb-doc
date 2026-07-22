@@ -1,6 +1,6 @@
 ## 功能简介
 
-OCILobTrim2函数用于将LOB值截断为较短的长度。
+OCILobTrim2函数是OCILobTrim函数的扩展版本，用于将LOB值截断为较短的长度。与OCILobTrim的主要区别在于使用oraub8类型的newlen参数替代ub4类型，支持超过4GB的LOB截断操作。
 
 ## 函数声明
 

@@ -37,6 +37,7 @@
 | FLASHBACK\_ON | VARCHAR(8) | 是否开启全库闪回功能<br/>*  YES：开启<br/>*  NO：关闭 |
 | CDB | VARCHAR(8) | 是否为多租户数据库<br/>* YES：是<br/>* NO：否 |
 | RECOVERY\_REDO\_SIZE           | BIGINT | 执行数据库恢复时需要恢复的redo大小 |
+| HAS_GEK                        | VARCHAR(8) | 是否有全局密钥<br/>*  YES：是<br/>*  NO：否  |
 
 
 

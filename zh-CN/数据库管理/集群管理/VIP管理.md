@@ -12,8 +12,6 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
 
 ## 配置要求
 
-
-
 - 服务器的网卡必须为以太网卡，且支持ARP/NDP协议。
 
 - 必须先为集群配置公网信息（安装部署时yasboot package ce gen命令指定--public-network参数或安装完成后执行ycsctl add network命令指定）后才能使用VIP。
@@ -28,8 +26,6 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
 
 - VIP必须属于公网子网，且必须与实例监听地址（LISTEN_ADDR）处于相同子网。
 
-
-
 <span id="vip_configuration" name="vip_configuration"></span>
 
 ## 为已有集群配置VIP
@@ -42,12 +38,9 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
 
 - 已规划符合VIP配置要求的网段和IP地址。
 
-
-
 ### 步骤1：配置公网子网 
 
 1. 以安装用户登录数据库安装服务器。
-
 
 2. 查看集群信息，确认是否已配置公网和服务端口。
 
@@ -77,46 +70,7 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
     $ ycsctl add network -subnet 192.168.1.0/24/ens192
     ```
 
-
-
-### 步骤2（可选）：配置节点服务端口号
-
-若有节点未配置服务端口号或需要修改端口号配置，执行如下操作。
-
- 
-
-1. 停止集群。
-
-    ```shell
-    $ yasboot cluster stop -c yashandb
-    ```
-
-2. 启动YASFS服务。
-
-    ```shell
-    $ yasfs -D /data/yashan/yasdb_data/ycs/ce-1-1&
-    ```
-
-3. 给目标节点配置服务端口号，命令中的节点名和端口号请按实际情况填写。
-
-    ```shell
-    $ ycsctl modify node host0002 serviceport=1688
-    ```
-
-4. 停止YASFS服务。
-
-    ```shell
-    $ yfscmd exec "shudown abort"
-    ```
-
-5. 启动集群。
-
-    ```shell
-    $ yasboot cluster start -c yashandb
-    ```
-
-
-### 步骤3：配置并启动VIP
+### 步骤2：配置并启动VIP
 
 1. 添加VIP配置信息。
 
@@ -174,64 +128,27 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
 >
 > 在调整相应配置前，请确保上层业务已不依赖基于目标VIP及端口的连接信息，或集群有其他在线的VIP资源能提供连接服务。
 
-### 更换节点服务端口 
-
-如需更换节点服务端口，请执行以下操作：
-
- 
-
-1. 停止集群。
-
-    ```shell
-    $ yasboot cluster stop -c yashandb
-    ```
-
-2. 启动YASFS服务。
-
-    ```shell
-    $ yasfs -D /data/yashan/yasdb_data/ycs/ce-1-1&
-    ```
-
-3. 给目标节点配置服务端口号，命令中的节点名和端口号请按实际情况填写。
-
-    ```shell
-    $ ycsctl modify node host0002 serviceport=1688
-    ```
-
-4. 停止YASFS服务。
-
-    ```shell
-    $ yfscmd exec "shudown abort"
-    ```
-
-5. 启动集群。
-
-    ```shell
-    $ yasboot cluster start -c yashandb
-    ```
-
-
 ### 更换VIP地址 
 
-如需更换VIP地址，需先删除旧VIP再配置新VIP地址。
+更新VIP地址会自动停止当前集群的VIP资源，需执行ycsctl start vip命令将其启动后才能正常使用VIP连接数据库。
+
+>**Note**:
+>
+> 本文主要介绍在同一公网子网内更换其他IP地址作为新的VIP。
+>
+> 如需更换整个公网子网配置，则需执行ycsctl remove scan命令移除已配置的SCAN资源、执行ycsctl remove vip命令移除已配置的VIP资源，再执行ycsctl modify network命令更新公网子网配置，然后再按需添加并启用SCAN资源和VIP资源。
 
 1. 以安装用户登录数据库安装服务器。
 
-
-2. 删除目标节点的旧VIP。
+2. 更新VIP地址。
 
     ```shell
-    # 示例将强制停止节点host0001的VIP并删除配置信息
-
-    $ ycsctl remove vip -n host0001 -f
+    $ ycsctl add vip -n host0001 --vip 192.168.1.82/24
     ```
 
-3. 添加新的VIP资源配置信息并启动VIP资源。
+3. 启动VIP资源。
 
     ```shell
-    # 示例把192.168.1.71地址分配给节点host0001作为新的VIP地址
-    $ ycsctl add vip -n host0001 192.168.1.71/24/ens192
-
     $ ycsctl start vip
     ```
 
@@ -251,7 +168,7 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
         Node name: host0001, yascs/yasfs inter connect URL: 172.16.1.2:1788, Node ID: 1
             public service port: 1688
             yasdb instance name:yasdb-1-1, yasdb instance id:1
-            VIP: 192.168.1.71/24/ens192, home node: host0001
+            VIP: 192.168.1.82/24/ens192, home node: host0001
         ……
     ```
 
@@ -265,31 +182,24 @@ VIP的启停和高可用管理需要YCSRA进程在线以提供特权操作代理
 
 1. 以安装用户登录数据库安装服务器。
 
-
 2. 依次删除每个节点的VIP资源配置。
 
     ```shell
     $ ycsctl remove vip -n host0001 -f
     $ ycsctl remove vip -n host0002 -f
-    ```
-
- 
+    ``` 
 
 ### 删除公网配置 
 
 删除公网配置前，必须先删除所有VIP和SCAN配置才能删除公网。
 
-
 1. 以安装用户登录数据库安装服务器。
-
 
 2. 删除公网配置。
 
     ```shell
     $ ycsctl remove network
     ```
-
-
 
 ## 常见问题
 

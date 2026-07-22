@@ -2,6 +2,8 @@
 
 ALTER DATABASE用于修改数据库的相关属性。
 
+该语句优先依据yashan模式的语法规则（即[ALTER DATABASE](../../../开发手册/SQL参考手册/SQL语句/ALTER DATABASE.md)）进行解析。若解析未成功，则按照兼容MySQL语法的规则（即本文所述）进行解析。若两种规则都无法匹配，系统将返回错误提示。
+
 语句定义
 ----
 
