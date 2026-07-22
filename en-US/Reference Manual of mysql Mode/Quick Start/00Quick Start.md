@@ -1,4 +1,4 @@
-Starting from version V23.4, YashanDB supports two SQL syntax modes: yashan and mysql. It has achieved compatibility with MySQL 5.7 syntax. Users who are familiar with MySQL database products can quickly experience the database functionality of YashanDB in mysql mode through this chapter.
+Starting from version v23.4, YashanDB supports two SQL syntax modes: yashan and mysql. It has achieved compatibility with MySQL 5.7 syntax. Users who are familiar with MySQL database products can quickly experience the database functionality of YashanDB in mysql mode through this chapter.
 
 In mysql mode, we have primarily implemented the following product functionalities:
 1. 100% compatibility with the complete set of commonly used MySQL 5.7 protocol commands, data types, and information_schema/MySQL schema/performance_schema system views, compatible with MySQL 5.7 syntax;

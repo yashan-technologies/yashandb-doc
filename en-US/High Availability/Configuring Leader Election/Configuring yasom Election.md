@@ -4,7 +4,7 @@ The *yasom* election refers to the functionality of [election](../../Tools Guide
 
 The *yasom* election takes effect only when the *yasom* and standby database's yasagent processes are online.
 
-After enabling *yasom* Election, the *yasom* process monitors the database status. When the primary database fails, failover is executed at the standby database. When the standby database fails and the primary database's business is blocked under the maximum protection mode, the protection mode of the primary database is downgraded. Before the primary database starts, it connects to *yasom* or the standby database to confirm its actual role:
+After enabling *yasom* Election, the *yasom* process monitors the database status. When the primary database fails, failover is executed at the standby database. When the standby database fails and the primary database's business is blocked under the maximum protection mode, the primary will remove the failed standby from the sync standby list to ensure normal business operation (if all sync standbys fail, the protection mode will be downgraded). Before the primary database starts, it connects to *yasom* or the standby database to confirm its actual role:
 
 - If the connection fails, the primary database fails to start.
 
@@ -18,7 +18,7 @@ After enabling zero-loss mode *yasom* arbitration failover, the primary-standby 
 
 - *yasom* continuously detects whether the standby connection to the primary times out. If the duration exceeds the FailoverThreshold parameter value and *yasom* is also disconnected from the primary, the primary is determined to be abnormal. At this point, the failover process is triggered, and *yasom* promotes the target standby to primary based on the priority of the candidate standby set (FailoverTarget parameter).
 
-After the old primary restarts after a crash, it confirms the role with yasom. If it is confirmed that there is a new primary, the old primary starts as a standby.
+- After the old primary fails and restarts, it confirms the role with yasom. If it is confirmed that there is a new primary, the old primary starts as a standby.
 
 - When a standby fails, *yasom* adjusts the primary's [synchronous standby configuration](../Defining Synchronous Standbys) (REQUIRED_SYNC_STANDBYS parameter), removing the failed standby from the synchronous standby list to avoid blocking primary transactions. If the standby recovers and completes primary-standby data synchronization, *yasom* restores the primary's synchronous standby configuration.
 
@@ -30,7 +30,7 @@ After enabling normal mode *yasom* arbitration failover, the primary-standby pro
 
 - *yasom* continuously detects whether the standby connection to the primary times out. If the duration exceeds the FailoverThreshold parameter value and *yasom* is also disconnected from the primary, the primary is determined to be abnormal. At this point, the failover process is triggered, and *yasom* promotes the target standby to primary based on the priority of the candidate standby set (FailoverTarget parameter).
 
-- After the old primary restarts after a crash, it confirms the role with yasom. If it is confirmed that there is a new primary, the old primary starts as a standby.
+- After the old primary crashes and restarts, it confirms the role with yasom. If it is confirmed that there is a new primary, the old primary starts as a standby.
 
 
 <span id="Applicable" name="Applicable"></span>
@@ -39,15 +39,17 @@ After enabling normal mode *yasom* arbitration failover, the primary-standby pro
 
 |Deployment Mode |High Availability Deployment Scale |
 |--------------------|--------------------------------------|
-| Standalone Deployment    | One-primary/one-standby deployment  |
+| Standalone Deployment    | One-primary/one-standby<br/>One-primary/three-standby (without cascade standby)  |
+| YAC Deployment          | One-primary/one-standby cluster<br/>One-primary/multi-standby cluster |
 | ISC Distributed Cluster Deployment    | One-primary/one-standby deployment within DN group  |
-| YAC Deployment          | One-primary/one-standby cluster  <br/> One-primary/muti-standby cluster |
 
 For unified terms, the primary database in an ISC Distributed Cluster Deployment environment refers to the primary node of the DN group, and the standby database refers to the standby node of the DN group. In a YAC Deployment environment, the primary database refers to the primary cluster, and the standby database refers to the standby cluster.
 
 ## Prerequisites
 
-Ensure that [OS authentication](../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) functionality is enabled (it is enabled by default when following standard installation procedures).
+- Ensure that [OS authentication](../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) functionality is enabled (it is enabled by default when following standard installation procedures).
+
+- If in Standalone Single-Primary Multiple-Standby Deployment, leader election is enabled by default after installation and must be manually [disabled](./Configuring Leader Election for One Primary and Multi-Standby.md#close_election) (HA_ELECTION_ENABLED = FALSE).
 
 ## Configuration Steps
 
@@ -59,15 +61,13 @@ To deploy a HA environment, refer to the installation steps detailed in [Install
 
 - All resource parameters of the primary standby database should be consistent. The database version installed on the primary standby database must be the same.
 
-- [OS authentication](../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) must be enabled (it is enabled by default when following standard installation procedures) to use the election functionality properly.
-
 - It is recommended to deploy *yasom* on a separate server and not on the same server as the primary/standby databases.
 
 > **Caution**: 
 >
-> - If the standby database is deployed on the same server as yasom, it is not advised to use election. If needed, it is recommended to use normal mode instead. Because in zero data loss mode, if both *yasom* and the standby database fail, the primary database's maximize protection mode cannot be downgraded, leading to business blocking on the primary database.
+> - If the standby database is deployed on the same server as yasom, it is not advised to use election. If needed, it is recommended to use normal mode instead. Because in zero data loss mode, if both *yasom* and the standby database fail, the primary database's maximum protection mode cannot be downgraded, leading to business blocking on the primary database.
 >
-> - If *yasom* is unavailable, even in election zero data loss mode, the database protection mode cannot change (for example, if the standby database crashes, the primary database cannot change its protection mode from maximize protection to maximize availability), resulting in business blocking on the primary database.
+> - If *yasom* is unavailable, even in election zero data loss mode, the database protection mode cannot change (for example, if the standby database crashes, the primary database cannot change its protection mode from maximum protection to maximum availability), resulting in business blocking on the primary database.
 
 Once the environment is prepared, you can check whether the database deployment scale meets the requirements:
 
@@ -141,15 +141,18 @@ The parameters related to arbitration - based master selection are shown in the 
 |Parameter Name |Default Value |Value Range/Format |Description |
 | ----------------------- | ------ | ---------- | --------------------------- |
 | FailoverThreshold          | 9             | [2, 1000]     | The heartbeat timeout for the standby node. After reaching this time, yasom will execute the failover process. |
-| FailoverTarget          | - Primary: All standbys (excluding cascaded standbys)<br />- Standby: The primary | Format: group&#124;node n(x,y,z…) | Specify the target candidate group/node for standby-to-primary promotion and their priority order<br />\- group: Used to indicate that the numerical number in the subsequent configuration is the group ID, applicable to YAC Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in the nodeId is the group ID<br />\- node: Used to indicate that the numerical number in the subsequent configuration is the node ID, applicable to Standalone Deployment or ISC Distributed Cluster Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in the nodeId is the node ID<br />\- `n:(x,y,z…)`: Use the corresponding ID values to specify the specific target group/node and their priority order. The priority follows the order of configuration. If the parentheses are left empty `n:()`, it means that `n` will be removed from the default values of FailoverTarget for all groups/nodes.<br />For example, `node 1:(2,3)` means that the failover candidates for node 1 are node 2 and node 3, with node 2 having the first priority |
-| FailoverAutoReinstate      | false         | true/false    | Whether to enable automatic split-brain recovery. <br/> If enabled, if the standby node experiences a split-brain and is in the NEED REPAIR state, yasom will attempt to automatically repair it. |
-| ZeroDataLossMode           | true          | true/false    | Whether to enable zero loss mode. <br> If enabled, primary/standby will be set to maximize protection mode. When the primary node fails, the standby node can automatically failover; when the standby node is abnormal, the primary node will be downgraded by yasom to maximize availability mode, and automatic failover will be prohibited until the standby node synchronizes again, at which point yasom will upgrade the primary node back to maximize protection mode, allowing automatic failover. |
+| FailoverTarget          | - Primary: All standbys (excluding cascaded standbys)<br /><br />- Standby: The primary | Format: group&#124;node n:(x,y,z…) | Specifies the target candidate group/node for failover (i.e., standby-to-primary promotion) and their priority order<br />- group: Used to identify that the numerical value in the subsequent configuration is the group ID, applicable to YAC Deployment or ISC Distributed Cluster Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in the nodeId is the group ID<br />- node: Used to identify that the numerical value in the subsequent configuration is the node ID, applicable to Standalone Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in the nodeId is the node ID<br />- `n:(x,y,z…)`: Uses the corresponding ID values to specify the target candidate groups/nodes for the target group/node n and their priority order (following the sequence in the parentheses). If the parentheses are left empty `n:()`, it means that n has no failover target and will not be the failover target of other nodes, i.e., n does not participate in the election<br />- In Standalone Deployment, `node n:(x,y,z,…)` can also configure one of x, y, z as a dynamic candidate, in the format `ANY[a,b,…]` (for example, `node n:(ANY[a,b,…],y,z,…)`), which means the first available node in the specific node set `a,b,…` is used as a candidate. A maximum of 1 dynamic candidate is supported in this configuration value (i.e., ANY is allowed to appear only once)<br />Example 1: `group 1:(2,3)` means the failover candidates for cluster 1 are clusters 2 and 3, with cluster 2 having the first priority<br />Example 2: `node 2:(1, ANY[3,4])` means the failover candidates for node 2 are node 1 and the first available node among nodes 3 or 4, with node 1 having the first priority |
+| FailoverAutoReinstate      | false         | true/false    | Whether to enable automatic split-brain recovery. <br/> If enabled, if the standby node experiences a split-brain and is in the NEED REPAIR state, yasom will attempt to automatically repair it. <br/> <br/>**Only effective in Standalone Deployment.** |
+| ZeroDataLossMode           | true          | true/false    | Whether to enable zero loss mode. <br> If enabled, primary/standby will be set to maximum protection mode. When the primary node fails, the standby node can automatically failover; when the standby node is abnormal, the primary node will be downgraded by yasom to maximum availability mode, and automatic failover will be prohibited until the standby node synchronizes again, at which point yasom will upgrade the primary node back to maximum protection mode, allowing automatic failover. |
 
 > **Caution**: 
 >
+> - All parameters can only be modified before enabling *yasom* election.
+> - FailoverTarget can be configured for multiple nodes and is a node-level parameter. In the target specified by ANY[a,b,..], only one will be used as a synchronous standby, which can reduce performance impact.
 > - A small FailoverThreshold may lead to unnecessary switches due to network jitter. Please set a reasonable timeout based on network conditions.
 > - Enabling FailoverAutoReinstate will automatically repair the split-brain issue of the standby node, which may lead to some data loss where the standby node and primary node have discrepancies. Please **use with caution**.
-> - Enabling ZeroDataLossMode prioritizes the use of maximize protection mode. In maximize protection mode, if the primary node fails, the standby node will automatically failover without data loss. When the standby node is abnormal, the primary node will be downgraded to maximize availability mode, at which point the standby node may risk data loss, therefore automatic failover will be disabled until the primary node again recovers maximize protection mode. Therefore, the conditional switch to zero loss mode is stricter but ensures no data is lost.
+> - Enabling ZeroDataLossMode prioritizes the use of maximum protection mode. In maximum protection mode, if the primary node fails, the standby node will automatically failover without data loss. When the standby node is abnormal, the primary node will be downgraded to maximum availability mode, at which point the standby node may risk data loss, therefore automatic failover will be disabled until the primary node again recovers maximum protection mode. Therefore, the conditional switch to zero loss mode is stricter but ensures no data is lost.
+> - If the standby database fails during failover execution, it can only be restarted to continue the promotion. It cannot automatically select another standby to promote.
 
 
 
@@ -160,11 +163,14 @@ The parameters related to arbitration - based master selection are shown in the 
     $ yasboot election config set -k FailoverThreshold -v 5 -c yashandb
     $ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
 
-    # In YAC deployment, the FailoverTarget parameter needs to be configured with the group IDs
+    # In YAC or ISC Distributed Cluster Deployment, the FailoverTarget parameter needs to be configured with the group IDs. The following command sets cluster 1's failover target to clusters 2 and 3; if cluster 1 fails as primary, cluster 2 will be prioritized for promotion
     $ yasboot election config set -k FailoverTarget  -v "group 1:(2,3)"  -c yashandb
     
-    # In Standalone Deployment or ISC Distributed Cluster Deployment, the FailoverTarget parameter needs to be configured with the node IDs
-    $ yasboot election config set -k FailoverTarget  -v "node 1:(2,3)"  -c yashandb
+    # In Standalone Deployment, the FailoverTarget parameter needs to be configured with the node IDs. The following command sets node 2's failover target to nodes 3 and 1; if node 2 fails as primary, node 3 will be prioritized for promotion
+    $ yasboot election config set -k FailoverTarget  -v "node 2:(3,1)"  -c yashandb
+
+    # In Standalone Deployment, you can use the ANY keyword for more flexible personalized configuration. The following command sets node 2's failover target to node 1, node 3, and node 4. Among node 3 and node 4, only one will be the synchronous standby. If node 2 fails as primary, node 1 will be prioritized for promotion; if node 1 is unavailable, the active synchronous standby between node 3 and node 4 will be promoted
+    $ yasboot election config set -k FailoverTarget  -v "node 2:(1, ANY[3,4])"  -c yashandb
     ```
 
 2. View the FailoverTarget configuration:
@@ -303,7 +309,7 @@ Automatic Failover: DISABLED
     | Database Error(s) | Record HA-related anomalies, such as the redo log of a standby database mismatching that of the primary database. |
     | Properties | The currently effective parameter information. |
     | Configurable Failover Conditions | Conditional failover configuration items for the primary database. Health Conditions correspond to the configuration parameter FAILOVER_HEALTH_CONDITION of the primary database, Error Code Conditions correspond to the configuration parameter FAILOVER_ERROR_CONDITION of the primary database, and only effective error codes are shown. For more details, please refer to [Configuring Conditional Failover](#failover_error_condition). |
-    | Automatic Failover | The status of *yasom* election<br />- DISABLED: *yasom* election is off.<br />- Enabled in Potential Data Loss Mode: normal mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode: zero loss mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode (NOT ALLOWED): zero loss mode *yasom*  election is on, but the database protection mode is not maximize protection, automatic switching is not allowed. |
+    | Automatic Failover | The status of *yasom* election<br />- DISABLED: *yasom* election is off.<br />- Enabled in Potential Data Loss Mode: normal mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode: zero loss mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode (NOT ALLOWED): zero loss mode *yasom*  election is on, but the database protection mode is not maximum protection, automatic switching is not allowed. |
 
     
 
@@ -335,11 +341,11 @@ The meanings of each field are shown in the following table.
 | Protection Mode | The protection mode of the primary node recorded by *yasom*. |
 | Members | Information of nodes/groups participating in arbitration, including node status, node role, standby node transmission delay, replay delay, and replay rate, etc. |
 | Database Error(s) | Record HA-related anomalies, such as the redo log of a standby database mismatching that of the primary database. |
-| Automatic Failover | The status of *yasom* election<br />- DISABLED: *yasom* election is off.<br />- Enabled in Potential Data Loss Mode: normal mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode: zero loss mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode (NOT ALLOWED): zero loss mode *yasom*  election is on, but the database protection mode is not maximize protection, automatic switching is not allowed. |
+| Automatic Failover | The status of *yasom* election<br />- DISABLED: *yasom* election is off.<br />- Enabled in Potential Data Loss Mode: normal mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode: zero loss mode *yasom* election is on.<br />- Enabled in Zero Data Loss Mode (NOT ALLOWED): zero loss mode *yasom*  election is on, but the database protection mode is not maximum protection, automatic switching is not allowed. |
 
 
 
-"Enabled in Zero Data Loss Mode" indicates that *yasom* election has been enabled in zero data loss mode. The protection mode of primary/standby will be automatically changed to maximize protection, allowing for automatic failover (if the primary database fails, the standby database will automatically failover to assume primary).
+"Enabled in Zero Data Loss Mode" indicates that *yasom* election has been enabled in zero data loss mode. The protection mode of primary/standby will be automatically changed to maximum protection, allowing for automatic failover (if the primary database fails, the standby database will automatically failover to assume primary).
 
 <span id="failover_error_condition" name="failover_error_condition"></span>
 
@@ -388,6 +394,87 @@ The process for conditional failover is as follows:
 
 3. The standby database will trigger a heartbeat timeout, and *yasom* will issue a failover command to the standby database, allowing it to assume the primary status.
 
+## Examples
+
+#### Standalone One-Primary/One-Standby
+
+```shell 
+# Configure heartbeat timeout and zero loss mode
+$ yasboot election config set -k FailoverThreshold -v 9 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# In one-primary/one-standby deployment, the FailoverTarget parameter can use the default value
+# Enable yasom election (in zero loss mode, if the current database is not in maximum protection mode, a confirmation request will be displayed to automatically change to maximum protection mode)
+$ yasboot election enable on -c yashandb
+
+# Check status
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
+#### YAC One-Primary/One-Standby
+
+```shell 
+# Configure heartbeat timeout and zero loss mode
+$ yasboot election config set -k FailoverThreshold -v 15 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# In one-primary/one-standby deployment, the FailoverTarget parameter can use the default value
+# Enable yasom election (in zero loss mode, if the current database is not in maximum protection mode, a confirmation request will be displayed to automatically change to maximum protection mode)
+$ yasboot election enable on -c yashandb
+
+# Check status
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
+#### Standalone One-Primary/Three-Standby
+
+```shell 
+# Configure heartbeat timeout and zero loss mode
+$ yasboot election config set -k FailoverThreshold -v 9 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# Configure FailoverTarget for each node. In this example, nodes 1 and 2 are in center A, nodes 3 and 4 are in center B. Standbys in the same center are prioritized for promotion, and only one sync standby is allowed across centers, so the ANY field is used to wrap the two cross-center nodes.
+$ yasboot election config set -k FailoverTarget  -v "node 1:(2, ANY[3,4])" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "node 2:(1, ANY[3,4])" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "node 3:(4, ANY[1,2])" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "node 4:(3, ANY[1,2])" -c yashandb
+
+# Check FailoverTarget settings
+$ yasboot election target show -c yashandb
+
+# Enable yasom election (in zero loss mode, if the current database is not in maximum protection mode, a confirmation request will be displayed to automatically change to maximum protection mode)
+$ yasboot election enable on -c yashandb
+
+# Check status
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
+#### YAC One-Primary/Two-Standby
+
+```shell 
+# Configure heartbeat timeout and zero loss mode
+$ yasboot election config set -k FailoverThreshold -v 9 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# Configure FailoverTarget for each cluster. In this example, cluster 1 and cluster 2 are in synchronous transmission, each serving as the other's failover target. Cluster 3 is an async standby, does not participate in election, has no failover target, and will not be automatically promoted.
+$ yasboot election config set -k FailoverTarget  -v "group 1:(2)" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "group 2:(1)" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "group 3:()" -c yashandb
+
+# Check FailoverTarget settings
+$ yasboot election target show -c yashandb
+
+# Enable yasom election (in zero loss mode, if the current database is not in maximum protection mode, a confirmation request will be displayed to automatically change to maximum protection mode)
+$ yasboot election enable on -c yashandb
+
+# Check status
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
 ## Frequently Asked Questions
 
 #### How to Plan Performance Requirements for Failover Target Standby Databases?
@@ -414,9 +501,9 @@ You can view *yasom* election records, including failover, protection mode switc
 
 The prerequisite for enabling the arbitration election functionality is that the primary and standby database statuses are normal. If the functionality fails to start, please check the primary/standby connection status and whether the STATUS of each database in v$database is NORMAL. If the database is abnormal, please query v$diag_incident to examine the alert log, runtime log, etc., to locate the issue; common faults may include insufficient disk space, network failures, etc.
 
-#### Why can't I switch to maximize protection mode?
+#### Why can't I switch to maximum protection mode?
 
-Switching to maximize protection mode requires that the redo of the primary database has been fully synchronized with the standby database. If the standby database is down or the redo reception speed of the standby database is slow, it may lead to unsynchronized redo; please check whether the standby database status is normal, whether network bandwidth is sufficient, and ensure adequate hardware resources for the standby database.
+Switching to maximum protection mode requires that the redo of the primary database has been fully synchronized with the standby database. If the standby database is down or the redo reception speed of the standby database is slow, it may lead to unsynchronized redo; please check whether the standby database status is normal, whether network bandwidth is sufficient, and ensure adequate hardware resources for the standby database.
 
 #### What should I do if the standby database apply lag is increasing?
 
@@ -426,11 +513,11 @@ If the standby database's apply speed cannot keep up with the primary database's
 
 - It may be that the standby database's apply speed is slow, with a large amount of redo waiting to be applied. You can check if the standby database is in the process of assuming primary status by querying the switchover_status in v$database; if so, please wait for the redo apply to complete.
 
-- The *yasom* process may be abnormal, for example, if the *yasom* process is shut down, the server where the primary database is located is completely down, or the primary-standby configuration of the *yasom* process is incorrect. In this case, [repair *yasom* faults](../../Tools Guide/yasboot/Manage Yasom/Scenario Fault Handling for yasom) according to the situation.
+- The *yasom* process may be abnormal, for example, if the *yasom* process is shut down, the server where the primary database is located is completely down, or the primary-standby configuration of the *yasom* process is incorrect. In this case, [repair *yasom* faults](../../Tools Guide/yasboot/Manage yasom/Scenario Fault Handling for yasom) according to the situation.
 
 - The standby database may be in an abnormal state and cannot assume primary status. Check if it is in a need repair state or if the disk space is full.
 
-- In zero data loss mode, if the database is in maximize availability mode, automatic failover is prohibited. If you need to force a failover, please forcibly disable *yasom* arbitration and manually perform the failover.
+- In zero data loss mode, if the database is in maximum availability mode, automatic failover is prohibited. If you need to force a failover, please forcibly disable *yasom* arbitration and manually perform the failover.
 
 #### What should I do if the primary database fails to confirm role upon restart after forcibly disabling *yasom* election?
 

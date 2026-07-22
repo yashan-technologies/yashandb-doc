@@ -25,11 +25,11 @@ Support status for the Attribute parameter:
 
 |Attribute |Description |Support Status |
 | ------------------------------ | ------------------------------------------------------------ | -------- |
-| SQL_ATTR_PARAM_BIND_TYPE       | Returns SQL_BIND_BY_COLUMN                                   | Supported      |
+| SQL_ATTR_PARAM_BIND_TYPE       | Support Row-Wise Binding and Column-Wise Binding            | Supported      |
 | SQL_ATTR_PARAMSET_SIZE         | Number of parameter rows to bind at one time (default is 1) | Supported      |
 | SQL_ATTR_ROW_ARRAY_SIZE        | Number of data rows to fetch at one time (default is 1)     | Supported      |
 | SQL_ROWSET_SIZE                | Same as above                                              | Supported      |
-| SQL_ATTR_ROW_BIND_TYPE         | Returns SQL_BIND_BY_COLUMN                                   | Supported      |
+| SQL_ATTR_ROW_BIND_TYPE         | Support Row-Wise Binding and Column-Wise Binding            | Supported      |
 | SQL_ATTR_ROWS_FETCHED_PTR      | Pointer to the actual number of rows fetched at one time     | Supported      |
 | SQL_ATTR_ROW_STATUS_PTR        | SQLUSMALLINT value array containing row status values after calling SQLFetch or SQLFetchScroll | Supported      |
 | SQL_ATTR_APP_PARAM_DESC        |                                                           | Not Supported  |

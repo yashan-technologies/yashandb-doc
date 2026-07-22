@@ -10,7 +10,16 @@ The YashanDB JDBC driver supports the following functionalities of the CallableS
 | void | registerOutParameter(int parameterIndex, int sqlType, int scale) |
 | void | registerOutParameter(String parameterName, int sqlType) |
 | void | registerOutParameter(String parameterName, int sqlType, int scale) |
+| void | registerOutParameter(int parameterIndex, SQLType sqlType) |
+| void | registerOutParameter(int parameterIndex, SQLType sqlType, int scale) |
+| void | registerOutParameter(String parameterName, SQLType sqlType) |
+| void | registerOutParameter(String parameterName, SQLType sqlType, int scale) |
+| void | registerOutParameter (int parameterIndex, SQLType sqlType, String typeName) |
+| void | registerOutParameter (String parameterName, SQLType sqlType, String typeName) |
+| void | registerOutParameter (String parameterName, int sqlType, String typeName) |
+| void | registerOutParameter (int parameterIndex, int sqlType, String typeName) |
 | void | setNull(String parameterName, int sqlType) |
+| void | setNull (String parameterName, int sqlType, String typeName) |
 | void | setBoolean(String parameterName, boolean x) |
 | void | setByte(String parameterName, byte x) |
 | void | setShort(String parameterName, short x) |
@@ -29,6 +38,8 @@ The YashanDB JDBC driver supports the following functionalities of the CallableS
 | void | setObject(String parameterName, Object x, int targetSqlType, int scale) |
 | void | setObject(String parameterName, Object x, int targetSqlType) |
 | void | setObject(String parameterName, Object x) |
+| void | setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) |
+| void | setObject(String parameterName, Object x, SQLType targetSqlType) |
 | void | setCharacterStream(String parameterName,java.io.Reader reader, int length) |
 | void | setDate(String parameterName, java.sql.Date x, Calendar cal) |
 | void | setTime(String parameterName, java.sql.Time x, Calendar cal) |
@@ -103,7 +114,6 @@ The YashanDB JDBC driver supports the following functionalities of the CallableS
 | Blob                | getBlob (int parameterIndex)                          |
 | Blob | getBlob (String parameterName) |
 | ResultSet           | getGeneratedKeys()                                    |
-| Ref | getRef (String parameterName) |
 | boolean             | wasNull()                                             |
 | boolean | getBoolean(String parameterName) |
 | SQLXML              | getSQLXML(int parameterIndex)                         |
@@ -117,18 +127,8 @@ The YashanDB JDBC driver supports the following functionalities of the CallableS
 
 Unsupported functionalities:
 
-|Return Type |Method |
-|-----------------------|-----------------------------------|
-| void                  | registerOutParameter(int parameterIndex, SQLType sqlType)                           |
-| void                  | registerOutParameter(int parameterIndex, SQLType sqlType, int scale)                |
-| void                  | registerOutParameter (int parameterIndex, SQLType sqlType, String typeName)         |
-| void                  | registerOutParameter(String parameterName, SQLType sqlType)                         |
-| void                  | registerOutParameter(String parameterName, SQLType sqlType, int scale)              |
-| void                  | registerOutParameter (String parameterName, SQLType sqlType, String typeName)       |
-| Ref                   | getRef (int parameterIndex)                                                         |
-| void                  | registerOutParameter (String parameterName, int sqlType, String typeName)           |
-| void                  | setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) |
-| void                  | setObject(String parameterName, Object x, SQLType targetSqlType)                    |
-| void                  | setURL(String parameterName, java.net.URL val)                                      |
-| void                  | registerOutParameter (int parameterIndex, int sqlType, String typeName)             |
-| void                  | setNull (String parameterName, int sqlType, String typeName)                        |
+| Return Type |Method |
+|-------------|-----------------------------------|
+| Ref         | getRef (int parameterIndex)                                                         |
+| Ref         | getRef (String parameterName)                                                       |
+| void        | setURL(String parameterName, java.net.URL val)                                      |

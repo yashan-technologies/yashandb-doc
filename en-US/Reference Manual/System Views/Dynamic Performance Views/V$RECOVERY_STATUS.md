@@ -3,7 +3,7 @@ This view displays information about the log apply status.
 |Field |Type |Description |
 | ----- | ----------- | ------------ |
 | THREAD#             | TINYINT     | Instance number of the database                       |
-| STATUS              | VARCHAR(16) | Database apply status<br>\* NONE: No log apply needed currently<br>\* RUNNING: Currently applying logs<br>\* PAUSED: Log apply paused<br>\* ERROR: There is an error in log apply for the current database |
+| STATUS              | VARCHAR(16) | Database apply status<br>\* NONE: No log apply needed currently<br>\* RUNNING: Currently applying logs<br>\* PAUSED: Log apply paused<br>\* IDLE: The current database replay thread is idle|
 | PARALLELISM         | SMALLINT    | Number of parallel apply threads; 0 when parallel apply is not enabled, can only be a power of 2 when enabled |
 | START_RECOVERY_TIME | DATE        | SCN when apply started                               |
 | STOP_RECOVERY_TIME  | DATE        | SCN when apply stopped                               |

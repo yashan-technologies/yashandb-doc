@@ -35,7 +35,8 @@ When performing comparison operations with =, != or <>, >, >=, <, <=, the follow
 *   Character
 *   DateTime
 *   Boolean
-*   RAW
+*   BINARY
+*   TEXT/BLOB
 
 ### Rules of Operations
 
@@ -68,7 +69,9 @@ The row and column headers indicate the data types involved in the =, != or <>, 
 | TIMESTAMP              | BIGINT              | BIGINT UNSIGNED   | BIGINT              | BIGINT UNSIGNED   | BIGINT            | BIGINT UNSIGNED | BIGINT            | BIGINT UNSIGNED |
 | TIME                   | INT                 | INT UNSIGNED      | INT                 | INT UNSIGNED      | INT               | INT UNSIGNED    | BIGINT            | BIGINT UNSIGNED |
 | DATE                   | INT                 | INT                 | INT                 | INT                 | INT               | INT UNSIGNED    | BIGINT            | BIGINT UNSIGNED |
-
+| BINARY/VARBINARY      | DECIMAL             | DECIMAL             | DECIMAL             | DECIMAL             | DECIMAL           | DECIMAL           | DECIMAL           | DECIMAL           |
+| TINYTEXT<br/>MEDIUMTEXT<br/>TEXT<br/>LONGTEXT      | DECIMAL             | DECIMAL             | DECIMAL             | DECIMAL             | DECIMAL           | DECIMAL           | DECIMAL           | DECIMAL           |
+| TINYBLOB<br/>MEDIUMBLOB<br/>BLOB<br/>LONGBLOB      | DECIMAL             | DECIMAL             | DECIMAL             | DECIMAL             | DECIMAL           | DECIMAL           | DECIMAL           | DECIMAL           |
 
 
 |Data Type |DECIMAL |FLOAT  |DOUBLE |BOOLEAN   |CHAR/VARCHAR    |TIMESTAMP       |TIME       |DATE     |
@@ -89,7 +92,31 @@ The row and column headers indicate the data types involved in the =, != or <>, 
 | TIMESTAMP              | DOUBLE  | DOUBLE | DOUBLE | -                   | BIGINT  | TIMESTAMP         | -              | DOUBLE            |
 | TIME                   | -       | -      | -      | -                   | BIGINT  | -                 | TIME           | DATE              |
 | DATE                   | DECIMAL | FLOAT  | DOUBLE | -                   | INT     | DOUBLE            | DATE           | INT               |
+| BINARY/VARBINARY           | DECIMAL | FLOAT  | DOUBLE | BOOLEAN             | VARCHAR    | TIMESTAMP            | TIME         | DATE               |
+| TINYTEXT<br/>MEDIUMTEXT<br/>TEXT<br/>LONGTEXT           | DECIMAL | FLOAT  | DOUBLE | BOOLEAN             | LONGTEXT    | BIGINT            | BIGINT         | INT               |
+| TINYBLOB<br/>MEDIUMBLOB<br/>BLOB<br/>LONGBLOB           | DECIMAL | FLOAT  | DOUBLE | BOOLEAN             | LONGBLOB    | BIGINT            | BIGINT         | INT               |
 
+| Data Type | BINARY/VARBINARY| TINYTEXT<br/>MEDIUMTEXT<br/>TEXT<br/>LONGTEXT | TINYBLOB<br/>MEDIUMBLOB<br/>BLOB<br/>LONGBLOB|
+| ---------------------- | ------- | ------ | ------ |
+| TINYINT              | DECIMAL  | DECIMAL | DECIMAL            | 
+| TINYINT UNSIGNED     | DECIMAL  | DECIMAL | DECIMAL            |
+| SMALLINT             | DECIMAL  | DECIMAL | DECIMAL            |
+| SMALLINT UNSIGNED    | DECIMAL  | DECIMAL | DECIMAL            |
+| INT                  | DECIMAL  | DECIMAL | DECIMAL            |
+| INT UNSIGNED         | DECIMAL  | DECIMAL | DECIMAL            |
+| BIGINT               | DECIMAL  | DECIMAL | DECIMAL            |
+| BIGINT UNSIGNED      | DECIMAL  | DECIMAL | DECIMAL            |
+| DECIMAL              | DECIMAL  | DECIMAL | DECIMAL            |
+| FLOAT                | FLOAT    | FLOAT   | FLOAT            |
+| DOUBLE               | DOUBLE   | DOUBLE | DOUBLE            | 
+| BOOLEAN              | BOOLEAN       | BOOLEAN      | BOOLEAN      | 
+| CHAR/VARCHAR         | VARCHAR | LONGBLOB  | LONGBLOB |
+| TIMESTAMP              | TIMESTAMP  | TIMESTAMP | TIMESTAMP | 
+| TIME                   |TIME       | TIME      | TIME     | 
+| DATE                   | DATE | DATE  | DATE |
+| BINARY/VARBINARY           | VARCHAR | LONGBLOB  | LONGBLOB | 
+| TINYTEXT<br/>MEDIUMTEXT<br/>TEXT<br/>LONGTEXT           | LONGBLOB | LONGBLOB  | LONGBLOB |
+| TINYBLOB<br/>MEDIUMBLOB<br/>BLOB<br/>LONGBLOB           | LONGBLOB | LONGBLOB  | LONGBLOB |
 
 
 > **Note**: 

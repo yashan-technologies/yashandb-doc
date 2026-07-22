@@ -28,6 +28,7 @@ exp --csv {Common Options} {Export Options} {CSV Options}
 | *[-qf, --query-file]*     | 指定sql文件，将文件中的查询语句导出对应结果集                                                                                                                                                       |
 | *[-qo, --query-out-file]* | 设置查询语句导出对应结果集所在的文件名，与-F参数指定路径配合使用，不配置时，导出文件名为outfile                                                                                                                           |
 | *[--bit-format]*          | 设置BIT数据的导出方式，可选值binary/decimal，默认值binary：<br/>binary表示bit列数据以二进制字符串形式导出存储<br/>decimal表示bit列数据以十进制字符串形式导出存储                                                                     |
+| *[--hidden-column]*       | 设置是否导出隐藏列数据，可选值true/false，默认值true                                                                                                         |
 | *[-ch, --character-set]*  | 设置导出文件的字符集，取值范围为[ASCII,GBK,UTF8,ISO88591,GB18030]，默认与客户端字符集相同                                                                                                                  |
 
 > **Note**: 

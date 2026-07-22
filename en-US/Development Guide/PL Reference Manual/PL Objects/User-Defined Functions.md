@@ -83,15 +83,20 @@ Pipeline functions return collection types. Within the pipeline function body, a
 The following rules must be followed when using pipeline functions:
 
 - Pipeline functions can have the same name as built-in functions.
-- Pipeline functions are only supported as data sources for queries.
+
+- Pipeline functions are supported as query data sources (FROM clause) and query projection columns. However, when a pipeline function is in the projection column position, the system will automatically degrade to normal function execution, not create pipeline threads, and not trigger streaming processing logic.
 - The maximum row length of pipeline functions is always based on the smaller value specified in the [row length specifications](../../../Product Overview/Specifications/Logical Specifications.md#table) (i.e., the maximum row length is 64512 Bytes).
 - Pipeline function parameters can only be input parameters; they cannot be output or input/output parameters.
 - The RETURN statement of a pipeline function cannot specify a return value.
 - If the pipeline function is not in an autonomous transaction, DML/DDL statements are not allowed.
-- A pipeline function cannot be called by the procedure body, nor can it call itself or other pipeline functions.
+- A pipeline function cannot be called by the procedure body.
+- Pipeline functions can call other pipeline functions, and the call chain must follow these restrictions:
+    - Only one pipeline function located at the query data source is allowed.
+
+    - Pipeline functions located at query projection columns support recursive calls (including recursive calls to themselves), with no limit on call depth.
 - A pipeline function can only return collection types (except associative arrays); the rows written by PIPE ROW must be SQL types or global UDT types.
 - Currently, pipeline function parameters cannot use cursor types or cursor expressions.
-- Currently, pipeline functions cannot produce DBMS_OUTPUT information.
+- Pipeline functions can output DBMS_OUTPUT information. The output behavior persists until the first pipeline function at the query data source in the query executes. The DBMS_OUTPUT information during the execution of subsequent pipeline functions is not output externally.
 - Modifications to package variables within a pipeline function are not visible to other threads.
 - UDT methods defined as pipeline functions are currently not supported.
 - Pipeline functions execute continuously in parallel threads. If there are DML statements in the function and the query conditions limit the number of rows to be fetched to less than the number of rows produced by the pipeline, the number of affected rows for the DML object is not fixed.
@@ -213,7 +218,7 @@ The usage constraints for user-defined aggregate functions are as follows:
 
 - The aggregate_clause can only be used in standalone CREATE FUNCTION statements.
 - User-defined aggregate functions cannot be used in stored procedures.
-- User-defined aggregate functions do not support DISTINCT syntax for parameters.
+- User-defined aggregate functions only support using the DISTINCT syntax on the first parameter.
 - User-defined aggregate functions require at least one input parameter. If there are multiple parameters, the parameters from the second to the last are the input parameters for initiating the function.
 - User-defined aggregate functions cannot use default values and cannot pass parameters by name.
 - User-defined aggregate functions cannot return CURSOR types.

@@ -30,6 +30,7 @@ This view displays the summary information of the database for the current insta
 | CREATED              | DATE     | Database Creation Time                                                                                                                 |
 | RESETLOGS_CHANGE#   | BIGINT   | System modification sequence number (SCN) when open resetlogs is executed                                                             |
 | FLASHBACK_ON         | VARCHAR(8) | Whether full database flashback functionality is enabled<br/>* YES: Enabled<br/>* NO: Disabled                                       |
+| HAS_GEK  | VARCHAR(8) | Whether there is a global key<br/>* YES: Yes<br/>* NO: No |
 
 
 

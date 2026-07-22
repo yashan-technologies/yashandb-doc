@@ -2,7 +2,7 @@ This article describes the process of uninstalling the YashanDB server using the
 
 ## Step 1: Check and Disable *yasom* Election
 
-If the current environment is Standalone One-Primary/One-Standby Deployment, Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby), it is necessary to perform the current operation to check and disable yasom election before proceeding with subsequent operations.
+If the current environment is Standalone Primary-Standby Deployment (without cascade standby), Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby), it is necessary to perform the current operation to check and disable yasom election before proceeding with subsequent operations.
 
 1. Execute the following command to check whether yasom election is enabled:
 

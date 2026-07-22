@@ -5538,7 +5538,7 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 
 **Action**: Currently, the database cannot execute restore operations, possible reasons include:
 
-- yasom election is enabled: This indicates that [yasom election](../Tools Guide/yasboot/Introduction to yasboot Command/yasboot election) has been enabled. You need to first disable the election through *yasboot*, then execute the restore operation.
+- *yasom* election is enabled: This indicates that [yasom election](../Tools Guide/yasboot/Introduction to yasboot Command/yasboot election) has been enabled. You need to first disable the election through *yasboot*, then execute the restore operation.
 
 ### YAS-02556:ERR_BAK_TAR_CANNOT_BACKUP
 
@@ -7666,6 +7666,8 @@ When all three conditions are met, the redo file in the backup set cannot overwr
 - When "variant" is prompted: The input parameter value exceeds the maximum value allowed by the variable. Please reduce the parameter value.
 
 - When "bind param count" is prompted:The number of binding parameters in the statement exceeds the upper limit of 32,000. Please reduce the number of binding parameters.
+
+- When "result of string concatenation", "overflow indicator", "overflow separator", or "listagg const" is prompted: The use of the LISTAGG function has exceeded its specification limit. Please adjust the usage of the LISTAGG function.
 
 - When the table column name is prompted: The inserted data exceeds the table column definition.
 
@@ -13741,6 +13743,78 @@ If the problem still cannot be solved, please contact our technical support for 
 
 **Action**: Please check whether index i appears in isolation (not as an index of the collection) or as part of an expression under the FORALL statement.
 
+### YAS-06874:ERR_PL_SMTP_INIT_FAILED
+
+**Message**: SMTP initialization failed
+
+**Action**: SMTP initialization failed. Check the configuration parameters.
+
+### YAS-06875:ERR_PL_SMTP_REQUEST_FAILED
+
+**Message**: SMTP request failed: %s
+
+**Action**: SMTP request failed. Check the network connection or SMTP server configuration.
+
+### YAS-06876:ERR_PL_SMTP_CONNECT_FAILED
+
+**Message**: SMTP connection failed: %s
+
+**Action**: SMTP connection failed. Check the SMTP server address and port.
+
+### YAS-06877:ERR_PL_SMTP_TIMEOUT
+
+**Message**: SMTP operation timed out: %s
+
+**Action**: SMTP operation timed out. Increase the timeout value or check the network status.
+
+### YAS-06878:ERR_PL_SMTP_IO_ERROR
+
+**Message**: SMTP I/O error: %s
+
+**Action**: SMTP communication error. Check the network connection.
+
+### YAS-06879:ERR_PL_SMTP_TOO_MANY_CONNECTIONS
+
+**Message**: too many open SMTP connections, maximum limit: %d
+
+**Action**: Too many SMTP connections are open. Close unused idle connections.
+
+### YAS-06880:ERR_PL_SMTP_INVALID_CONNECTION
+
+**Message**: invalid SMTP connection
+
+**Action**: Invalid SMTP connection. Re-establish the connection.
+
+### YAS-06881:ERR_PL_SMTP_INVALID_OPERATION
+
+**Message**: invalid SMTP operation
+
+**Action**: Invalid SMTP operation. Check if the operation sequence is correct.
+
+### YAS-06882:ERR_PL_SMTP_TRANSIENT_ERROR
+
+**Message**: SMTP transient error: %u %s
+
+**Action**: A transient error occurred on the server. Try again later.
+
+### YAS-06883:ERR_PL_SMTP_PERMANENT_ERROR
+
+**Message**: SMTP permanent error: %u %s
+
+**Action**: A permanent error occurred on the server. Check the SQL or verify the SMTP server is functioning properly.
+
+### YAS-06884:ERR_PL_SMTP_UNSUPPORTED_SCHEME
+
+**Message**: authentication scheme "%s" not supported
+
+**Action**: The authentication scheme is not supported.
+
+### YAS-06885:ERR_PL_SMTP_NO_SUPPORTED_SCHEME
+
+**Message**: no supported authentication scheme found
+
+**Action**: No supported authentication scheme available.
+
 ### YAS-06814:ERR_PL_FORALL_BIND_FORM_ERRORS
 
 **Message**: references to fields of BULK In-BIND table of records or objects must have the form A(I).F
@@ -15400,6 +15474,12 @@ If the problem still cannot be solved, please contact our technical support for 
 **Message**：invalid group column
 
 **Action**: Please enter a valid group column.
+
+### YAS-10020:ERR_ANS_PARSER_ONLY_SIMPLE_COLUMN_ALLOWED
+
+**Message**：only simple column names allowed here
+
+**Action**：Only simple column names allowed here. Please modify the SQL statement.
 
 <span id="errno100001" name="errno100001"></span>
 

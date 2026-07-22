@@ -42,9 +42,9 @@ The development of YashanDB can be divided into the following stages:
 
 **2023: Market Replication and Key Industry Penetration**
 
-- YashanDB V22.2 was officially released, with comprehensive improvements in functionality, performance, and stability.
+- YashanDB v22.2 was officially released, with comprehensive improvements in functionality, performance, and stability.
 
-- YashanDB V23.1 was released, introducing three products: high-end YAC, distributed real-time data warehouse, and spatial database.
+- YashanDB v23.1 was released, introducing three products: high-end YAC, distributed real-time data warehouse, and spatial database.
 
 - The personal version of YashanDB was fully opened for download.
 
@@ -58,7 +58,7 @@ The development of YashanDB can be divided into the following stages:
 
 **2024: High-End Core 1:1 Alternative**
 
-- YashanDB V23.3 was released, designed specifically for core scenarios with a 1:1 alternative solution.
+- YashanDB v23.3 was released, designed specifically for core scenarios with a 1:1 alternative solution.
 
 - The enterprise edition of YashanDB was fully opened for download.
 

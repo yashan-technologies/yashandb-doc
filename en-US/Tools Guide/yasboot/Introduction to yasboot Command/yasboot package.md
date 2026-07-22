@@ -15,7 +15,7 @@ The command is used to generate a configuration file for Standalone Deployment b
 | *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`        |
 | *--port*                | SSH connection port of the server   |
 | **Database Basic Configuration Parameters** |  |
-| -c,--cluster       | Name of the generated cluster (required parameter)           |
+| -c,--cluster       | The planned cluster name  (required parameter), must start with a letter, 2-63 characters long, can contain numbers and most visible ASCII characters (excluding `,`, `'`, `"`, `+`, `-`, `*`, `/`, `|`, `(`, `)`, `@`, `[`, `]`, `{`, `}`, `~`, `` ` ``, `%`, `:`, `?`, `.`, spaces and control characters `=`, `!`, `<`, `>`, `;`, `&`, `^`) |
 | *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)         |
 | *--data-path*           | Data path of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)     |
 | *--log-path*            | Run log path, storing database run.log and slow.log, as well as logs for yasom and yasagent                  |
@@ -29,9 +29,9 @@ The command is used to generate a configuration file for Standalone Deployment b
 | **Node Scale Parameters** |  |
 | *--node*                | Scale of standalone db group and node deployment, defaults to 1             |
 | *--cascade-node*        | Number of Cascade standby nodes |
-| *--cascade-parent*      | Index of the Cascade binding standby node                   |
-| *--group*               | Number of standalone groups, defaults to 1                  |
-| *--standby-node*        | Number of nodes in the standalone standby group                    |
+| *--cascade-parent*      | Node ID of the parent standby database to which the cascade standby database needs to be bound                  |
+| *--group*             | Used only in Dual Rep-Group Primary-Standby Deployment, specifies the number of replication groups, defaults to 1 |
+| *--standby-node*        | Used only in Dual Rep-Group Primary-Standby Deployment, specifies the number of standby nodes in the replication group |
 | **Database Performance Parameters** | If these parameters are not specified during installation, after the installation is completed, they can be adjusted as needed by calling [DBMS_PARAM](../../../Development Guide/PL Reference Manual/Built-in Advanced PL Packages/DBMS_PARAM).OPTIMIZE |
 | *--recommend-param*     | Whether to enable recommended parameter functionality                        |
 | *--memory-limit*        | The upper limit of the percentage of server memory available for the database to use, defaults to 80. The upper limit of available capacity is calculated as `total server memory * memory-limit`<br />Must be used with --recommend-param |
@@ -73,7 +73,7 @@ The command is used to generate a configuration file for YAC Deployment or Distr
 | *--cn-ip*                  | Distributed Cluster Deployment CN IP address, separate multiple IPs with a comma `,`            |
 | *--dn-ip*                  | Distributed Cluster Deployment DN IP address, separate multiple IPs with a comma `,`            |
 | **Database Basic Configuration Parameters** |  |
-| -c,--cluster       | Name of the generated cluster (required parameter)           |
+| -c,--cluster       | The planned cluster name  (required parameter), must start with a letter, 4-64 characters long, can only contain numbers, letters and underscores|
 | *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)         |
 | *--data-path*           | Data path of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)     |
 | *--log-path*            | Run log path, storing database run.log and slow.log, as well as logs for yasom and yasagent                  |
@@ -131,7 +131,7 @@ The command is used to generate a configuration file for ISC Distributed Cluster
 | *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`        |
 | *--port*                | SSH connection port of the server  |
 | **Database Basic Configuration Parameters** |  |
-| -c,--cluster       | Name of the generated cluster (required parameter)           |
+| -c,--cluster       | The planned cluster name  (required parameter), must start with a letter, 2-63 characters long, can contain numbers and most visible ASCII characters (excluding `,`, `'`, `"`, `+`, `-`, `*`, `/`, `|`, `(`, `)`, `@`, `[`, `]`, `{`, `}`, `~`, `` ` ``, `%`, `:`, `?`, `.`, spaces and control characters `=`, `!`, `<`, `>`, `;`, `&`, `^`) |
 | *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)         |
 | *--data-path*           | Data path of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)     |
 | *--log-path*            | Run log path, storing database run.log and slow.log, as well as logs for yasom and yasagent                  |
@@ -336,45 +336,45 @@ This command will no longer be maintained in the next major version, please use 
 
 |Option |Meaning |
 | --------------------- | ------------------------------------------- |
-| *\-c,--cluster*         | Name of the generated cluster (required parameter)            |
+| *\-c,--cluster*         | The planned cluster name  (required parameter)    |
 | *-u,--username*         | SSH username for the server|
 | *--groupname*           | User group name, defaults to `username`      |
 | *-p,--password*         | SSH login password  |
 | *-N,--no-password*      | SSH passwordless login  |
-| *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`                      |
-| *--port*                | SSH connection port of the server                       |
-| *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)                       |
-| *-su,--sudo-username*   | SSH user with sudo privileges, defaults to the same value as --username (used to execute commands that require sudo privileges, such as creating cgroup directories)                   |
-| *-sp,--sudo-password*   | Password for the SSH user with sudo privileges, defaults to the same value as --password             |
-| *--no-add-yasdba*       | Do not add the installer user to the YASDBA user group          |
-| *--boot-start-monit*    | Enable self-starting monit daemon (add startup command to /etc/rc.local)         |
-| *--host*                | Server connection information expression                    |
+| *--ip*                  | IP address of the server's SSH, separate multiple IPs with a comma `,`                |
+| *--port*                | SSH connection port of the server                      |
+| *-i, --install-path*    | Database installation path, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)                 |
+| *-su,--sudo-username*   | SSH user with sudo privileges, defaults to the same value as --username (used to execute commands that require sudo privileges, such as creating cgroup directories)            |
+| *-sp,--sudo-password*   | Password for the SSH user with sudo privileges, defaults to the same value as --password       |
+| *--no-add-yasdba*       | Do not add the installer user to the YASDBA user group    |
+| *--boot-start-monit*    | Enable self-starting monit daemon (add startup command to /etc/rc.local)   |
+| *--host*                | Server connection information expression               |
 | *-t, --yas-type*        | Deployment shape of the database:<br>\* SE: Standalone Deployment <br>\* CE: YAC/Distributed Cluster Deployment <br>\* DE: ISC Distributed Cluster Deployment, default value |
 | *-d, --deploy-mode*     | Deployment scale of ISC Distributed Cluster Deployment:<br>\* MINI: Minimum scale deployment, deployed 1MN 1CN 3DN on the same server<br>\* NORMAL: Regular deployment, based on the following node scale |
-| *-L,--local*            | Whether it is a local deployment (no installation package needed), defaults to false, IP defaults to 127.0.0.1                     |
-| *--ipv6*                | Whether to use IPv6 for local deployment, defaults to IPv4    |
-| *--mn*                  | Scale of MN nodes within ISC Distributed Cluster Deployment, defaults to 1   |
-| *--cn*                  | Scale of CN nodes within ISC Distributed Cluster Deployment, defaults to 1   |
+| *-L,--local*            | Whether it is a local deployment (no installation package needed), defaults to false, IP defaults to 127.0.0.1               |
+| *--ipv6*                | Whether to use IPv6 for local deployment, defaults to IPv4 |
+| *--mn*                  | Scale of MN nodes within ISC Distributed Cluster Deployment, defaults to 1 |
+| *--cn*                  | Scale of CN nodes within ISC Distributed Cluster Deployment, defaults to 1 |
 | *--dn*                  | Scale of DN group and nodes within ISC Distributed Cluster Deployment, for example, 1-3 means a group with 3 nodes (1 master and 2 standby within the group)|
 | *--db*                  | Scale of nodes in standalone DB group, defaults to 1 |
-| *--listen-cidr*         | Listen address of the database (defaults to the same IP segment)  |
-| *--din-cidr*            | Distributed network communication link address (defaults to the same IP segment)                     |
-| *--replica-cidr*        | Primary-standby replication link address (defaults to the same IP segment)  |
+| *--listen-cidr*         | Listen address of the database (defaults to the same IP segment) |
+| *--din-cidr*            | Distributed network communication link address (defaults to the same IP segment)               |
+| *--replica-cidr*        | Primary-standby replication link address (defaults to the same IP segment) |
 | *--begin-port*          | Starting port 1688 |
-| *--data-path*           | DATA directory of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)                 |
-| *-f, --force*           | Whether to force deploy the database, forcing means it will not check whether the current server's running state can deploy               |
+| *--data-path*           | DATA directory of the database instance, supports numbers, letters (case-sensitive) and some symbols (`/`, `-`, `_`, `.`)          |
+| *-f, --force*           | Whether to force deploy the database, forcing means it will not check whether the current server's running state can deploy        |
 | *-o, --output*          | File output path               |
-| *--ce*                  | Scale of nodes in YAC type, defaults to 2, maximum 8         |
-| *--inter-cidr*          | Internal communication link address of YAC/Distributed Cluster (defaults to the same IP segment)               |
-| *--ce-data*             | Data disk in YAC/Distributed Cluster, separate multiple data disk information with a comma `,`                       |
-| *--create-cgroup*       | Whether to create the resource management cgroup directory. By default, it is not created. To create it, sudo privileges are required, and you need to specify at least one of the parameter pairs, either -u, -p or -su, -sp     |
+| *--ce*                  | Scale of nodes in YAC type, defaults to 2, maximum 8   |
+| *--inter-cidr*          | Internal communication link address of YAC/Distributed Cluster (defaults to the same IP segment)         |
+| *--ce-data*             | Data disk in YAC/Distributed Cluster, separate multiple data disk information with a comma `,`                 |
+| *--create-cgroup*       | Whether to create the resource management cgroup directory. By default, it is not created. To create it, sudo privileges are required, and you need to specify at least one of the parameter pairs, either -u, -p or -su, -sp |
 | *--cgroup-path*         | Customize the resource management cgroup directory. When not specified, it defaults to `/sys/fs/cgroup` |
-| *--recommend-param*     | Whether to enable recommended parameter functionality                   |
-| *--memory-limit*        | Maximum percentage limit of memory usable by the server, defaults to 80            |
-| *--table-type*          | Make database configuration parameters more suitable for the main business table type, optional [HEAP,TAC,LSC], defaults to HEAP in Standalone Deployment and LSC in ISC Distributed Cluster Deployment          |
-| *-fg, --failgroup*      | Number of failure groups in YAC/Distributed Cluster disk group (defaults to 1)          |
-| *--ce-group*            | Number of YAC/Distributed Cluster groups, unique parameter in YAC Deployment, default quantity is 1          |
-| *--disk-found-path*     | YAC/Distributed Cluster disk discovery path (defaults to /dev/yfs)                      |
+| *--recommend-param*     | Whether to enable recommended parameter functionality             |
+| *--memory-limit*        | Maximum percentage limit of memory usable by the server, defaults to 80      |
+| *--table-type*          | Make database configuration parameters more suitable for the main business table type, optional [HEAP,TAC,LSC], defaults to HEAP in Standalone Deployment and LSC in ISC Distributed Cluster Deployment   |
+| *-fg, --failgroup*      | Number of failure groups in YAC/Distributed Cluster disk group (defaults to 1)    |
+| *--ce-group*            | Number of YAC/Distributed Cluster groups, unique parameter in YAC Deployment, default quantity is 1    |
+| *--disk-found-path*     | YAC/Distributed Cluster disk discovery path (defaults to /dev/yfs)                |
 
 Parameter explanations:
 

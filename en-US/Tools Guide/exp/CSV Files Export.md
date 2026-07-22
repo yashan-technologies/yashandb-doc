@@ -28,6 +28,7 @@ The specific options are shown in the table below, where [] indicates optional o
 | *[-qf, --query-file]*       | Specify SQL file to export the corresponding result set from the queries in the file                                                                                       |
 | *[-qo, --query-out-file]*   | Set the file name for the exported result set from the query statement; used in conjunction with the -F parameter to specify the path; if not configured, the exported file name will be outfile         |
 | *[--bit-format]*            | Set the export method for BIT data; selectable values are binary/decimal; default value is binary:<br/>binary indicates that BIT column data is exported in binary string format<br/>decimal indicates that BIT column data is exported in decimal string format                                                                                      |
+| *[--hidden-column]*         | Set whether to export hidden column data; selectable values are true/false; default value is true                                              |
 | *[-ch, --character-set]*    | Set the character set of the exported file; valid values are [ASCII,GBK,UTF8,ISO88591,GB18030]; default value is the same as the client character set                               |
 
 > **Note**: 

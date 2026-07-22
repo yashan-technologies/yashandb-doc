@@ -1,4 +1,4 @@
-This view displays detailed execution plan information for child cursors. The parameter `statistics_level=all` must be configured to use it. The view is retained only for compatibility and contains no actual data.
+This view displays detailed execution plan information for child cursors. The parameter `statistics_level=all` must be configured to use it.
 
 |Field |Type |Description |
 | --- | --- | --- |
@@ -20,8 +20,8 @@ This view displays detailed execution plan information for child cursors. The pa
 | CU_BUFFER_GETS      | BIGINT    | The cumulative number of current mode blocks read from cache in past executions. In current mode for statements like INSERT, UPDATE, and DELETE, retrieve from cache |
 | LAST_DISK_READS    | BIGINT    | The physical disk read count for operation execution during the last execution |
 | DISK_READS          | BIGINT    | The cumulative physical disk read count for operation execution in past executions |
-| LAST_DISK_WRITES    | BIGINT    | The physical disk write count for operation execution during the last execution |
-| DISK_WRITES         | BIGINT    | The cumulative physical disk write count for operation execution in past executions |
+| LAST_DISK_WRITES    | BIGINT    | The physical disk write count for operation execution during the last execution (SQL execution does not write to disk immediately; the dbwr thread performs the write, so value changes for this statistic cannot be observed at the SQL level. It is recommended to observe from v$sysstat/v$sesstat/v$mystat views) |
+| DISK_WRITES         | BIGINT    | The cumulative physical disk write count for operation execution in past executions (SQL execution does not write to disk immediately; the dbwr thread performs the write, so value changes for this statistic cannot be observed at the SQL level. It is recommended to observe from v$sysstat/v$sesstat/v$mystat views) |
 | LAST_ELAPSED_TIME   | BIGINT    | The elapsed time (in microseconds) corresponding to this operation during the last execution |
 | ELAPSED_TIME        | BIGINT    | The cumulative elapsed time (in microseconds) corresponding to this operation in past executions |
 | BLOCK_RECEIVED      | BIGINT    | The number of latest pages retrieved from other nodes in the cluster |

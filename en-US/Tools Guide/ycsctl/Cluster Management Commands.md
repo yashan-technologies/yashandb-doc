@@ -43,7 +43,7 @@ An integer value within the range of the corresponding parameter:
 This command is used to add a database instance to the cluster during the deployment phase. Append the offline parameter to the command if executing it during the installation and deployment. Do not append this parameter if executing it during the scale-out phase. This command cannot be used after the cluster deployment is complete. The command format is as follows:
 
 ```shell
-ycsctl add node -node nodename -url inter_addr [--vip ip/netmask/interface] [-p port] [-offline]
+ycsctl add node -node nodename -url inter_addr [--vip ip/netmask/interface] [-p port] [-alias alias_name] [-offline]
 ```
 
 **nodename**
@@ -65,6 +65,10 @@ The VIP resource configuration information for the server corresponding to the n
 **-p**
 
 The service port number for the server corresponding to the node, which will be listened to by both the database instance and the VIP resource. It must be consistent with the port number of the configuration parameter [LISTEN_ADDR](../../Reference Manual/Configuration Parameters.md#LISTEN_ADDR) on this server.
+
+**-alias**
+
+Node alias.
 
 **-offline**
 

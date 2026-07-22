@@ -2,27 +2,78 @@
 cos = COS "(" expr ")".
 ```
 
-The COS function returns the cosine value of the given parameter, which is an angle expressed in radians. The value itself is unrestricted (limited only by the defined range of its data type), and the function will return a DOUBLE type value within the range of [-1, 1].
+The COS function returns the cosine value of the given parameter, which is an angle expressed in radians. The value itself is unrestricted (limited only by the defined range of its data type).
 
-The value of [expr](../General SQL Syntax/expr) can be a numeric type or a character type that can be converted to NUMBER (a conversion failure results in an Invalid number error). For other types, the function returns a type not supported message.
+The rules of this function are as follows:
 
-When the value of expr is NULL, the function returns NULL.
+- The value of [expr](../General SQL Syntax/expr) can be a numeric type or a character type that can be converted to NUMBER (a conversion failure results in an Invalid number error). For other types, the function returns type not supported.
 
-***Example***
+- When expr is NULL, the function returns NULL.
+
+- When expr is Nan, Inf, or -Inf, the function handling rules are affected by the configuration parameter [MATH_FUNC_RETURN_DECIMAL](../../../Reference Manual/Configuration Parameters.md#MFRD):
+
+  - If MATH_FUNC_RETURN_DECIMAL = FALSE (default value), the handling rules are as follows:
+
+    | expr | COS(expr) |
+    | ---- | -------- |
+    | Nan, Inf, -Inf  | Nan       |
+
+  - If MATH_FUNC_RETURN_DECIMAL = TRUE, the handling rules are as follows:
+
+    | expr | COS(expr) |
+    | ---- | -------- |
+    | Nan, Inf, -Inf | function returns error |
+
+- When expr is other valid values, the return type of the function is also affected by the configuration parameter MATH_FUNC_RETURN_DECIMAL:
+
+  - If MATH_FUNC_RETURN_DECIMAL = TRUE and expr does not contain FLOAT or DOUBLE type, the function returns NUMBER type.
+
+  - Otherwise, the function returns DOUBLE type.
+
+***Example*** 1
 
 ```sql
+SHOW PARAMETER MATH_FUNC_RETURN_DECIMAL
+
+NAME                                           VALUE
+---------------------------------------------- --------------------------------
+MATH_FUNC_RETURN_DECIMAL                    FALSE
+
 SELECT COS(30*3.1415926/180) res FROM DUAL;
-        RES 
------------ 
+        RES
+-----------
   8.66E-001
-    
+
 SELECT COS(45*3.1415926/180) res FROM DUAL;
-        RES 
------------ 
+        RES
+-----------
  7.071E-001
-    
+
 SELECT COS(60*3.1415926/180) res FROM DUAL;
-        RES 
------------ 
+        RES
+-----------
    5.0E-001
+
+SELECT COS('nan') res FROM DUAL;
+        RES
+-----------
+       Nan
+```
+
+***Example*** 2
+
+```sql
+SHOW PARAMETER MATH_FUNC_RETURN_DECIMAL
+
+NAME                                           VALUE
+---------------------------------------------- --------------------------------
+MATH_FUNC_RETURN_DECIMAL                    TRUE
+
+SELECT COS(0) res FROM DUAL;
+        RES
+-----------
+          1
+
+SELECT COS('nan') res FROM DUAL;
+YAS-04426 the argument value is out of range
 ```

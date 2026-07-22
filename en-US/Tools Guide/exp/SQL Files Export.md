@@ -22,6 +22,7 @@ Command options:
 - ROWS: Only supports exporting metadata SQL, meaning Value can only be a single value of N. It can be omitted, having the same effect as ROWS=N.
 - LOG_PATH: Used to specify the path for the export log. Value is the path name. It can be omitted; if omitted, no log file is generated.
 - LOG_LEVEL: Used to specify the log level for the export log. Value can be [ERROR, WARN, INFO, DEBUG, TRACE]. It can be omitted; if omitted, it defaults to INFO.
+- HIDDEN_COLUMN: Specifies whether to export hidden columns. Value can be a single Y or N, optional; default is Y if omitted.
 
 ***Example***
 

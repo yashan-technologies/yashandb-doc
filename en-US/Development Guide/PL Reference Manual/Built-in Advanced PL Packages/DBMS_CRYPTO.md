@@ -11,8 +11,11 @@ DBMS_CRYPTO defines the following encryption algorithms, block cipher chaining m
 |                | DBMS_CRYPTO.ENCRYPT_3DES          | Encrypts three times on the same block      |
 |                | DBMS_CRYPTO.ENCRYPT_3DES_2KEY     | Encrypts three times with two keys on the same block, using a 112-bit key  |
 | Block Cipher Chaining Mode | DBMS_CRYPTO.CHAIN_CBC       | Execution flow:<br/>1. Split plaintext into several segments<br/>2. XOR each segment with the initial block or the previous ciphertext<br/>3. Encrypt with the key |
+|                | DBMS_CRYPTO.CHAIN_ECB       | Execution flow:<br/>1. Split plaintext into several segments<br/>2. Each segment is independently encrypted directly using a key<br/>3. Concatenate the generated ciphertext blocks and output them |
 | Padding Mode   | DBMS_CRYPTO.PAD_NONE              | No padding, src must be a multiple of the block size for the encryption, and key must match the block size, otherwise an error is returned |
 |                | DBMS_CRYPTO.PAD_PKCS7             | Public Key Cryptography Standards #7 (PKCS#7) padding |
+|                | DBMS_CRYPTO.PAD_PKCS5             | Public Key Cryptography Standards #5 (PKCS#5) padding |
+|                | DBMS_CRYPTO.PAD_ZERO              | Zero padding, padded with 0x00 bytes to a multiple of the block size |
 | Hashing Algorithm | DBMS_CRYPTO.HASH_SH256         | SHA-2 series, generates a 256-bit hash value |
 |                | DBMS_CRYPTO.HASH_MD5              | Generates a 128-bit hash value              |
 
@@ -33,7 +36,7 @@ The DECRYPT function is used to decrypt data.
 | -------- | ------------------------------------------------------------ |
 | src         | The ciphertext data to be decrypted, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
 | typ         | The algorithm and its configuration for encryption and decryption, must be INTEGER type. |
-| key         | The key used for decryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
+| key         | The key used for decryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. The key lengths for the DES, 3DES, and 3DES_2KEY algorithms must be valid. |
 | iv          | Optional parameter, the initialization vector for block ciphers, must be RAW type or another type that can be implicitly converted to RAW, default is NULL. |
 
 This function follows these rules:
@@ -103,7 +106,7 @@ The ENCRYPT function is used to encrypt data.
 | -------- | ------------------------------------------------------------ |
 | src         | The source data to be encrypted, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
 | typ         | The encryption algorithm and its configuration, must be INTEGER type. |
-| key         | The key used for encryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. |
+| key         | The key used for encryption, must be RAW type or another type that can be implicitly converted to RAW, and cannot be NULL. The key lengths for the DES, 3DES, and 3DES_2KEY algorithms must be valid.|
 | iv          | Optional parameter, the initialization vector for block ciphers, must be RAW type or another type that can be implicitly converted to RAW, default is NULL. |
 
 This function follows these rules:

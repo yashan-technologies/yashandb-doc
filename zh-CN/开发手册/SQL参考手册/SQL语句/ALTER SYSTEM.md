@@ -23,7 +23,8 @@ ALTER SYSTEM用于动态地改变所在数据库实例（Instance）的属性，
 |FLUSH GTS
 |CLEAN RESIDUAL TABLESPACE
 |CLEAN MESSAGE POOL
-|LISTENER (START|STOP)).
+|LISTENER (START|STOP)
+|FLUSH TEMP_BUFFER).
 ```
 
 **[set\_parameter\_clause](#setparameterclause)::=**
@@ -37,7 +38,8 @@ ALTER SYSTEM用于动态地改变所在数据库实例（Instance）的属性，
 **[kill\_session\_clause](#killsessionclause)::=**
 
 ```ebnf
-= KILL SESSION "'" session_id "," session_serial "'".
+= KILL SESSION "'" session_id "," session_serial "'"
+| KILL SESSION (WITH|WITHOUT) TRANSACTION [count].
 ```
 
 **[cancel\_sql\_clause](#cancelsqlclause)::=**
@@ -253,29 +255,32 @@ ALTER SYSTEM ARCHIVE LOG CURRENT;
 
 ### kill\_session\_clause
 
-该语句用于终止一个指定的会话，并回滚（Rollback）此会话中未提交事务，释放此会话产生的锁（Lock），之后在此会话中运行SQL语句将提示连接错误信息。
+该语句用于终止会话，并回滚（Rollback）此会话中未提交事务，释放此会话产生的锁（Lock），之后在此会话中运行SQL语句将提示连接错误信息。
 
-执行此命令需提供会话的SID和SERIAL#。
+KILL SESSION支持以下三种语法形式。
+
+#### 终止单个会话
+
+通过SID和SERIAL#参数终止指定会话。执行此命令需提供会话的SID和SERIAL#。
 
 示例（单机/共享集群/分布式集群部署）
 
 ```sql
 -- 在sales用户下执行如下语句
 SELECT area_no,area_name,DHQ FROM area WHERE area_no='01' FOR UPDATE;
-  
+
 -- 查看锁及会话信息
 SELECT SID,ID1,ID2,LMODE,REQUEST FROM v$lock;
-    SID             ID1        ID2 LMODE     REQUEST   
+    SID             ID1        ID2 LMODE     REQUEST
 -------- --------------- ---------- --------- ---------
-      21            1328            TS                 
-      21     21474844928          0 ROW                
-  
+      21            1328            TS
+      21     21474844928          0 ROW
+
 SELECT sid,serial# FROM v$session WHERE sid=21;
      SID      SERIAL#
 -------- ------------
       21            2
-          
-  
+
 -- 以下操作需要拥有管理员权限
 -- 通过SID和SERIAL#参数终止指定会话
 ALTER SYSTEM KILL SESSION '21,2';
@@ -293,19 +298,63 @@ GLOBAL_SESSION_ID（即存算一体分布式集群部署中的全局会话ID）�
 --连接2-1，建立一个会话，查看此会话的全局会话ID
 --使用USERENV函数查询时使用GSID参数
 SELECT USERENV('GSID') FROM dual;
-USERENV('GSID') 
--------------- 
+USERENV('GSID')
+--------------
         131091
 
 --获取连接到指定CN节点的会话标识，CN节点以group_id和group_node_id为唯一标识
-SELECT global_session_id, serial# 
+SELECT global_session_id, serial#
 FROM gv$session WHERE global_session_id IN (131091) and group_id=2 and group_node_id=1;
-GLOBAL_SESSION_ID      SERIAL# 
------------------ ------------ 
+GLOBAL_SESSION_ID      SERIAL#
+----------------- ------------
            131091            5
-           
+
 --连接2-2，不要关闭2-1的会话，在2-2上终止2-1的会话
 ALTER SYSTEM KILL SESSION '131091,5';
+```
+
+#### 批量终止会话（WITH TRANSACTION）
+
+终止所有会话，包括正在执行事务的会话但不包括内部连接（例如YStream客户端建立的会话）。本语句会等待所有存在活跃事务的会话结束后，再返回执行结果。
+
+> **Note**:
+>
+> 执行本语句需拥有管理员权限。
+
+**count**
+
+可按需指定终止的会话数量上限。省略时默认终止所有符合条件的会话。
+
+示例（单机/共享集群/分布式集群部署）
+
+```sql
+-- 终止所有符合条件的会话
+ALTER SYSTEM KILL SESSION WITH TRANSACTION;
+
+-- 最多终止10个会话
+ALTER SYSTEM KILL SESSION WITH TRANSACTION 10;
+```
+
+#### 批量终止会话（WITHOUT TRANSACTION）
+
+终止当前无活跃事务的会话，有活跃事务的会话和内部连接（例如YStream客户端建立的会话）将会直接跳过。
+
+> **Note**:
+>
+> 执行本语句需拥有管理员权限。
+
+**count**
+
+可按需指定终止的会话数量上限。省略时默认终止所有符合条件的会话。
+
+示例（单机/共享集群/分布式集群部署）
+
+```sql
+-- 终止所有符合条件的会话
+ALTER SYSTEM KILL SESSION WITHOUT TRANSACTION;
+
+-- 最多终止5个无活跃事务的会话
+ALTER SYSTEM KILL SESSION WITHOUT TRANSACTION 5;
 ```
 
 <span id="cancelsqlclause" name="cancelsqlclause"></span>
@@ -502,4 +551,14 @@ ALTER SYSTEM LISTENER STOP;
 
 
 ALTER SYSTEM LISTENER START;
+```
+
+### FLUSH TEMP\_BUFFER
+
+该语句用于对数据库触发一次数据缓存中所有临时表所占页面的换出，加速相应页面的淘汰。
+
+示例
+
+```sql
+ALTER SYSTEM FLUSH TEMP_BUFFER;
 ```

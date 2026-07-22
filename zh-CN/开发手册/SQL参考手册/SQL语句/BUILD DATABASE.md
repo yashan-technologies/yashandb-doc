@@ -2,7 +2,7 @@
 
 BUILD DATABASE用于在主备高可用部署环境中，在备库上创建standby数据库，有关主备高可用架构的详细操作描述请参考[高可用](../../../高可用/YashanDB高可用概述)。
 
-在存在级联备的环境中，级联备库的上级备库对应为下文中的主库，级联备库对应为下文中的备库，具有与主备库相同的语法、功能及约束。
+在存在级联备的环境中，级联备库的父级备库对应为下文中的主库，级联备库对应为下文中的备库，具有与主备库相同的语法、功能及约束。
 
 主库端BUILD命令仅SYS超级用户或拥有SYSDBA、SYSBACKUP权限的用户才可执行。执行该语句前，需先查询V$DATABASE视图获取当前节点的保护模式，若PROTECTION_MODE字段为MAXIMIZE PROTECTION最大保护模式，则需先[切换](./ALTER DATABASE.md#set_standby_clause)为其他模式再发起BUILD，BUILD完成后可按需切换回最大保护模式。
 

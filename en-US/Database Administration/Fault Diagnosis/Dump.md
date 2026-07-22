@@ -81,7 +81,7 @@ YashanDB provides an automatic capture mechanism for diagnostic data, which coll
 
 YashanDB provides an automatic deadlock detection mechanism, where the background thread SMON regularly checks for deadlocks. If a deadlock is detected, it will automatically dump the deadlock cycle information into the corresponding trace file.
 
-The deadlock cycle information includes resource identifiers, resource owners, resource requesters, deadlock session IDs, session users, and the SQL statements executed by the sessions.
+The deadlock cycle information includes resource identifiers, resource owners, resource requesters, deadlock session IDs, session users, the SQL statements executed by the sessions, and the specific values of SQL binding parameters.
 
 Resource identifiers are categorized as:
 
@@ -105,10 +105,14 @@ Deadlock graph:
  instId 0 Session 22:
    sid: 22 serial: 4 user: SYS
    current SQL:
-   update t1 set a = 3 where b = 4
+   update t1 set a = 3 where b = :B0
+   bind params:
+   4
  instId 0 Session 25:
    sid: 25 serial: 3 user: SYS
    current SQL:
-   update t1 set a = 1 where b = 2
+   update t1 set a = 1 where b = :B0
+   bind params:
+   2
  ----- End of information for waiting sessions -----
 ```

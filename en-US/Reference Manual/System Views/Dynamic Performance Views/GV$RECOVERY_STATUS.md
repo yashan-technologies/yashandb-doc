@@ -6,7 +6,7 @@ This view displays information about the log apply status.
 | GROUP_NODE_ID  | NUMBER      | Node ID within the group                   |
 | INST_ID        | NUMBER      | Instance ID                                |
 | THREAD#        | TINYINT     | Instance number of the database            |
-| STATUS         | VARCHAR(16) | Database's apply status<br>\* NONE: No log apply required currently<br>\* RUNNING: Currently applying logs<br>\* PAUSED: Log apply has been paused<br>\* ERROR: A fault occurred during the log apply in the current database|
+| STATUS         | VARCHAR(16) | Database's apply status<br>\* NONE: No log apply required currently<br>\* RUNNING: Currently applying logs<br>\* PAUSED: Log apply has been paused<br>\* IDLE: The current database replay thread is idle|
 | PARALLELISM    | SMALLINT    | Number of parallel apply threads; value is 0 when parallel apply is not enabled, or a power of 2 when enabled |
 | START_RECOVERY_TIME  | DATE  | SCN to start applying                     |
 | STOP_RECOVERY_TIME   | DATE  | SCN to stop applying                      |

@@ -8,11 +8,11 @@ This view displays the statistics of each SQL in the shared SQL area, including 
 | SHARABLE_MEM             | INTEGER    | Total shared memory used by this SQL and all versions of the execution plans |
 | PERSISTENT_MEM           | INTEGER    | Total memory actually used by this SQL and all versions of the execution plans |
 | RUNTIME_MEM              | INTEGER    |   The memory allocated for this SQL during execution (reserved field) |
-| VERSION_COUNT            | INTEGER    | Number of execution plan versions                           |
-| LOADED_VERSIONS          | INTEGER    | Number of loaded execution plan versions                    |
-| OPEN_VERSIONS            | INTEGER    | Number of execution plan versions currently in use          |
-| USERS_OPENING            | INTEGER    | Number of users utilizing all execution plans               |
-| USERS_EXECUTING          | INTEGER    | Number of users currently executing all plans               |
+| VERSION_COUNT            | INTEGER    | Number of execution plan versions (reserved field) |
+| LOADED_VERSIONS          | INTEGER    | Number of loaded execution plan versions (reserved field) |
+| OPEN_VERSIONS            | INTEGER    | Number of execution plan versions currently in use (reserved field) |
+| USERS_OPENING            | INTEGER    | The reference count of any child cursor being opened |
+| USERS_EXECUTING          | INTEGER    | The reference count of any child cursor being executed |
 | SORTS                    | BIGINT     | Number of sorts                                            |
 | FETCHES                  | BIGINT     | Number of fetches                                         |
 | EXECUTIONS               | BIGINT     | Number of executions                                       |
@@ -30,13 +30,13 @@ This view displays the statistics of each SQL in the shared SQL area, including 
 | IO_INTERCONNECT_BYTES     | BIGINT     | Number of I/O interactions between the database and storage system |
 | PHYSICAL_READ_REQUESTS   | BIGINT     | Number of physical read requests                           |
 | PHYSICAL_READ_BYTES      | BIGINT     | Number of bytes read physically                            |
-| PHYSICAL_WRITE_REQUESTS   | BIGINT     | Number of physical write requests                          |
-| PHYSICAL_WRITE_BYTES     | BIGINT     | Number of bytes written physically                         |
+| PHYSICAL_WRITE_REQUESTS   | BIGINT     | Number of physical write requests (SQL execution does not write to disk immediately; the dbwr thread performs the write, so value changes for this statistic cannot be observed at the SQL level. It is recommended to observe from V$SYSSTAT/V$SESSTAT/V$MYSTAT views) |
+| PHYSICAL_WRITE_BYTES     | BIGINT     | Number of bytes written physically (SQL execution does not write to disk immediately; the dbwr thread performs the write, so value changes for this statistic cannot be observed at the SQL level. It is recommended to observe from V$SYSSTAT/V$SESSTAT/V$MYSTAT views) |
 | APPLICATION_WAIT_TIME    | BIGINT     | Application wait time (unit: microseconds)                |
 | CONCURRENCY_WAIT_TIME    | BIGINT     | Concurrency wait time (unit: microseconds)                |
-| CLUSTER_WAIT_TIME        | BIGINT     | Wait time between clusters (reserved field) (unit: microseconds) |
+| CLUSTER_WAIT_TIME        | BIGINT     | Wait time between clusters (unit: microseconds) (reserved field)  |
 | USER_IO_WAIT_TIME        | BIGINT     | User I/O wait time (unit: microseconds)                  |
-| PLSQL_EXEC_TIME          | BIGINT     | PL execution time (unit: microseconds), reserved field   |
+| PLSQL_EXEC_TIME          | BIGINT     | PL execution time (unit: microseconds) (reserved field)    |
 | CPU_TIME                 | BIGINT     | CPU time for parsing, execution, and fetching data (unit: microseconds) |
 | ELAPSED_TIME             | BIGINT     | Time taken for parsing, execution, and fetching data. If in a distributed cluster, includes the execution time on the DN side (unit: microseconds) |
 | COMMAND_TYPE             | INTEGER    | Command type of SQL                                       <br/>* 1: SQL_QUERY  <br/>* 2: SQL_INSERT  <br/>* 3: SQL_UPDATE  <br/>* 4: SQL_DELETE  <br/>* 5: SQL_MERGE  <br/>* 6: SQL_WITH  <br/>* 7: SQL_ANONYMOUS_BLOCK |
@@ -75,3 +75,5 @@ This view displays the statistics of each SQL in the shared SQL area, including 
 | REMOTE_GRANTS            | BIGINT     | Number of times other nodes authorized page loads in the cluster |
 | LOCAL_UPGRADES           | BIGINT     | Number of times local node authorized page lock upgrades in the cluster |
 | REMOTE_UPGRADES          | BIGINT     | Number of times other nodes authorized page lock upgrades in the cluster |
+| PROGRAM_ID               | BIGINT     | Object ID of the program that first parsed this SQL |
+| PROGRAM_LINE#            | INTEGER    | Line number in the program where this SQL was first parsed |

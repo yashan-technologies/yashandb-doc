@@ -21,6 +21,7 @@ When using aggregate functions, the following points should be noted:
 * Except for `COUNT(*)` and `COUNT(constant)`, other aggregate functions ignore NULL values; when all rows are NULL, these functions return NULL.
 * Aggregate functions are not allowed to be combined with FOR UPDATE statements.
 * Some aggregate functions can be used as window functions by using the OVER keyword; details can be found in the respective function sections.
+* When using aggregate functions together with column fields in the select_list, if a column is equivalent to a scalar value, the statement can still be executed normally even if that column is not declared after GROUP BY.
 
 YashanDB provides the following aggregate functions:
 
@@ -366,6 +367,8 @@ YashanDB provides the following conversion functions:
 
 [TO\_DSINTERVAL](TO_DSINTERVAL)
 
+[TO_NCHAR](TO_NCHAR)
+
 [TO\_NUMBER](TO_NUMBER)
 
 [TO\_TIMESTAMP](TO_TIMESTAMP)
@@ -517,7 +520,7 @@ Table functions support a maximum expanded row of 65535 bytes.
 Geographic Information Processing Functions (GIS Function)
 -------------------------
 
-Geographic information processing functions refer to a series of functions used to process spatial geographic information. For more details, please refer to [GIS Function](GIS Function/00GIS Function).
+Geographic information processing functions refer to a series of functions used to process spatial geographic information.For more details, please refer to [GIS Function](GIS Function/00GIS Function).
 
 XML Data Processing Functions (XML Function)
 -------------------------

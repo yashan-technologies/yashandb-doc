@@ -5,15 +5,16 @@ YashanDB JDBC驱动对ParameterMetaData接口已支持功能：
 |  返回类型| 方法|
 |--------|---------------------------------|
 | int    | getParameterCount()             |
-| int    | getPrecision(int param)         |
-| int    | getScale(int param)             |
-| int    | getParameterType(int param)     |
-| String | getParameterTypeName(int param) |
+
 
 未支持功能：
 
 |  返回类型| 方法|
 |---------|----------------------------------|
+| int    | getPrecision(int param)         |
+| int    | getScale(int param)             |
+| int    | getParameterType(int param)     |
+| String | getParameterTypeName(int param) |
 | boolean | isSigned(int param)              |
 | int     | isNullable(int param)            |
 | String  | getParameterClassName(int param) |

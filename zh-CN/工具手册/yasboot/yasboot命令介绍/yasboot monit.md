@@ -124,6 +124,10 @@ $ yasboot monit watch -c yashandb -n 1-1 -d
 $ yasboot monit unwatch -c yashandb -n 1-1 -d
 ```
 
+>**Note**:
+>
+> 使用yasboot命令启动或重启数据库时会自动开启每个节点的监控进程，如需关闭某个节点的监控进程，请手动执行`yasboot monit unwatch`命令。
+
 ## monit reload
 
 本命令用于重新加载所有服务器上的monit的配置。

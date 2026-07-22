@@ -4,17 +4,17 @@ The YashanDB JDBC driver supports the following functionality for the ParameterM
 
 |Return Type |Method |
 |--------|---------------------------------|
-| int    | getParameterCount()             |
-| int    | getPrecision(int param)         |
-| int    | getScale(int param)             |
-| int    | getParameterType(int param)     |
-| String | getParameterTypeName(int param) |
+| int         | getParameterCount()             |
 
 The following functionality is not supported:
 
-|Return Type |Method |
-|---------|----------------------------------|
-| boolean | isSigned(int param)              |
-| int     | isNullable(int param)            |
-| String  | getParameterClassName(int param) |
-| int     | getParameterMode(int param)      |
+| Return Type |Method |
+|-------------|----------------------------------|
+| boolean     | isSigned(int param)              |
+| int         | isNullable(int param)            |
+| String      | getParameterClassName(int param) |
+| int         | getParameterMode(int param)      |
+| int         | getPrecision(int param)         |
+| int         | getScale(int param)             |
+| int         | getParameterType(int param)     |
+| String      | getParameterTypeName(int param) |

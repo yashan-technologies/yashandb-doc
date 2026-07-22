@@ -48,14 +48,9 @@ YashanDB JDBC驱动对Statement接口已支持功能：
 | void        | cancel()                                               |
 | boolean     | getMoreResults()                                       |
 | boolean     | getMoreResults(int current)                            |
-
-未支持功能：
-
-|  返回类型| 方法|
-|------------|----------------------------------------|
-| void       | setFetchDirection(int direction)       |
-| int        | getFetchDirection()                    |
-| void       | setCursorName(String name)             |
-| void       | setEscapeProcessing(boolean enable)    |
-| SQLWarning | getWarnings()                          |
-| void       | clearWarnings()                        |
+| void        | setFetchDirection(int direction)                       |
+| int         | getFetchDirection()                                    |
+| void        | setCursorName(String name)                             |
+| void        | setEscapeProcessing(boolean enable)                    |
+| SQLWarning  | getWarnings()                                          |
+| void        | clearWarnings()                                        |

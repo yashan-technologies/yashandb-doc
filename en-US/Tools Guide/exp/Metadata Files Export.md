@@ -20,6 +20,7 @@ Command options:
 - ROWS: Specifies whether to export table data. Value can be a single Y or N, optional; default is Y if omitted.
 - LOG_PATH: Specifies the path for the export log. Value is the pathname, optional; if omitted, no log file will be generated.
 - LOG_LEVEL: Specifies the log level for the export log. Value can be [ERROR, WARN, INFO, DEBUG, TRACE], optional; default is INFO if omitted.
+- HIDDEN_COLUMN: Specifies whether to export hidden columns. Value can be a single Y or N, optional; default is Y if omitted.
 
 ***Example***
 

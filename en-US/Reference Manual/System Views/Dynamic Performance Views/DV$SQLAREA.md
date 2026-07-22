@@ -71,3 +71,5 @@ This view shows the statistics of each SQL in the shared SQL area across each no
 | IS_REOPTIMIZABLE        | VARCHAR(1) | Whether it needs to be re-optimized                                                     |
 | RESTART_STATEMENTS      | BIGINT   | Number of times the statement was restarted                                             |
 | FIRST_LOAD_LOCATION     | BIGINT   | SQL address information                                                                  |
+| PROGRAM_ID               | BIGINT     | Object ID of the program that first parsed this SQL |
+| PROGRAM_LINE#            | INTEGER    | Line number in the program where this SQL was first parsed |

@@ -71,3 +71,5 @@
 | IS\_REOPTIMIZABLE | VARCHAR(1) | 是否需要重新优化 |
 | RESTART\_STATEMENTS | BIGINT | statement重启次数 |
 | FIRST\_LOAD\_LOCATION | BIGINT | SQL地址信息 |
+| PROGRAM_ID | BIGINT | 首次解析该SQL的程序对象ID |
+| PROGRAM_LINE# | INTEGER | 首次解析该SQL的行号 |

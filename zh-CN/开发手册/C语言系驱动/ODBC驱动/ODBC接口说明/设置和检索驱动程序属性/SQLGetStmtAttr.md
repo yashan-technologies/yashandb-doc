@@ -35,15 +35,15 @@ Attribute参数的支持情况：
 | SQL_ATTR_ROW_ARRAY_SIZE        | 单次取数据行数（默认为1）      | 支持     |
 | SQL_ROWSET_SIZE                | 单次取数据行数（默认为1）      | 支持     |
 | SQL_ATTR_ROWS_FETCHED_PTR      | 单次取数据实际取到的行数的指针 | 支持     |
+| SQL_ATTR_PARAM_BIND_TYPE       | 支持按行绑定+按列绑定          | 支持     |
+| SQL_ATTR_ROW_BIND_TYPE         | 支持按行绑定+按列绑定          | 支持     |
 | SQL_ATTR_AUTO_IPD              | 返回SQL_FALSE                  | 不支持   |
 | SQL_ATTR_CURSOR_SCROLLABLE     | 返回SQL_NONSCROLLABLE          | 不支持   |
 | SQL_ATTR_PARAM_BIND_OFFSET_PTR |                                | 不支持   |
-| SQL_ATTR_PARAM_BIND_TYPE       | 返回SQL_BIND_BY_COLUMN         | 不支持   |
 | SQL_ATTR_PARAM_OPERATION_PTR   |                                | 不支持   |
 | SQL_ATTR_PARAM_STATUS_PTR      |                                | 不支持   |
 | SQL_ATTR_PARAMS_PROCESSED_PTR  |                                | 不支持   |
 | SQL_ATTR_ROW_BIND_OFFSET_PTR   |                                | 不支持   |
-| SQL_ATTR_ROW_BIND_TYPE         | 返回SQL_BIND_BY_COLUMN         | 不支持   |
 | SQL_ATTR_ROW_NUMBER            | 返回0                          | 不支持   |
 | SQL_ATTR_ROW_OPERATION_PTR     |                                | 不支持   |
 | SQL_ATTR_ROW_STATUS_PTR        |                                | 不支持   |

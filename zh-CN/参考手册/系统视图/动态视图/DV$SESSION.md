@@ -52,3 +52,9 @@
 | RESOURCE_CONSUMER_GROUP | VARCHAR(68)  | 会话所属的资源组                            |
 | PREV_SQL_ID | VARCHAR(13) | 会话最近一次执行的SQL ID |
 | PREV_CHILD_ADDRESS | RAW(8) | 会话最近一次执行的子游标地址 |
+| LAST_CALL_ET | BIGINT | 会话最近一次调用的执行时间（单位：秒）<br/>\* 若会话STATUS为ACTIVE，该值表示会话变为活跃状态以来经过的时间<br/>\* 若会话STATUS为INACTIVE，该值表示会话变为非活跃状态以来经过的时间 |
+| PLSQL_ENTRY_OBJECT_ID | BIGINT | 会话入口PL对象的ID |
+| PLSQL_ENTRY_SUBPROGRAM_ID | BIGINT | 会话入口PL子程序的ID |
+| PLSQL_OBJECT_ID | BIGINT | 会话当前PL对象的ID |
+| PLSQL_SUBPROGRAM_ID | BIGINT | 会话当前PL子程序的ID |
+| PLSQL_NEST_SUBPROGRAM_ID | INTEGER | 会话当前PL嵌套子程序的ID |

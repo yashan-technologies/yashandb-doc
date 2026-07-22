@@ -145,6 +145,7 @@ In YashanDB, all execution operators default to single-row processing. To enable
 | DISTRIBUTED COORDINATOR      | Identifier for parallel execution in ISC Distributed Cluster Deployment; indicates that all operators below this identifier are executed in parallel. | All                     | ×        |
 | PX REMOTE                    | Indicates that data interactions include cross-node transmissions. | All                     | ×        |
 | PX LOCAL                     | Indicates that data interactions are only local transmissions. | All                     | ×        |
+| PX BLOCK ITERATOR RANDOM     | Indicates that in a parallel execution scenario, data is iteratively traversed in units of data blocks, and parallel tasks are split. | All                     | ×        |
 | MERGE                        | Data merging; combines multiple sorted data sources into one. | All                     | ×        |
 | ROW TO COL                   | Converts row calculations to column calculations.          | All                     | ×        |
 | COL TO ROW                   | Converts column calculations to row calculations.          | All                     | ×        |

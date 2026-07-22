@@ -38,6 +38,8 @@ YashanDB provides a range of built-in advanced packages, which encapsulate vario
 	
 	[UTL_TCP](UTL_TCP)
 
+    [UTL_SMTP](UTL_SMTP)
+
     [DBMS_DATAMASK](DBMS_DATAMASK)
 
     [ODCICONST](ODCICONST)
@@ -58,15 +60,21 @@ YashanDB provides a range of built-in advanced packages, which encapsulate vario
 
     [DBMS_HM](DBMS_HM)
 
+    [DBMS_SYSTEM](DBMS_SYSTEM)
+
 - Performance optimization related
 
     [DBMS_AWR](DBMS_AWR)
 
     [DBMS_AWR_EXTRA](DBMS_AWR_EXTRA)
 
+    [DBMS_PROFILER](DBMS_PROFILER)
+
     [DBMS_STATS](DBMS_STATS)
 
     [DBMS_PARAM](DBMS_PARAM)
+
+    [DBMS_WORKLOAD_REPOSITORY](DBMS_WORKLOAD_REPOSITORY)
 
 - Resource management related
 

@@ -16,3 +16,4 @@ Check the relevant information for each statement and the situation of the publi
 | GMEM_USED_SIZE | BIGINT | Current size of global memory occupied by the statement (unit: bytes) |
 | SQL_ID | VARCHAR(13) | ID value that uniquely identifies a SQL statement, obtained through hashing/encryption of the SQL text |
 | SQL_HASH | BIGINT | Hash value of the SQL statement, calculated from the SQL text |
+| CURSOR\_TYPE | VARCHAR(64) | Cursor type<br>\* OPEN PL/SQL: open cursor in PL<br>\* OPEN: open cursor<br>\* SESSION CURSOR CACHED: session cached cursor<br>\* PL/SQL CURSOR CACHED: session cached cursor used in PL |

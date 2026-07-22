@@ -17,6 +17,7 @@ The YashanDB JDBC driver supports the following functionality for the PreparedSt
 | ResultSet | executeQuery() |
 | int | executeUpdate() |
 | ResultSet | getGeneratedKeys() |
+| ResultSetMetaData | getMetaData() |
 | ParameterMetaData | getParameterMetaData() |
 | void | setArray​(int parameterIndex, Array x) |
 | void | setBigDecimal​(int parameterIndex, BigDecimal x) |
@@ -32,6 +33,7 @@ The YashanDB JDBC driver supports the following functionality for the PreparedSt
 | void | setBytes​(int parameterIndex, byte\[\] x) |
 | void | setClob​(int parameterIndex, Clob x) |
 | void | setNull​(int parameterIndex, int sqlType) |
+| void | setNull(int parameterIndex, int sqlType, String typeName) |
 | void | setObject​(int parameterIndex, Object x) |
 | void | setObject​(int parameterIndex, Object x, int targetSqlType) |
 | void | setObject​(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) |
@@ -53,6 +55,9 @@ The YashanDB JDBC driver supports the following functionality for the PreparedSt
 | void | setBlob​(int parameterIndex, InputStream inputStream, long length) |
 | void | setClob​(int parameterIndex, Reader reader) |
 | void | setClob​(int parameterIndex, Reader reader, long length) |
+| void | setNClob​(int parameterIndex, Reader reader) |
+| void | setNClob​(int parameterIndex, Reader reader, long length) |
+| void | setNClob​(int parameterIndex, NClob value) |
 | void | setAsciiStream​(int parameterIndex, InputStream x) |
 | void | setAsciiStream​(int parameterIndex, InputStream x, int length) |
 | void | setAsciiStream​(int parameterIndex, InputStream x, long length) |
@@ -65,14 +70,9 @@ The following functionality is not supported:
 
 |Return Type |Method |
 | --- | --- |
-| ResultSetMetaData | getMetaData() |
 | void | setNCharacterStream​(int parameterIndex, Reader value) |
 | void | setNCharacterStream​(int parameterIndex, Reader value, long length) |
-| void | setNClob​(int parameterIndex, Reader reader) |
-| void | setNClob​(int parameterIndex, Reader reader, long length) |
-| void | setNClob​(int parameterIndex, NClob value) |
 | void | setRef​(int parameterIndex, Ref x) |
-| void | setNull(int parameterIndex, int sqlType, String typeName) |
 | void | setUnicodeStream​(int parameterIndex, InputStream x, int length) |
 | void | setURL​(int parameterIndex, URL x) |
 

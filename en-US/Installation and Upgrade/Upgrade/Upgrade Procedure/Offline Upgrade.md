@@ -2,7 +2,7 @@ YashanDB supports offline upgrades of deployed databases through the *yasboot* t
 
 ## Applicable Scenarios
 
-Offline upgrade operations are applicable to all deployment forms (excluding standalone Deployment cascade standby deployment and dual-replication group primary/standby deployment). The upgrade path must satisfy the condition that the old version's version number is lower than the new version's and its release date is earlier than the new version's.
+Offline upgrade operations are applicable to all deployment forms. The upgrade path must satisfy the condition that the old version's version number is lower than the new version's and its release date is earlier than the new version's.
 
 ## Precautions
 

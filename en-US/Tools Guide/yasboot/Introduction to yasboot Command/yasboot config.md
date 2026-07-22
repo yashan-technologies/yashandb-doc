@@ -16,8 +16,10 @@ This command is used to generate the scale-out configuration files: hosts_add.to
 | *-i, --install-path*  | Database installation path (HOME directory)                  |
 | *--data-path*         | DATA directory of the database instance                       |
 | *-f, --force*          | Whether to force database deployment, forcing means that the current server running status will not be checked |
-| *-g, --group-id*       | Group ID (can be seen via the cluster status command, the value before the hyphen in nodeid is the group ID, e.g., `1-1:1` has a group ID of 1), defaults to 1 |
+| *-g, --group-id*       | Group ID (can be obtained via the `yasboot cluster status` command, the value before the hyphen in nodeid is the group ID, e.g., `1-1:1` has a group ID of 1), defaults to 1 |
 | *--node*              | Total number of new nodes (CN number in Distributed Cluster). Defaults to 1 (1 CN on every cn-ip in Distributed Cluster) |
+| *--cascade-node*      | Number of cascade standby nodes to be added (only applicable to standard standalone primary-standby deployment, cannot be used for dual replication group primary-standby deployment) |
+| *--cascade-parent*    | Node ID of the parent standby database to which the cascade standby database needs to be bound (e.g., 1-2, can be obtained via the `yasboot cluster status` command by taking the numeric string before the colon in nodeid), only one ID is allowed |
 | *--host-id*           | ID of the deployed server, multiple servers separated by commas (deprecated parameter) |
 | *--host-ids*           | IDs of the deployed servers, separated by commas              |
 | *--begin-port*        | Starting port 1688                                           |

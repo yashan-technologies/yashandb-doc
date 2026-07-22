@@ -81,7 +81,7 @@ YashanDB提供自动捕获诊断数据机制，在数据库进程出现故障宕
 
 YashanDB提供死锁自动检测机制，后台线程SMON会定时检测是否发生死锁，若检测到死锁会自动将死锁环信息dump到对应的trace文件中。
 
-死锁环信息包括资源标识、资源持有者、资源请求者、死锁会话ID、会话用户以及会话执行的SQL语句等。
+死锁环信息包括资源标识、资源持有者、资源请求者、死锁会话ID、会话用户、会话执行的SQL语句以及SQL语句的绑定参数具体值等。
 
 资源标识分为：
 
@@ -105,10 +105,14 @@ Deadlock graph:
  instId 0 Session 22:
    sid: 22 serial: 4 user: SYS
    current SQL:
-   update t1 set a = 3 where b = 4
+   update t1 set a = 3 where b = :B0
+   bind params:
+   4
  instId 0 Session 25:
    sid: 25 serial: 3 user: SYS
    current SQL:
-   update t1 set a = 1 where b = 2
+   update t1 set a = 1 where b = :B0
+   bind params:
+   2
  ----- End of information for waiting sessions -----
 ```

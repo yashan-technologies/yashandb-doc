@@ -58,7 +58,7 @@ The meanings of each field are shown in the following table.
 | database_status <br />(or pdb_status ) | The status of the current database node (in the container database, the field name is pdb_status)<br />\* normal: Normal state<br />* need repair: The standby database is in an abnormal state and needs to be rebuilt (BUILD DATABASE)<br />\* redo mismatch: Some logs of the standby database do not match those of the primary database and need to be checked and repaired<br />\* abnormal: Abnormal state, write operations cannot be performed<br /><br />This field is pdb_status in the container database. |
 | database_role | The role of the current database node<br /><br />\* primary: Primary database<br />\* standby: Standby database |
 | listen_address | The listening address of the current database node |
-| source_node | The nodeid of the primary database<br />This field of the primary database is meaningless |
+| source_node | The nodeid of the upper-level node of the current database node (the primary node of the standby node or the parent standby database of the cascade standby)<br />This field of the primary database is meaningless |
 | data_path | DATA directory of the current database node, i.e., $YASDB_DATA |
 
 

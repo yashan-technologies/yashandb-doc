@@ -83,6 +83,7 @@ The specific subcommand list is shown in the table below.
 | [desc](#desc)  | Retrieve description information for database objects, such as column definitions for tables or views |
 | [set DIRECTEXECUTE](#directexecute) | Set whether to enable direct execution of SQL statements |
 | [set AUTOCOMMIT](#autocommit) | Set whether to enable automatic commit for transactions |
+| [set TIME](#time) | Set whether to display the current system time |
 | [set TIMING](#timing) | Set whether to enable execution time statistics  |
 | [set FEEDBACK](#feedback) | Set whether to display feedback information, such as "ROW_NUM row/rows affected." |
 | [set SERVEROUTPUT](#serveroutput) | Set whether to print information from the server-side buffer configured by [DBMS_OUTPUT](../../Development Guide/PL Reference Manual/Built-in Advanced PL Packages/DBMS_OUTPUT).PUT_LINE |
@@ -219,7 +220,6 @@ SQL> SELECT cno,cname FROM customer;
 ------------ -----------------------------------------------------
            1 customer1                                           
  
-1 row fetched.
 ```
 
 <span id="singlesql" name="singlesql"></span>
@@ -262,7 +262,6 @@ SQL> select 1 from dual;
 ------------
            1
  
-1 row fetched.
  
 SQL> select 2 from dual;
  
@@ -270,7 +269,6 @@ SQL> select 2 from dual;
 ------------
            2
  
-1 row fetched.
 ```
 
 <span id="sqlfile" name="sqlfile"></span>
@@ -524,6 +522,27 @@ show autocommit
 autocommit OFF
 ```
 
+<span id="time" name="time"></span>
+
+### Set Display Execution Time
+
+You can use `set ti[me] on|off` to set whether to display the current operating system time before the yasql command prompt, with the default being off. The time display format is "HH24:MI:SS" (for example, 15:30:45).
+
+***Example***
+
+```shell
+set time on
+15:30:45 SQL> SELECT open_mode FROM v$database;
+
+OPEN_MODE
+-----------------
+READ_WRITE
+
+15:31:04 SQL> set ti off
+SQL> show time
+time OFF
+```
+
 <span id="timing" name="timing"></span>
 
 ### Set Execution Time Statistics
@@ -540,8 +559,6 @@ OPEN_MODE
 -----------------
 READ_WRITE      
  
-1 row fetched.
- 
 Elapsed: 00:00:00.000
 
 set timing off
@@ -550,8 +567,6 @@ SELECT open_mode FROM v$database;
 OPEN_MODE        
 -----------------
 READ_WRITE      
- 
-1 row fetched.
 ```
 
 <span id="feedback" name="feedback"></span>
@@ -575,7 +590,6 @@ DUMMY
 -----
 X
  
-1 row fetched.
  
 set feedback off
 select * from dual;
@@ -765,8 +779,6 @@ new     1: SELECT 'YashanDB' FROM dual
 'YASHANDB'
 ----------
 YashanDB
-
-1 row fetched.
 ```
 
 You can also assign values to variables using `ACC[EPT] variable [CHAR] [PROMPT text|NOPR[OMPT]] [HIDE]` syntax.
@@ -812,8 +824,6 @@ new     1: SELECT 'MANAGER' FROM dual
 ---------
 MANAGER
 
-1 row fetched.
-
 SELECT '&DEPARTMENT_ID' FROM dual;
 old     1: SELECT '&DEPARTMENT_ID' FROM dual
 new     1: SELECT '20' FROM dual
@@ -821,8 +831,6 @@ new     1: SELECT '20' FROM dual
 '20'
 -----
 20
-
-1 row fetched.
 ```
 
 <span id="numwidth" name="numwidth"></span>
@@ -850,17 +858,13 @@ SELECT INO,PRICE FROM item;
          INO       PRICE
 ------------ -----------
            1  5.768E+001
- 
-1 row fetched.
- 
+
 set num 20
 SELECT INO,PRICE FROM item;
  
          INO                 PRICE
 ------------ ---------------------
            1       5.76783924E+001
- 
-1 row fetched.
 ```
 
 <span id="heading" name="heading"></span>
@@ -882,15 +886,11 @@ DUMMY
 -----
 X
  
-1 row fetched.
- 
 set heading off
 select * from dual;
  
 X
- 
-1 row fetched.
- 
+
 show heading
 heading OFF
 ```
@@ -939,8 +939,6 @@ DEPARMENT_NO DEPARTMENT_NAME
 008          Purchasing Dep
 002          Finance Dep
 
-4 rows fetched.
-
 col department_name format a10;
 select deparment_no,department_name from department;
 
@@ -951,8 +949,6 @@ DEPARMENT_NO DEPARTMENT_NAME
 008          Purchasing Dep
 002          Finance Dep
 
-4 rows fetched.
-
 col department_name format a6;
 select deparment_no,department_name from department;
 
@@ -962,8 +958,6 @@ DEPARMENT_NO DEPA
 010          Sales Dep
 008          Purchasing Dep
 002          Finance Dep
-
-4 rows fetched.
 ```
 
 #### View Column Display Attributes

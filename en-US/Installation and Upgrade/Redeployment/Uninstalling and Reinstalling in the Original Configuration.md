@@ -4,7 +4,7 @@ Usually, when performing uninstallation and reinstallation in the original envir
 
 Before uninstalling YashanDB, it is recommended to perform [data backup](../../Database Administration/Backup and Recovery/00Backup and Recovery) to ensure data integrity and security, so that a complete data copy is available for restoration or migration if needed.
 
-1. If the current environment is Standalone One-Primary/One-Standby Deployment, Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby), please check and turn off yasom election first:
+1. If the current environment is Standalone Primary-Standby Deployment (without cascade standby), Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby), please check and turn off yasom election first:
 
     ```shell
     $ yasboot election config show -c yashandb

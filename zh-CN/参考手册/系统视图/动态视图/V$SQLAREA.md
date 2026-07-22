@@ -8,11 +8,11 @@
 | SHARABLE\_MEM | INTEGER | 该SQL以及所有版本执行计划所占用的共享页面总和 |
 | PERSISTENT\_MEM | INTEGER | 该SQL以及所有版本执行计划实际使用的内存总和 |
 | RUNTIME\_MEM | INTEGER | 此SQL在执行过程中申请的内存（保留字段） |
-| VERSION\_COUNT | INTEGER | 执行计划的版本数量 |
-| LOADED\_VERSIONS | INTEGER | 已经加载的执行计划版本数量 |
-| OPEN\_VERSIONS | INTEGER | 正在使用的执行计划的版本数量 |
-| USERS\_OPENING | INTEGER | 使用所有执行计划的用户数量 |
-| USERS\_EXECUTING | INTEGER | 正在执行所有计划的用户数量 |
+| VERSION\_COUNT | INTEGER | 执行计划的版本数量（保留字段） |
+| LOADED\_VERSIONS | INTEGER | 已经加载的执行计划版本数量（保留字段） |
+| OPEN\_VERSIONS | INTEGER | 正在使用的执行计划的版本数量（保留字段） |
+| USERS\_OPENING | INTEGER | 任意子游标正在打开的引用计数 |
+| USERS\_EXECUTING | INTEGER | 任意子游标正在执行的引用计数 |
 | SORTS | BIGINT | 排序次数 |
 | FETCHES | BIGINT | fetch次数 |
 | EXECUTIONS | BIGINT | 执行次数 |
@@ -30,8 +30,8 @@
 | IO\_INTERCONNECT\_BYTES | BIGINT | 数据库和存储系统之间的I/O交互次数 |
 | PHYSICAL\_READ\_REQUESTS | BIGINT | 物理读请求次数 |
 | PHYSICAL\_READ\_BYTES | BIGINT | 物理读的字节数 |
-| PHYSICAL\_WRITE\_REQUESTS | BIGINT | 物理写的请求次数 |
-| PHYSICAL\_WRITE\_BYTES | BIGINT | 物理写的字节数 |
+| PHYSICAL\_WRITE\_REQUESTS | BIGINT | 物理写的请求次数（SQL执行不会立即写盘，而是由dbwr线程写盘，因此从SQL层面观察不到该统计项的值变更，建议从V$SYSSTAT/V$SESSTAT/V$MYSTAT视图观察） |
+| PHYSICAL\_WRITE\_BYTES | BIGINT | 物理写的字节数（SQL执行不会立即写盘，而是由dbwr线程写盘，因此从SQL层面观察不到该统计项的值变更，建议从V$SYSSTAT/V$SESSTAT/V$MYSTAT视图观察） |
 | APPLICATION\_WAIT\_TIME | BIGINT | 应用等待时间 （单位：微秒） |
 | CONCURRENCY\_WAIT\_TIME | BIGINT | 并发等待时间（单位：微秒） |
 | CLUSTER\_WAIT\_TIME | BIGINT | 集群间的等待时间（保留字段）（单位：微秒） |
@@ -75,3 +75,5 @@
 | REMOTE\_GRANTS | BIGINT | 集群下其他节点授权加载页面的次数 |
 | LOCAL\_UPGRADES | BIGINT | 集群下本节点授权页面锁升级的次数 |
 | REMOTE\_UPGRADES | BIGINT | 集群下其他授权页面锁升级的次数 |
+| PROGRAM_ID | BIGINT | 首次解析该SQL的程序对象ID |
+| PROGRAM_LINE# | INTEGER | 首次解析该SQL的行号 |

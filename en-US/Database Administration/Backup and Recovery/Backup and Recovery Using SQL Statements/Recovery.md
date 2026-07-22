@@ -30,7 +30,7 @@ Full recovery refers to the process of decompressing and decrypting backup files
 
   - The database instance must be in the NOMOUNT phase.
 
-  - In standalone one-primary/one-standby deployment, if [*yasom* election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) is enabled, it must be disabled before proceeding with the recovery operation. After recovery is complete, restore the corresponding configuration as necessary.
+  - In standalone primary-standby deployment (without cascade standby), if [*yasom* election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) is enabled, it must be disabled before proceeding with the recovery operation. After recovery is complete, restore the corresponding configuration as necessary.
 
   - In standalone one-primary/multi-standby deployment, before executing recovery operations on the primary database (especially in scenarios where only an isolated primary database remains), the automatic fallback functionality must be disabled (set HA_ELECTION_LEADER_LEASE_ENABLED to FALSE) to avoid automatic fallback triggered by failure to timely detect standby database heartbeats. Restore the corresponding configuration as necessary after recovery completion.
   
@@ -231,7 +231,7 @@ Point-in-Time Recovery (PITR) refers to restoring the database to the state at a
 
   - The database instance must be in the NOMOUNT phase.
 
-  - In standalone one-primary/one-standby deployment, if [*yasom* election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) is enabled, it must be disabled before proceeding with recovery operations. After recovery is complete, restore the corresponding configuration as necessary.
+  - In standalone primary-standby deployment (without cascade standby), if [*yasom* election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) is enabled, it must be disabled before proceeding with recovery operations. After recovery is complete, restore the corresponding configuration as necessary.
 
   - In high availability deployment, if automatic fallback functionality is enabled (HA_ELECTION_LEADER_LEASE_ENABLED set to TRUE on the primary node), this functionality must be disabled before recovery operations, with any necessary configuration restored afterwards.
 

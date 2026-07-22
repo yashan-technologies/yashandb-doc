@@ -4,4 +4,4 @@ According to different high availability configurations, leader election can be 
 
 - [Leader Election for One Primary and Multi-Standby](./Configuring Leader Election for One Primary and Multi-Standby): Suitable for standalone one-primary/multi-standby deployments and ISC Distributed Cluster Deployment where the node scale within the DN group is one-primary/multi-standby.
 
-- [*yasom* Election](./Configuring yasom Election): Suitable for Standalone One-Primary/One-Standby Deployment, Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment where nodes within the DN group are configured as one-primary/one-standby.
+- [yasom Election](./Configuring yasom Election): Suitable for Standalone Primary-Standby Deployment (without cascade standby), Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment where nodes within the DN group are configured as one-primary/one-standby.

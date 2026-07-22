@@ -381,6 +381,14 @@ Description: Number of undo blocks flushed by the database writer.
 
 Description: Number of undo segments flushed by the database writer, used to count the number of times hot pages were flushed.
 
+### DBWR TEMP SCANNED
+
+Description: Number of blocks scanned by the database writer due to temp buffer cleaning.
+
+### DBWR TEMP WRITES
+
+Description: Number of temp buffers flushed by the database writer, used to count the number of times temp blocks were flushed.
+
 ### DEADLOCK DETECTION
 
 Description: Number of deadlock detection executions.
@@ -1273,17 +1281,51 @@ Description: Total number of writes requested to disk during static file generat
 
 Description: Time spent writing static files in SCOL.
 
+### SEGMENT STATISTICS FORCE PUSH
+
+Description: Number of times segment statistics were forcibly pushed to global statistics.
+
+### SEGMENT STATISTICS PUSH AFTER SESSION END
+
+Description: Number of times segment statistics were pushed to global statistics due to session end.
+
+### SEGMENT STATISTICS PUSH FAIL
+
+Description: Number of failures in pushing segment statistics to global statistics.
+
+### SEGMENT STATISTICS THRESHOLD EXCEEDED PUSH
+
+Description: Number of times segment statistics were pushed to global statistics because statistical items exceeded the threshold.
+
+### SESSION CURSOR CACHE HITS
+
+Description: The number of session cursor cache hits.
+
+### SESSION CURSOR CACHE MISSES
+
+Description: The number of session cursor cache misses.
+
+### SESSION CURSOR CACHE RECYCLE
+
+Description: The number of session cursor cache recycles.
+
 ### SO ACCESS CACHE ERROR COUNT
 
-Description: The number of error occurrences in the PL local variable cache optimization feature.
+Description: The number of PL local variable cache errors.
 
 ### SO ACCESS CACHE HIT COUNT
 
-Description: The number of cache hits in the PL local variable cache optimization feature.
+Description: The number of PL local variable cache hits.
 
 ### SO ACCESS CACHE MISS COUNT
 
-Description: The number of cache misses in the PL local variable cache optimization feature.
+Description: The number of PL local variable cache misses.
+
+### SO FUNC CACHE HIT COUNT
+Description: The number of PL function cache hits.
+
+### SO FUNC CACHE MISS COUNT
+Description: The number of PL function cache misses.
 
 ### SORTS (DISK)
 

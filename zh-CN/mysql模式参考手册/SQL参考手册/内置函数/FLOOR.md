@@ -12,7 +12,7 @@ FLOOR函数对[expr](../通用SQL语法/expr)向下取整。
 | INT       | INT |
 | BOOL      | INT |
 | BIT       | BIGINT |
-| NUMBER    | BIGINT |
+| NUMBER    | NUMBER |
 | BIGINT    | NUMBER |
 | TINYINT UNSIGNED | BIGINT UNSIGNED   |
 | SMALLINT UNSIGNED        |  BIGINT UNSIGNED      |

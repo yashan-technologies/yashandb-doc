@@ -13,8 +13,7 @@ YashanDB opens system operation configuration capabilities by adjusting configur
     > **Note**:
     >
     > When modifying such parameters and specifying immediate effect, the database automatically synchronizes the change to all instances to ensure global consistency.
-    > 
-    > 
+    >
     > If you intend to specify the change to take effect after a restart (scope=spfile) or require a restart to take effect, you must restart the entire cluster to ensure that the corresponding configuration is applied consistently across all instances; otherwise, inconsistent configurations across instances may affect normal startup.
 
 - Introduced Version: Indicates the version from which the parameter was introduced.
@@ -493,7 +492,7 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Introduced Version: v22.2
 
-*   Obsolete Version: V23.2
+*   Obsolete Version: v23.2
 
 ### BUCKET_RESERVED_SPACE
 
@@ -617,7 +616,7 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Introduced Version: v23.1
 
-*   Obsolete Version: V23.2
+*   Obsolete Version: v23.2
 
 ### CHARACTER_SET
 
@@ -1130,6 +1129,8 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 *   Whether Multi-Instance Consistency Is Required: No
 
 *   Introduced Version: v22.1
+
+<span id="cursor_pool_size" name="cursor_pool_size"></span>
 
 ### CURSOR_POOL_SIZE
 
@@ -1813,7 +1814,7 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Introduced Version: v22.1
 
-*   Deprecated Version: V23.2
+*   Deprecated Version: v23.2
 
 ### DIN_SSL_ENABLE
 
@@ -1984,7 +1985,7 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Introduced Version: v23.1
 
-*   Deprecated Version: V23.2.3
+*   Deprecated Version: v23.2.3
 
 ### ENABLE_BULKLOAD_AUTO_COMMIT
 
@@ -2691,9 +2692,9 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Parameter Type: String
 
-*   Default Value: READ_COMMITTED  
+*   Default Value: READ COMMITTED  
 
-*   Value Range/Format: [CURRENT_COMMITTED|SERIALIZABLE|READ_COMMITTED]
+*   Value Range/Format: [SERIALIZABLE|READ COMMITTED]
 
 *   Parameter Description: Specifies the transaction isolation level, it is recommended to use the default value.  
 
@@ -2936,6 +2937,28 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 *   Whether Multi-Instance Consistency Is Required: No
 
 *   Introduced Version: v22.2
+
+<span id="MFRD" name="MFRD"></span>
+
+### MATH_FUNC_RETURN_DECIMAL
+
+*   Parameter Type: Boolean
+
+*   Default Value: FALSE
+
+*   Value Range/Format: [TRUE|FALSE]
+
+*   Parameter Description: Controls whether numeric functions (INT, NUMBER, etc.), logarithmic, exponential, and trigonometric functions return types that are fully compatible with Oracle. When set to TRUE, functions without FLOAT/DOUBLE type in input parameters return NUMBER type and validate input values. When set to FALSE, functions return DOUBLE type, maintaining the original behavior.
+
+*   Immediate Effect on Modification: No
+
+*   Session-Level Parameter: No
+
+*   Read-Only Parameter: No
+
+*   Whether Multi-Instance Consistency Is Required: No
+
+*   Introduced Version: v23.4
 
 <span id="mpara" name="mpara"></span>
 
@@ -3457,6 +3480,26 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 *   Whether Multi-Instance Consistency Is Required: No
 
 *   Introduced Version: v23.4
+
+### ORA_HASH_COMPATIBLE
+
+*   Parameter Type: Boolean
+
+*   Default Value: FALSE
+
+*   Value Range/Format: [TRUE|FALSE]
+
+*   Parameter Description: Control the compatibility behavior of the ORA_HASH function. When set to TRUE, if the max_bucket parameter is not zero, the function returns the hash modulo (max_bucket + 1), which matches Oracle's behavior. When set to FALSE, if the max_bucket parameter is not zero, the function returns the hash modulo max_bucket.  
+
+*   Immediate Effect on Modification: No
+
+*   Session-Level Parameter: No
+
+*   Read-Only Parameter: No
+
+*   Whether Multi-Instance Consistency Is Required: Yes
+
+*   Introduced Version：v23.4
 
 <span id="ppara" name="ppara"></span>
 
@@ -4203,6 +4246,26 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Introduced Version: v23.2
 
+### SESSION_CACHED_CURSORS
+
+*   Parameter Type: Numeric
+
+*   Default Value: 16
+
+*   Value Range/Format: [0,256]
+
+*   Parameter Description: Specifies the upper limit on the number of cursors that can be cached by each session. When set to 0, the session cursor cache feature is disabled.
+
+*   Immediate Effect of Modification: No
+
+*   Session-Level Parameter: Yes
+
+*   Read-Only Parameter: No
+
+*   Whether Multi-Instance Consistency Is Required: No
+
+*   Introduced Version: v23.4.14
+
 ### SESSION_MAX_OPEN_FILES
 
 *   Parameter Type: Numeric
@@ -4233,7 +4296,11 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Value Range/Format: [256M,64T] (Standalone, ISC Distributed Cluster Deployment), [320M,64T] (YAC/Distributed Cluster Deployment)  
 
-*   Parameter Description: Specifies the memory size used by the shared buffer. The execution plan buffer, dictionary cache, lock buffer, cursor buffer, distributed buffer, and Stream Pool share this area of memory. After subtracting the lock buffer size and cursor buffer size from the shared buffer size, the sizes of the execution plan buffer, dictionary cache, and distributed buffer are allocated proportionally. The initial size of the Stream Pool is 0 and will dynamically request space from the Share Pool according to business needs, with its maximum high value determined by the [STREAM_POOL_SIZE](#stream_pool_size) parameter value. In YAC, there is also a cluster share pool, whose size is positively correlated with the data buffer size [DATA_BUFFER_SIZE](#DATA_BUFFER_SIZE) and the global lock resource pool size LOCK_POOL_SIZE. The approximate relationship is DATA_BUFFER_SIZE * 3% + LOCK_POOL_SIZE * 86%. SHARE_POOL_SIZE only supports online expansion. To decrease this configuration, you must modify the configuration file and restart the database. If concurrency in business is high, it is recommended to increase this parameter.
+*   Parameter Description: Specifies the size of the [Share Pool](../Product Concepts/Instance Architecture/Database Memory). The SHARE_POOL_SIZE parameter only supports online expansion. To reduce this configuration, you must specify `SCOPE=SPFILE` and restart the database for it to take effect. If there are many concurrent operations, it is recommended to increase this parameter. 
+
+    >**Note**:
+    >
+    > This parameter has an alias [SHARED_POOL_SIZE](#shared_pool_size). The function, constraints, and parameter values of the two are completely equivalent. Modifying either one will automatically synchronize the change to the other.
 
 *   Immediate Effect of Modification: Yes
 
@@ -4244,6 +4311,36 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 *   Whether Multi-Instance Consistency Is Required: No
 
 *   Introduced Version: v22.1
+
+*   Obsolete Version: v23.4.14
+
+<span id="shared_pool_size" name="shared_pool_size"></span>
+
+### SHARED_POOL_SIZE
+
+- Parameter Type: Numeric  
+
+*   Default Value: 320M  
+
+*   Value Range/Format: [256M,64T] (Standalone, ISC Distributed Cluster Deployment), [320M,64T] (YAC/Distributed Cluster Deployment)  
+
+*   Description: Specifies the size of the [Share Pool](../Product Concepts/Instance Architecture/Database Memory). The SHARED_POOL_SIZE parameter only supports online expansion. To reduce this configuration, you must specify `SCOPE=SPFILE` and restart the database for it to take effect. If there are many concurrent operations, it is recommended to increase this parameter. 
+
+    >**Note**:
+    >
+    > This parameter same as [SHARE_POOL_SIZE](#share_pool_size). Its function, constraints, and parameter values are completely equivalent to SHARE_POOL_SIZE. Modifying either one will automatically synchronize the change to the other.
+
+*   Immediate Effect of Modification: Yes
+
+*   Session-Level Parameter: No
+
+*   Read-Only Parameter: No
+
+*   Whether Multi-Instance Consistency Is Required: No
+
+*   Action Scope: Common Parameter
+
+*   Introduced Version: v23.4
 
 ### SLOW_LOG_FILE_NAME
 
@@ -5096,7 +5193,7 @@ YashanDB opens system operation configuration capabilities by adjusting configur
 
 *   Value Range/Format: [TRUE|FALSE]
 
-*   Parameter Description: Configures whether the database uses native data types. TRUE indicates the use of native data types; FALSE indicates the use of Oracle-compatible types. When the parameter value is FALSE, the database exhibits the following behaviors:
+*   Parameter Description: Configures whether the database uses native data types. When [EMPTY_STRING_AS_NULL](#EMPTY_STRING_AS_NULL) is set to FALSE, this parameter configuration is meaningless, and its actual effect is always TRUE. TRUE indicates the use of native data types; FALSE indicates the use of Oracle-compatible types. When the parameter value is FALSE, the database exhibits the following behaviors:
     
     - In table creation DDL statements, TINYINT, SMALLINT, INTEGER, BIGINT types are parsed as NUMBER(38,0), and FLOAT type is parsed as NUMERIC_FLOAT type with precision settings.
 

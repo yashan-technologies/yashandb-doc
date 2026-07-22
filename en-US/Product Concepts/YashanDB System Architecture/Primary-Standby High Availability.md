@@ -32,7 +32,7 @@ The following diagram illustrates this:
 
 - **Cascade Standby**
 
-    A standby database of a standby database, which receives and applies logs from the standby database. A standby database can have multiple and multi-layer cascade standbys. When a higher-level standby database is promoted to a primary database, the cascade standby is converted to a normal standby database; when the primary database becomes a standby database, its standby databases become cascade standbys.
+    The standby database of a standby database, which receives and replays logs from the standby database. One standby database can have multiple and multi-level cascade standbys. When the parent standby database is promoted to a primary database, the cascade standby is converted to a regular standby database; when the primary database becomes a standby database, its standby databases become cascade standbys.
 
     There are no cascade standbys in primary/standby cluster deployments and ISC distributed high availability deployments.
 

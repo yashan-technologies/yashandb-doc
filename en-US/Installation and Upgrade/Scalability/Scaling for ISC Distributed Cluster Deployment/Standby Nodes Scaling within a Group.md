@@ -39,7 +39,27 @@ YashanDB supports scaling out or scaling in the standby nodes in the DN group or
 
    From the output, we can see that the group ID of the DN group is 3, and the group ID of the MN group is 1.
 
-4. Based on the actual scenario, execute the corresponding operation.
+4. If you need to operate on the DN group, you must first check and disable the yasom arbitration and primary selection for the target group:
+
+    For a one-primary/one-standby environment, you need to perform current operations to check and turn off yasom election. For a one-primary/multi-standby environment, whether or not leader election is enabled does not affect online scaling in performed via *yasboot*.
+
+    ```shell
+    $ yasboot election config show -c yashandb
+    group 1
+    Protection Mode: MAXIMUM PROTECTION
+    Members:
+        [1-1:1] - Primary database
+        [1-2:2] - Physical standby node
+
+    ……
+
+    Automatic Failover: Enabled in Zero Data Loss Mode 
+
+    # Enabled indicates that yasom election is enabled; disable it before proceeding to the next operation
+    $ yasboot election enable off -c yashandb
+    ```
+
+5. Based on the actual scenario, execute the corresponding operation.
 
     - Scenario 1: Add standby node(s) by adding new server(s)
 
@@ -78,7 +98,7 @@ YashanDB supports scaling out or scaling in the standby nodes in the DN group or
         $ yasboot config node gen -c yashandb --host-ids host0001,host0002 -g 3 --node 2
         ```
 
-5. On the server where the above - mentioned configuration file was generated, execute the following command to add standby nodes.
+6. On the server where the above - mentioned configuration file was generated, execute the following command to add standby nodes.
 
     ``` shell
     $ yasboot node add -c yashandb -t yashandb_add.toml
@@ -96,14 +116,14 @@ YashanDB supports scaling out or scaling in the standby nodes in the DN group or
     $ yasboot task list -c yashandb --search type=NodeAdd
     ```
 
-6. (Optional) Backup the database.
+7. (Optional) Backup the database.
 
     It is recommended to [backup](../../../Database Administration/Backup and Recovery/00Backup and Recovery) the database to ensure there is a baseline backup set available for recovery after scaling.
 
-7. If scaling out is performed by adding new servers, after completion, the [[host]] content in hosts_add.toml needs to be copied and pasted to the end of hosts.toml to avoid using old host information during the upgrade.
+8. If scaling out is performed by adding new servers, after completion, the [[host]] content in hosts_add.toml needs to be copied and pasted to the end of hosts.toml to avoid using old host information during the upgrade.
 
 
-8. Optionally enable leader election functionality within the DN group nodes as needed to ensure business continuity:
+9. Optionally enable leader election functionality within the DN group nodes as needed to ensure business continuity:
 
     - One-primary/one-standby environment: You need to manually enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election).
 
@@ -121,7 +141,7 @@ YashanDB supports scaling out or scaling in the standby nodes in the DN group or
     # The part before the colon in nodeid is the node ID; for example, the node ID corresponding to 1-1:1 is 1-1
     ```
 
-3. Please check and turn off yasom election first:
+3. If you need to operate on the DN group, you must first check and disable the yasom arbitration and primary selection for the target group:
 
     For a one-primary/one-standby environment, you need to perform current operations to check and turn off yasom election. For a one-primary/multi-standby environment, whether or not leader election is enabled does not affect online scaling in performed via *yasboot*.
 

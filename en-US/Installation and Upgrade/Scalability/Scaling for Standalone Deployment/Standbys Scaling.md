@@ -1,4 +1,4 @@
-YashanDB supports online scaling out or scaling in standby databases. Please read the relevant [considerations](../Considerations for Scaling) carefully before executing specific operations.
+YashanDB supports online scaling out or scaling in standby databases. 
 
 > **Note**: 
 >
@@ -15,8 +15,6 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 2. Log in to the server where an existing node of the database is located as the installation user.
 
 3. Check and disable yasom election:
-
-    If it is a one-primary/one-standby environment, disable yasom election before proceeding. If it is a one-primary/multi-standby environment, it does not affect online scaling in whether the leader election is enabled or not.
 
     ```shell
     $ yasboot election config show -c yashandb
@@ -85,7 +83,7 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
 10. Optionally, enable the leader election functionality to ensure business continuity:
 
-    - In a one-primary/one-standby environment: You can manually enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) as needed.
+    - In a Standalone Primary-Standby Deployment (non-cascade standby) environment: You can manually enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) as needed.
 
     - In a one-primary/multi-standby (non-cascade standby) environment: *yasboot* will automatically enable [leader election](../../../High Availability/Configuring Leader Election/Configuring Leader Election for One Primary and Multi-Standby).
 
@@ -96,15 +94,14 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
 2. Check and disable yasom election:
 
-    If it is a one-primary/one-standby environment, disable yasom election before proceeding. If it is a one-primary/multi-standby environment, it does not affect online scaling in whether the leader election is enabled or not.
-
     ```shell
     $ yasboot election config show -c yashandb
     group 1
     Protection Mode: MAXIMUM PROTECTION
     Members:
         [1-1:1] - Primary database
-        [1-2:2] - Physical standby database
+        [1-2:2] - Physical standby database    
+        [1-3:3] - Physical standby database
 
     ……
 
@@ -118,8 +115,10 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
     ```shell
     $ yasboot cluster status -c yashandb -d
-    # The part before the colon in nodeid is the node ID; for example, 1-1:1 corresponds to node ID 1-1
+    # The part before the colon in nodeid is the node ID; for example, 1-3:3 corresponds to node ID 1-3
     ```
+    
+    **Not allowed** to delete a standby database that has cascade standbys. To delete it, you must first refer to [Cascading Standbys Scaling](./Cascading Standbys Scaling) to delete all its cascade standbys.
 
 4. Execute the following command to delete the standby database.
 
@@ -127,7 +126,7 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
       ```shell
       # Delete one standby database per operation
-      $ yasboot node remove -c yashandb -n 1-1 --purge
+      $ yasboot node remove -c yashandb -n 1-3 --purge
       +----------------------------------------------------------------------------------------------------+
       | type | uuid             | name       | hostid | index    | status  | return_code | progress | cost |
       +----------------------------------------------------------------------------------------------------+
@@ -136,19 +135,7 @@ Each standby database will be hosted by a separate server (hereinafter referred 
       task completed, status: SUCCESS
 
       # Delete multiple standby databases; use commas to separate IDs
-      $ yasboot node remove -c yashandb --node-ids 1-1,1-2 --purge
-      +----------------------------------------------------------------------------------------------------+
-      | type | uuid             | name       | hostid | index    | status  | return_code | progress | cost |
-      +----------------------------------------------------------------------------------------------------+
-      | task | 7c7d71db43810b33 | NodeRemove | -      | yashandb | SUCCESS | 0           | 100      | 5    |
-      +------+------------------+------------+--------+----------+---------+-------------+----------+------+
-      +----------------------------------------------------------------------------------------------------+
-      | task | 7c7d71db43810b34 | NodeRemove | -      | yashandb | SUCCESS | 0           | 100      | 5    |
-      +------+------------------+------------+--------+----------+---------+-------------+----------+------+
-      task completed, status: SUCCESS
-
-      # Delete multiple standby databases; use commas to separate IDs
-      $ yasboot node remove -c yashandb --node-ids 1-1,1-2 --purge
+      $ yasboot node remove -c yashandb --node-ids 1-3,1-2 --purge
       +----------------------------------------------------------------------------------------------------+
       | type | uuid             | name       | hostid | index    | status  | return_code | progress | cost |
       +----------------------------------------------------------------------------------------------------+
@@ -180,16 +167,6 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
       After deleting a standby database, it will not stop the standby database. If the standby database is monitored by monit, it will not terminate the monitoring process of the standby database.
 
-      > **Note**:
-      >
-      > In this scenario, after the downsizing is completed, you need to manually clean up the environment of the removed servers:
-      >
-      >- Remove leftover paths, including $YASDB_DATA, $YASDB_HOME, log directories, and local tablespace directories.
-      >
-      >-  Remove any lingering processes, such as yasdb and yascs.
-      >- Remove leftover scripts, such as auto-start scripts.
-      >- Remove leftover environment variables associated with YashanDB.
-
 5. (Optional) Backup the database.
     
     It is recommended to perform a [backup](../../../Database Administration/Backup and Recovery/00Backup and Recovery) of the database to ensure there is a baseline backup set available for recovery after scaling in.
@@ -198,7 +175,7 @@ Each standby database will be hosted by a separate server (hereinafter referred 
 
 7. After deleting the standby database, you can enable the leader election functionality configuration as needed based on the database high availability configuration:
 
-    - In a one-primary/one-standby environment: You can enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election).
+    - In a Standalone Primary-Standby Deployment (non-cascade standby) environment: You can manually enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election) as needed.
 
     - In a one-primary/multi-standby (non-cascade standby) environment: You can enable [leader election](../../../High Availability/Configuring Leader Election/Configuring Leader Election for One Primary and Multi-Standby).
 

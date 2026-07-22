@@ -1,4 +1,4 @@
-The deployment of the dual-replication group primary/standby configuration is achieved by implementing two sets of standalone replication groups, enabling data replication from one replication group (the primary group) to another (the standby group). This deployment scheme is recommended for remote disaster recovery scenarios. For installation guidelines, please refer to [Dual Replication Group Primary/Standby Deployment](../Installation and Upgrade/Installation and Deployment/YashanDB Installation via CLI/Standalone (Primary-Standby) Deployment.md#Manual).
+The deployment of the Dual Rep-Group Primary-Standby configuration is achieved by implementing two sets of Standalone Deployment replication groups, enabling data replication from one replication group (the primary group) to another (the standby group). This deployment scheme is recommended for remote disaster recovery scenarios. For installation guidelines, please refer to [Dual Rep-Group Primary-Standby Deployment](../Installation and Upgrade/Installation and Deployment/YashanDB Installation via CLI/Standalone (Primary-Standby) Deployment.md#Dual_Repli_Group)
 
 ## Usage Rules
 
@@ -69,7 +69,7 @@ As the primary replication group, the configuration requirements for nodes withi
 As the standby replication group, the configuration requirements for nodes within Group 2 are as follows:
 
 - The standby replication group does not participate in leader election. All nodes must have HA_ELECTION_ENABLED=FALSE.
-- NODE2-1, as the connecting node of the primary replication group, acts both as the standby database for the primary database and as the upper-level standby database for cascade standbys. Therefore, its configuration differs from that of other nodes within the group. Regardless of NODE2-1's role, it must send logs to NODE2-2 and NODE2-3, so the effective roles for ARCHIVE_DEST_* parameters pointing to NODE2-2 and NODE2-3 should be ALL_ROLES.
+- NODE2-1 serves as the connection node of the primary replication group, acting as both a standby database of the primary database and an parent standby database for cascade standby databases. Therefore, its configuration differs from other nodes in the group. Regardless of which role NODE2-1 has, it always needs to send logs to NODE2-2 and NODE2-3. Therefore, the effective role of the ARCHIVE_DEST_* parameters pointing to NODE2-2 and NODE2-3 should be ALL_ROLES.
 - In the event of a primary/standby switch between groups, after Group 2 becomes the new primary replication group, it must send logs to the new standby node NODE1-1. Thus, the effective role of the ARCHIVE_DEST_1 parameter pointing to NODE1-1 for all nodes within Group 2 should be set to PRIMARY_ROLE (which is effective when the current node is a primary database).
 
 ```sql
@@ -358,52 +358,28 @@ ALTER SYSTEM SET HA_ELECTION_ENABLED=TRUE;
 
 ### Role Switching within Standby Group
 
-If the primary node of the standby group becomes unavailable due to failure or other reasons, another node must be switched to become the new primary node, accepting redo from the primary replication group.
+If the primary node of the standby group becomes unavailable due to failure or other reasons, another node must be switched to become the new primary node, accepting redo from the primary replication group. It is recommended to select a node with more stable network connection to the primary database in the primary replication group as the new primary node.
 
-The configuration example in this article: Group 1 is the primary replication group, Group 2 is the standby replication group, NODE1-1 is the primary database, NODE2-1 is the primary node of the standby group, NODE1-2, NODE1-3, NODE2-1 are standby databases, NODE2-2, NODE2-3 are cascade standbys. Assuming that the redo receiving instance in Group 2 needs to switch from NODE2-1 to NODE2-2.
+1. Log in to the database installation server using the installation user.
 
-1. Modify the ARCHIVE_DEST_* configuration parameters for NODE2-1, changing the effective roles of ARCHIVE_DEST_* pointing to other nodes in the same group to PRIMARY_ROLE.
 
-    ```sql
-    -- The ARCHIVE_DEST_*=node* notation is a placeholder and should be replaced by the actual REPLICATION_ADDR of the target node
-    -- NODE2-1: 
-    ARCHIVE_DEST_5=NODE2-2  VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_6=NODE2-3  VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_1=NODE1-1  DISABLE_ELECTION=TRUE  VALID_FOR=PRIMARY_ROLE  
+2. Execute the following command to view the target node ID.
+
+    ```shell
+    $ yasboot cluster status -c yashandb -d
+    # The part before the colon in nodeid is the node ID; for example, 2-2:5 corresponds to node ID 2-2
     ```
 
-2. Modify the ARCHIVE_DEST_* configuration parameters for all nodes in Group 1 (the primary replication group), clearing the parameters pointing to NODE2-1 and adding new parameters pointing to NODE2-2.
+    You can obtain the standby replication group and its node role information through the database_role and source_node fields, and get the target node ID through the nodeid field; for example, `2-2:5` corresponds to node ID 2-2.
 
-    ```sql
-    -- The ARCHIVE_DEST_*=node* notation is a placeholder and should be replaced by the actual REPLICATION_ADDR of the target node
-    -- NODE1-1:
-    HA_ELECTION_ENABLED=TRUE
-    ARCHIVE_DEST_2=NODE1-2 VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_3=NODE1-3 VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_4=''
-    ARCHIVE_DEST_5=NODE2-2 DISABLE_ELECTION=TRUE VALID_FOR=PRIMARY_ROLE
-   
-    -- NODE1-2: 
-    HA_ELECTION_ENABLED=TRUE
-    ARCHIVE_DEST_1=NODE1-1 VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_3=NODE1-3 VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_4=''
-    ARCHIVE_DEST_5=NODE2-2 DISABLE_ELECTION=TRUE VALID_FOR=PRIMARY_ROLE
-   
-    -- NODE1-3: 
-    HA_ELECTION_ENABLED=TRUE
-    ARCHIVE_DEST_2=NODE1-2 VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_1=NODE1-1 VALID_FOR=PRIMARY_ROLE
-    ARCHIVE_DEST_4=''
-    ARCHIVE_DEST_5=NODE2-2 DISABLE_ELECTION=TRUE  VALID_FOR=PRIMARY_ROLE
+3. Execute the following command to perform the role switch.
+
+    ```shell
+    $ yasboot node switch-remote-standby -n 2-2 -c yashandb
     ```
 
-3. Modify the ARCHIVE_DEST_* configuration parameters for NODE2-2, changing the effective roles of ARCHIVE_DEST_* pointing to other nodes in the same group to ALL_ROLES.
+4. Execute the following command to confirm the role after the switch.
 
-    ```sql
-    -- The ARCHIVE_DEST_*=node* notation is a placeholder and should be replaced by the actual REPLICATION_ADDR of the target node
-    -- NODE2-2: 
-    ARCHIVE_DEST_4=NODE2-1  VALID_FOR=ALL_ROLES
-    ARCHIVE_DEST_6=NODE2-3  VALID_FOR=ALL_ROLES
-    ARCHIVE_DEST_1=NODE1-1  DISABLE_ELECTION=TRUE  VALID_FOR=PRIMARY_ROLE   
+    ```shell
+    $ yasboot cluster status -c yashandb -d
     ```

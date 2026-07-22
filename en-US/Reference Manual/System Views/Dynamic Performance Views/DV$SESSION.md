@@ -52,3 +52,9 @@ This view displays session information created by all nodes in the ISC distribut
 | RESOURCE_CONSUMER_GROUP | VARCHAR(68)  | Resource group to which the session belongs                |
 | PREV_SQL_ID | VARCHAR(13) | SQL identifier of the last SQL statement executed |
 | PREV_CHILD_ADDRESS | RAW(8) | Child cursor address of the last SQL statement executed |
+| LAST_CALL_ET | BIGINT | Elapsed time (in seconds) of the last call for the session:<br/>\* If the session STATUS is ACTIVE, the value represents the elapsed time (in seconds) since the session became active<br/>\* If the session STATUS is INACTIVE, the value represents the elapsed time (in seconds) since the session became inactive |
+| PLSQL_ENTRY_OBJECT_ID | BIGINT | Object ID of the PL entry for the session |
+| PLSQL_ENTRY_SUBPROGRAM_ID | BIGINT | Subprogram ID of the PL entry for the session |
+| PLSQL_OBJECT_ID | BIGINT | Object ID of the current PL object for the session |
+| PLSQL_SUBPROGRAM_ID | BIGINT | Subprogram ID of the current PL object for the session |
+| PLSQL_NEST_SUBPROGRAM_ID | INTEGER | Nested subprogram ID of the current PL object for the session |

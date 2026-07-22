@@ -115,9 +115,9 @@ After initiating failover, the system executes the following flow:
 
 ## Cascade Standby Deployment
 
-Cascade standby refers to a standby database's standby database. Ordinary standby databases receive logs from the primary database, while cascade standbys receive logs from their upstream standby databases.
+Cascade standby, which refers to the standby database of a standby database. Regular standby databases receive logs from the primary database, while cascade standbys receive logs from their parent standby databases.
 
-When a certain cascade standby's upstream standby database becomes the primary database, that cascade standby converts to an ordinary standby database.
+When the parent standby database of a cascade standby is promoted to a primary database, the cascade standby is converted to a regular standby database.
 
 Cascade standby is generally used in remote disaster recovery deployments, as illustrated below:
 
@@ -129,29 +129,27 @@ The cascade standby mode is only applicable to Standalone Deployment.
 
 **Primary/Standby Switching**
 
-Since cascade standbys do not connect directly to the primary database, they cannot execute switchover; only failover can be performed. However, if the upstream standby database of the cascade standby executes a switchover, the role of that cascade standby will change, and the primary/standby switching will depend on the current role status in the system, as shown in the figure:
+Since cascade standbys do not connect directly to the primary database, they cannot execute switchover; only failover can be performed. However, if the parent standby database of the cascade standby executes a switchover, the role of that cascade standby will change, and the primary/standby switching will depend on the current role status in the system, as shown in the figure:
 
 ![](./image/standby-standby.png)
 
 <span id="dual_rep_group" name="dual_rep_group"></span>
 
-## Dual Replication Group Primary/Standby Deployment
+## Dual Rep-Group Primary-Standby Deployment
 
-Deploying two Standalone Deployment primary/standby environments in different data centers/regions, where each primary/standby environment acts as a replication group. Data is synchronized from one replication group (primary replication group) to another replication group (standby replication group) to create a remote disaster recovery architecture. For deployment operations, please refer to [Dual Replication Group Primary/Standby Deployment](../Installation and Upgrade/Installation and Deployment/YashanDB Installation via CLI/Standalone (Primary-Standby) Deployment.md#Manual).
+Deploying two Standalone Deployment primary/standby environments in different data centers/regions, where each primary/standby environment acts as a replication group. Data is synchronized from one replication group (primary replication group) to another replication group (standby replication group) to create a remote disaster recovery architecture. For deployment operations, please refer to [Dual Rep-Group Primary-Standby Deployment](../Installation and Upgrade/Installation and Deployment/YashanDB Installation via CLI/Standalone (Primary-Standby) Deployment.md#Manual).
 
 Dual replication group primary/standby deployment consists of the following roles:
 
 - Primary Database: Responsible for sending redo logs to all standby databases; the primary database's replication group is called the primary replication group.
 
-- Standby Database:
+- Standby Database: All standby databases in the primary replication group, responsible for receiving redo logs sent by the primary database and applying them.
 
-  - Synchronous Standby: All standby databases in the primary replication group, responsible for receiving redo logs sent by the primary database and applying them.
-  
-  - Asynchronous Standby: The primary node in the standby replication group, responsible for receiving redo logs sent by the primary database and applying them, while also serving as the upstream standby database for other nodes in the standby replication group to forward the received redo logs.
+- Remote Standby: The primary node in the standby replication group, located in a different data center from the primary, responsible for receiving redo logs sent by the primary database and applying them, while also serving as the parent standby database for other nodes in the standby replication group to forward the received redo logs.
 
 - Cascade Standby: Other nodes in the standby replication group except the primary node, receiving and applying redo logs sent by the primary node.
 
-Taking the following figure of dual replication group primary/standby deployment as an example, GROUP 1 is the primary replication group: NODE1-1 is the primary database, and NODE1-2 and NODE1-3 are synchronous standby databases. GROUP 2 is the standby replication group: NODE2-1 is the asynchronous standby database (the primary node of the standby replication group), and NODE2-2 and NODE2-3 are cascade standby databases.
+Taking the following figure of dual replication group primary/standby deployment as an example, GROUP 1 is the primary replication group: NODE1-1 is the primary database, and NODE1-2 and NODE1-3 are standby databases. GROUP 2 is the standby replication group: NODE2-1 is the remote standby database (the primary node of the standby replication group), and NODE2-2 and NODE2-3 are cascade standby databases.
 
 ![](./image/dual_group.png)
 
@@ -167,15 +165,7 @@ Taking the following figure of dual replication group primary/standby deployment
 
 Nodes in the standby replication group do not possess direct switching capabilities between primary and standby and always maintain only the primary node receiving data from the primary replication group. If the primary node fails, data synchronization in the replication group will be interrupted.
 
-To change the primary node of the standby replication group, the relevant counterpart database link parameters ARCHIVE_DEST_* must be reconfigured:
-
-- All nodes must add counterpart database link parameters ARCHIVE_DEST_* pointing to the primary database in the primary replication group, formatted as `ARCHIVE_DEST_*='SERVICE=Target Node's REPLICATION_ADDR',DISABLE_ELECTION=TRUE,VALID_FOR=PRIMARY_ROLE`.
-
-- Counterpart database link parameters ARCHIVE_DEST_* pointing to group nodes:
-
-    - For the primary node, the configuration format is `ARCHIVE_DEST_*='SERVICE=Target Node's REPLICATION_ADDR',VALID_FOR=ALL_ROLES`.
-
-    - For other nodes, the configuration format is `ARCHIVE_DEST_*='SERVICE=Target Node's REPLICATION_ADDR',VALID_FOR=PRIMARY_ROLE`.
+You can use the `yasboot node switch-remote-standby` command to replace the primary node of the standby replication group.
 
 ### Inter-Group Primary/Standby Switching
 
@@ -245,7 +235,7 @@ Where N is the number of nodes, and syncNum is the number of synchronous standby
 
 ## *yasom* Election
 
-*yasom* Election is applicable in Standalone One-Primary/One-Standby Deployment, Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby). When the primary node fails and cannot provide services, the system promotes the standby node to primary through *yasom* arbitration, demoting the original primary node to standby.
+*yasom* Election is applicable in Standalone Primary-Standby Deployment (without cascade standby), Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby). When the primary node fails and cannot provide services, the system promotes the standby node to primary through *yasom* arbitration, demoting the original primary node to standby.
 
 When election is enabled, only manual switching of primary/standby can be performed by the user through the `yasboot node switchover` command. If the primary node fails, *yasom* automatically performs primary/standby switching, and users do not need, nor can, execute failover.
 
@@ -255,4 +245,4 @@ The choice to enable [*yasom* election](./Configuring Leader Election/Configurin
 
 YashanDB supports initiating a build operation on the standby database to achieve initialization. When creating a one-primary/multi-standby configuration or adding several standby databases online, utilizing parallel build can significantly enhance deployment efficiency.
 
-Parallel build is initiated by the primary database, which instructs multiple standby databases to start build operations, sending data to multiple standby databases simultaneously (up to the maximum allowable standby database data volume for primary/standby deployment), allowing multiple standby databases to execute restore concurrently. The cascading standby's parallel build is initiated by its upstream standby database.
+Parallel build is initiated by the primary database, which instructs multiple standby databases to start build operations, sending data to multiple standby databases simultaneously (up to the maximum allowable standby database data volume for primary/standby deployment), allowing multiple standby databases to execute restore concurrently. The cascading standby's parallel build is initiated by its parent standby database.

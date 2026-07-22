@@ -4,7 +4,7 @@ yasom仲裁选主是指基于yasom进程的[仲裁选主](../../工具手册/yas
 
 yasom仲裁选主仅在yasom和备库的yasagent进程在线时生效。
 
-开启yasom仲裁选主后，yasom进程会对数据库状态进行监控，当主库出现故障时，在备库执行failover；当备库出现故障最大保护模式下主库业务阻塞时，将主库保护模式降级。主库启动前会连接yasom或备库确认实际角色：
+开启yasom仲裁选主后，yasom进程会对数据库状态进行监控，当主库出现故障时，在备库执行failover；当备库出现故障最大保护模式下主库业务阻塞时，主库会将故障备库踢出同步备范围，以保证业务正常运行（如果所有同步备都故障，则会进行保护模式降级）。主库启动前会连接yasom或备库确认实际角色：
 
 - 若连接失败则主库启动失败。
 
@@ -18,7 +18,7 @@ yasom仲裁选主仅在yasom和备库的yasagent进程在线时生效。
 
 - yasom会持续检测备库连接主库是否超时，若时长超过FailoverThreshold参数值且yasom也与主库断连，则判定主库异常。此时，触发failover流程，yasom将根据候选备库集（FailoverTarget参数）的优先级将目标备库升主。
 
-- 旧主库宕机后重启时会与yasom确认角色，如果确认已有新的主库，旧主库将以备库角色启动。
+- 旧主库故障后重启时会与yasom确认角色，如果确认已有新的主库，旧主库将以备库角色启动。
 
 - 当备库发生故障时，yasom会调整主库的[同步备配置](../定义同步备.md)（REQUIRED_SYNC_STANDBYS参数），将故障备库从同步备列表中剔除，避免该故障备库阻塞主库事务。若该备库恢复正常且完成主备数据同步，yasom会还原主库的同步备配置。
 
@@ -39,15 +39,17 @@ yasom仲裁选主仅在yasom和备库的yasagent进程在线时生效。
 
 |  部署形态| 高可用部署规模|
 |--------------------|--------------------------------------|
-| 单机部署 | 一主一备部署 |
-| 存算一体分布式集群部署 | DN组内节点一主一备部署 |
+| 单机部署 | 一主一备<br/>一主三备（非级联备） |
 | 共享集群部署 | 一主一备<br/>一主多备 |
+| 存算一体分布式集群部署 | DN组内节点一主一备部署 |
 
 为统一称呼，存算一体分布式集群部署环境的主库指的是DN组的主节点，备库指的是DN组的备节点。共享集群部署环境的主库指的是主集群，备库指的是备集群。
 
 ## 前提条件
 
-需确保[操作系统认证](../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)功能已开启（遵循标准安装步骤时默认为开启状态）。
+- 需确保[操作系统认证](../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)功能已开启（遵循标准安装步骤时默认为开启状态）。
+
+- 若为单机一主多备部署，安装完成后会自动开启自动选主，需将其手动[关闭](./一主多备自动选主.md#close_election)（HA_ELECTION_ENABLED = FALSE）。
 
 ## 配置步骤
 
@@ -58,8 +60,6 @@ yasom仲裁选主仅在yasom和备库的yasagent进程在线时生效。
 - 备库数量须符合[适用场景](#Applicable)。
 
 - 主备库的各项资源参数建议保持一致，主备库所安装的数据库版本必须一致。
-
-- 需开启[操作系统认证](../../产品安全/身份标识与鉴别/操作系统认证/00操作系统认证.md)（遵循标准安装步骤时默认已开启），才能正常使用仲裁选主功能。
 
 - 建议将yasom部署在独立的服务器，不要与主/备库部署在同一服务器。
 
@@ -141,15 +141,18 @@ $ yasboot cluster status -c yashandb -d
 |  参数名| 默认值| 取值范围/格式| 含义|
 | ----------------------- | ------ | ---------- | --------------------------- |
 | FailoverThreshold       | 9      | [2, 1000]  | 备节点心跳超时时间，到达该时间后，yasom将执行failover切换流程 |
-| FailoverTarget          | - 主：所有备（非级联备）<br />- 备：主 | 格式为group&#124;node n:(x,y,z…) | 指定备升主的目标候选组/节点及其优先级顺序<br />- group：用于标识后续配置的数值编号是组ID，适用于共享集群部署。可通过cluster status命令查看，nodeId短横线前的数值为组ID<br />- node：用于标识后续配置的数值编号是节点ID，适用于单机部署、存算一体分布式集群部署。可通过cluster status命令查看，nodeId短横线前为节点ID<br />- `n:(x,y,z…)`：使用相应ID值指定具体的目标组/节点及其优先级顺序，优先级遵循配置时的先后顺序。若括号内置空`n:()`则表示将n从所有组/节点的FailoverTarget默认值中移除<br />例如，`node 1:(2,3)`表示节点1的故障转移候选为节点2和节点3，且第一优先级为节点2 |
-| FailoverAutoReinstate   | false  | true/false | 是否启用自动脑裂修复。<br/>启用后，如果备节点发生脑裂，处于NEED REPAIR状态，yasom将尝试自动修复 |
+| FailoverTarget          | - 主：所有备（非级联备）<br /><br />- 备：主 | 格式为：group&#124;node n:(x,y,z…) | 指定故障切换（即备升主）的目标及其优先级顺序<br />- group：用于标识后续配置的数值编号是组ID，适用于共享集群部署、存算一体分布式集群部署。可通过yasboot cluster status命令查看，nodeId短横线前的数值为组ID<br />- node：用于标识后续配置的数值编号是节点ID，适用于单机部署。可通过yasboot cluster status命令查看，nodeId短横线前为节点ID<br />- `n:(x,y,z…)`：使用相应ID值指定Failover目标及其优先级顺序（遵循圆括号中的先后顺序）。若括号内置空`n:()`则表示n没有Failover目标，也不会作为其他节点的Failover目标，即n不参与仲裁选主<br />- 在单机部署中，`node n:(x,y,z,…)`还可以将x、y、z等其中之一配置为动态候选者，格式为`ANY[a,b,…]`（例如`node n:(ANY[a,b,…],y,z,…)`），表示特定节点集`a,b,…`中的首个可用节点作为候选者，在该配置值中最多支持1个动态候选者（即ANY仅允许出现1次）<br />示例1：`group 1:(2,3)`表示集群1的故障切换候选者为集群2和集群3，且第一优先级为集群2<br />示例2：`node 2:(1, ANY[3,4])`表示节点2的故障切换候选者为节点1以及节点3或节点4中的首个可用节点，且第一优先级为节点1 |
+| FailoverAutoReinstate   | false  | true/false | 是否启用自动脑裂修复，仅单机部署生效。<br/>启用后，如果备节点发生脑裂，处于NEED REPAIR状态，yasom将尝试自动修复 |
 | ZeroDataLossMode        | true   | true/false | 是否启用零丢失模式。<br>启用后，将设置主备为最大保护模式，当主节点宕机时，备节点可自动failover；当备节点异常时，主节点将由yasom降级为最大可用模式，并禁止自动failover，直到备节点恢复同步后，yasom重新将主节点升级为最大保护模式后，可以自动failover |
 
 > **Caution**: 
 >
+> - 所有参数只能在yasom仲裁启动前进行修改。
+> - FailoverTarget可以给多个节点设置，是节点级别的参数。ANY[a,b,..]指定的目标中，只会有一个会作为同步备，可减少性能影响。
 > - FailoverThreshold太小，可能会因为网络抖动而发生不必要的切换，请根据网络状态设置合理的超时时间。
 > - FailoverAutoReinstate启用后，会自动修复备节点脑裂问题，会使备节点与主节点有分歧的部分数据丢失，请**谨慎使用**。
 > - ZeroDataLossMode启用后，优先使用最大保护模式。在最大保护模式下，主节点宕机，备节点自动failover后，不会丢失数据。当备节点异常后，主节点会降级为最大可用模式，此时备节点有丢失数据的风险，所以自动failover将禁用，直到主节点再次恢复最大保护模式。因此零丢失模式的切换条件更严格，但是能保证数据不丢失。
+> - 如果备库在执行Failover期间发生故障，只能重新拉起该备库继续升主，无法自动选择其他备库升主。
 
 
 
@@ -160,11 +163,14 @@ $ yasboot cluster status -c yashandb -d
     $ yasboot election config set -k FailoverThreshold -v 5 -c yashandb
     $ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
 
-    # 在共享集群中，需用组ID配置FailoverTarget参数
+    # 在共享集群、存算一体分布式集群部署中，需用组ID配置FailoverTarget参数。下面这条命令表示给集群1设置它的Failover目标为集群2和集群3，如果集群1作为主库发生故障，会优先将集群2升主
     $ yasboot election config set -k FailoverTarget  -v "group 1:(2,3)"  -c yashandb
     
-    # 在单机部署、存算一体分布式集群部署中，需用节点ID配置FailoverTarget参数
-    $ yasboot election config set -k FailoverTarget  -v "node 1:(2,3)"  -c yashandb
+    # 在单机部署中，需用节点ID配置FailoverTarget参数。下面这条命令表示给节点2设置它的Failover目标为节点3和节点1，如果节点2作为主库发生故障，会优先将节点3升主
+    $ yasboot election config set -k FailoverTarget  -v "node 2:(3,1)"  -c yashandb
+
+    # 在单机部署中，可以使用ANY关键字实现更灵活地个性化配置。下面这条命令表示给节点2设置它的Failover目标为节点1，节点3和节点4。其中节点3和节点4只有一个会作为同步备。如果节点2作为主库发生故障，会优先将节点1升主，如果节点1不可用，就会将节点3和节点4里生效的同步备升主。
+    $ yasboot election config set -k FailoverTarget  -v "node 2:(1, ANY[3,4])"  -c yashandb
     ```
 
 2. 查看FailoverTarget配置：
@@ -297,7 +303,7 @@ Automatic Failover: DISABLED
 
     |  字段| 含义|
     | --------------------- |-----------------------------------------------------------|
-    | group n<br />cluster | 参与yasom仲裁的对象类型：<br />- cluster：表示当前为集群级别的yasom仲裁，即环境为共享集群部署<br />- group n：表示当前为节点级别的yasom仲裁，即环境为单机部署或存算一体分布式集群部署，n为节点所属组的ID |
+    | group n<br />cluster | 参与yasom仲裁的对象类型：<br />- cluster：表示当前为集群级别的yasom仲裁，即环境为共享集群部署<br />- group n：表示当前为节点级别的yasom仲裁，即环境为单机部署或者存算一体分布式集群部署，n为节点所属组的ID |
     | Protection Mode | yasom记录的主节点保护模式。 |
     | Members | 参与仲裁的节点/组信息，包括节点状态、节点角色、备节点传输延迟、回放延迟和回放速率等。 |
     | Database Error(s) | 记录高可用相关异常，例如某个备库的redo日志与主库不匹配。 |
@@ -387,6 +393,87 @@ Automatic Failover: DISABLED
 2. 一旦主库在运行中出现切换条件所指定的异常或错误，主库会尝试同步剩余redo日志给备库，然后立即关闭（终止YASDB进程）。
 
 3. 备库将触发心跳超时，yasom下发failover指令给备库，让其升主。
+
+## 示例
+
+#### 单机一主一备
+
+```shell 
+# 配置心跳超时，配置零丢失模式
+$ yasboot election config set -k FailoverThreshold -v 9 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# 一主一备部署下，FailoverTarget参数使用默认值即可
+# 启动yasom仲裁（零丢失模式下，如果当前数据库不是最大保护模式，会弹出用户确认自动修改为最大保护模式的请求，确认即可）
+$ yasboot election enable on -c yashandb
+
+# 查看状态
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
+#### 共享集群一主一备
+
+```shell 
+# 配置心跳超时，配置零丢失模式
+$ yasboot election config set -k FailoverThreshold -v 15 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# 一主一备部署下，FailoverTarget参数使用默认值即可
+# 启动yasom仲裁（零丢失模式下，如果当前数据库不是最大保护模式，会弹出用户确认自动修改为最大保护模式的请求，确认即可）
+$ yasboot election enable on -c yashandb
+
+# 查看状态
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
+#### 单机一主三备
+
+```shell 
+# 配置心跳超时，配置零丢失模式
+$ yasboot election config set -k FailoverThreshold -v 9 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# 配置每一个节点的FailoverTarget，该示例中，节点1和节点2在中心A，节点3和节点4在中心B，同中心的备库优先升主，跨中心只有一个同步备，所以使用了ANY字段来包装跨中心的2个节点。
+$ yasboot election config set -k FailoverTarget  -v "node 1:(2, ANY[3,4])" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "node 2:(1, ANY[3,4])" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "node 3:(4, ANY[1,2])" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "node 4:(3, ANY[1,2])" -c yashandb
+
+# 查看FailoverTarget设置状态
+$ yasboot election target show -c yashandb
+
+# 启动yasom仲裁（零丢失模式下，如果当前数据库不是最大保护模式，会弹出用户确认自动修改为最大保护模式的请求，确认即可）
+$ yasboot election enable on -c yashandb
+
+# 查看状态
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
+
+#### 共享集群一主两备
+
+```shell 
+# 配置心跳超时，配置零丢失模式
+$ yasboot election config set -k FailoverThreshold -v 9 -c yashandb
+$ yasboot election config set -k ZeroDataLossMode -v true -c yashandb
+
+# 配置每一个集群的FailoverTarget，该示例中，集群1和集群2之间是同步传输，互相作为Failover目标。集群3是异步备，不参与仲裁选举，没有Failover目标，也不会被自动升主。
+$ yasboot election config set -k FailoverTarget  -v "group 1:(2)" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "group 2:(1)" -c yashandb
+$ yasboot election config set -k FailoverTarget  -v "group 3:()" -c yashandb
+
+# 查看FailoverTarget设置状态
+$ yasboot election target show -c yashandb
+
+# 启动yasom仲裁（零丢失模式下，如果当前数据库不是最大保护模式，会弹出用户确认自动修改为最大保护模式的请求，确认即可）
+$ yasboot election enable on -c yashandb
+
+# 查看状态
+$ yasboot election status -c yashandb
+$ yasboot election config show -c yashandb
+```
 
 ## 常见问题
 

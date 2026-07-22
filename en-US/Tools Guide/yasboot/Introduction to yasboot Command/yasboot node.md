@@ -214,7 +214,7 @@ $ yasboot node failover -c yashandb -n 4-1
 
 This command is used to perform node-level scale-in; the nodes may be:
 
-- The standby database(s) in Standalone (Primary-Standby) Deployment
+- The standby database(s) or cascade standby(s) in Standalone Primary-Standby Deployment; the standby database(s) in the primary replication group or non-primary nodes in the standby replication group (i.e., cascade standbys) In Dual Rep-Group Primary-Standby Deployment
 
 - The instance(s) in YAC Deployment
 
@@ -233,7 +233,7 @@ This command is used to perform node-level scale-in; the nodes may be:
 | *--clean*         | Clean up all nodes with failed scale-out, defaults to false |
 | *--ce-clean*         | Delete redundant files after backup restoration. This parameter applies only to YAC deployment |
 | *--no-primary*    | Whether to allow operations without a primary database in a standalone primary/standby deployment (this parameter is only valid for Standalone Deployment), defaults to false |
-| *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
+| *-u, --username*  | Specify the database user, which must be sys; if omitted, sys is used by default. |
 | *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
 | *--with-host*     | After successfully deleting the node, continue to delete the information of empty servers in the current cluster with no database nodes and no yasom processes (this parameter becomes invalid if --nowait is used) |
 | *--with-unconnected-host* | If the server of the deleted node is no longer connected, use this parameter to skip some tasks and forcibly delete the node.  |
@@ -245,11 +245,33 @@ This command is used to perform node-level scale-in; the nodes may be:
 $ yasboot node remove -c yashandb -n 4-1 --purge
 ```
 
+## node switch-remote-standby
+
+This command is used in Dual Rep-Group Primary-Standby Deployment to switch roles on the primary node (i.e., remote standby) of the standby replication group, converting it to a cascade standby, while promoting the specified non-primary node (i.e., cascade standby) to become the new primary node.
+
+|Option |Meaning |
+| --------------- | ---------------------------------------- |
+| *-c, --cluster*   | The cluster name of YashanDB (required) |
+| *-n, --node-id*   | The ID of the node to be switched to remote standby (e.g., 2-2, can be obtained via yasboot cluster status command by taking the numeric string before the colon in nodeid), only one ID is allowed |
+| *-f, --force*     | Skip confirmation and execute the command directly |
+| *-w, --nowait*    | Do not wait for the execution result after running |
+| *-d, --child*     | Display task and subtasks information   |
+| *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
+| *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
+| *--disable*       | Disable the display of running progress |
+| *-h,--help*          | View help information for the current command  |
+
+***Example***
+
+```shell
+$ yasboot node switch-remote-standby -n 2-2 -c yashandb
+```
+
 ## node add
 
 This command is used to perform node-level scale-out. Nodes may be:
 
-- The standby database(s) in Standalone (Primary-Standby) Deployment
+- The standby database(s) or cascade standby(s) in Standalone Primary-Standby Deployment; the standby database(s) in the primary replication group or non-primary nodes in the standby replication group (i.e., cascade standbys) In Dual Rep-Group Primary-Standby Deployment
 
 - The instance(s) in YAC Deployment
 
@@ -301,4 +323,62 @@ This command is used to rebuild standby nodes.
 
 ```shell
 $ yasboot node build -c yashandb --node-ids 1-2,1-3
+```
+
+## node safe-stop
+
+This command is used to safely stop the specified node. Executing this command is equivalent to sequentially executing the following in the database:
+
+1. `ALTER SYSTEM LISTENER STOP` — Stop accepting new connections
+2. `ALTER SYSTEM KILL SESSION WITH TRANSACTION` — Wait for active transactions to complete before terminating all sessions
+3. `SHUTDOWN IMMEDIATE` — Shut down the node
+
+|Option |Meaning |
+| --------------- | ----------------------------------------- |
+| *-c, --cluster*   | The cluster name of YashanDB (required) |
+| *-n, --node-id*   | The ID of the target node (e.g., `1-2`. You can view the database information via the `yasboot cluster status` command) (required) |
+| *-w, --nowait*    | Do not wait for the execution result after running |
+| *-d, --child*     | Display task and subtasks information   |
+| *--disable*       | Disable the display of running progress  |
+| *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
+| *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
+| *-h,--help*          | View help information for the current command  |
+
+***Example***
+
+```shell
+$ yasboot node safe-stop -c yashandb -n 1-1
+```
+
+## node session-lb
+
+This command is used to balance node load by batch terminating sessions.
+
+|Option |Meaning |
+| --------------- | ----------------------------------------- |
+| *-c, --cluster*   | The cluster name of YashanDB (required) |
+| *-n, --node-id*   | The ID of the target node (e.g., `1-2`. You can view the database information via the `yasboot cluster status` command |
+| *--with-transaction* | Include sessions with active transactions when terminating; these sessions will wait for the transaction to complete before disconnecting |
+| *--count* | Maximum number of sessions to terminate, defaults to 0, meaning terminate all matching sessions |
+| *-w, --nowait*    | Do not wait for the execution result after running |
+| *-d, --child*     | Display task and subtasks information   |
+| *--disable*       | Disable the display of running progress  |
+| *-u, --username*  | Specify the database user. If not specified, the default user sys is used |
+| *-p, --password*  | Password for the database user <br/>If the `sys` user is used and [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) (enabled by default after installation) is activated, no password needs to be specified   |
+| *-h,--help*          | View help information for the current command  |
+
+***Example***
+
+```shell
+# Terminate all sessions without active transactions on the specified node
+$ yasboot node session-lb -c yashandb -n 1-1
+
+# Terminate up to 5 sessions without active transactions on the specified node
+$ yasboot node session-lb -c yashandb -n 1-1 --count 5
+
+# Terminate all sessions (including those with active transactions) on the specified node
+$ yasboot node session-lb -c yashandb -n 1-1 --with-transaction
+
+# Terminate up to 3 sessions (including those with active transactions) on the specified node
+$ yasboot node session-lb -c yashandb -n 1-1 --with-transaction --count 3
 ```

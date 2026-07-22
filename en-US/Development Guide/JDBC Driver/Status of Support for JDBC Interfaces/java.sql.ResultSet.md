@@ -21,6 +21,8 @@ YashanDB JDBC driver supports the following functionalities for the ResultSet in
 | int                 | getInt(String columnLabel)                                                           |
 | long                | getLong(int columnIndex)                                                             |
 | long                | getLong(String columnLabel)                                                          |
+| NClob               | getNClob(int columnIndex)                                                            |
+| NClob               | getNClob(String columnLabel)                                                         |
 | SQLXML              | getSQLXML(int columnIndex)                                                           |
 | SQLXML              | getSQLXML(String columnLabel)                                                        |
 | float               | getFloat(int columnIndex)                                                            |
@@ -55,10 +57,15 @@ YashanDB JDBC driver supports the following functionalities for the ResultSet in
 | int                 | getRow()                                                                             |
 | int                 | getType()                                                                            |
 | int                 | getConcurrency()                                                                     |
+| int                 | getFetchDirection()                                                                  |
+| int                 | getFetchSize()                                                                       |
+| SQLWarning          | getWarnings()                                                                        |
 | Statement           | getStatement()                                                                       |
 | RowId               | getRowId(int columnIndex)                                                            |
 | RowId               | getRowId(String columnLabel)                                                         |
 | boolean             | isClosed()                                                                           |
+| java.io.Reader      | getNCharacterStream(int columnIndex)                                                 |
+| java.io.Reader      | getNCharacterStream(String columnLabel)                                              |
 | java.sql.Time       | getTime(int columnIndex)                                                             |
 | java.sql.Time       | getTime(String columnLabel)                                                          |
 | java.sql.Time       | getTime(int columnIndex, Calendar cal)                                               |
@@ -86,6 +93,8 @@ YashanDB JDBC driver supports the following functionalities for the ResultSet in
 | boolean             | rowUpdated()                                                                         |
 | boolean             | rowInserted()                                                                        |
 | boolean             | rowDeleted()                                                                         |
+| void                | clearWarnings()                                                                      |
+| void                | setFetchSize(int rows)                                                               |
 | void                | updateNull(int columnIndex)                                                          |
 | void                | updateNull(String columnLabel)                                                       |
 | void                | updateByte(int columnIndex, byte x)                                                  |
@@ -131,6 +140,7 @@ YashanDB JDBC driver supports the following functionalities for the ResultSet in
 | void                | moveToInsertRow()                                                                    |
 | void                | moveToCurrentRow()                                                                   |
 | void                | refreshRow()                                                                         |
+| void                | setFetchDirection(int direction)                                                     |
 
 Unsupported functionalities:
 
@@ -140,15 +150,7 @@ Unsupported functionalities:
 | java.net.URL        | getURL(String columnLabel)                                                     |
 | java.io.InputStream | getUnicodeStream(int columnIndex)                                              |
 | java.io.InputStream | getUnicodeStream(String columnLabel)                                           |
-| java.io.Reader      | getNCharacterStream(int columnIndex)                                           |
-| java.io.Reader      | getNCharacterStream(String columnLabel)                                        |
-| SQLWarning          | getWarnings()                                                                  |
-| void                | clearWarnings()                                                                |
 | String              | getCursorName()                                                                |
-| void                | setFetchDirection(int direction)                                               |
-| int                 | getFetchDirection()                                                            |
-| void                | setFetchSize(int rows)                                                         |
-| int                 | getFetchSize()                                                                 |
 | void                | updateArray(int columnIndex, java.sql.Array x)                                 |
 | void                | updateArray(String columnLabel, java.sql.Array x)                              |
 | void                | updateRef(int columnIndex, java.sql.Ref x)                                     |
@@ -196,6 +198,4 @@ Unsupported functionalities:
 | void                | cancelRowUpdates()                                                             |
 | Ref                 | getRef(int columnIndex)                                                        |
 | Ref                 | getRef(String columnLabel)                                                     |
-| NClob               | getNClob(int columnIndex)                                                      |
-| NClob               | getNClob(String columnLabel)                                                   |
 | int                 | getHoldability()                                                               |

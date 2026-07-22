@@ -35,6 +35,7 @@ In ISC Distributed Cluster Deployment, this view shows the MN instance's databas
 | CREATED | DATE | Creation Time |
 | RESETLOGS_CHANGE# | BIGINT | System modification sequence number (SCN) at open resetlogs |
 | FLASHBACK_ON | VARCHAR(8) | Whether the entire database flashback functionality is enabled <br/>*  YES: Enabled<br/>*  NO: Disabled |
+| HAS_GEK  | VARCHAR(8) | Whether there is a global key<br/>* YES: Yes<br/>* NO: No |
 
 
 

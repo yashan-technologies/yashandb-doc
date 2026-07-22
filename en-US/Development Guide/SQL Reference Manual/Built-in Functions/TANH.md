@@ -2,15 +2,45 @@
 tanh = TANH  "(" expr ")" .
 ```
 
-The TANH function returns the hyperbolic tangent of its argument, which is not limited in size (only constrained by the range defined for its data type). The function returns a DOUBLE type value.
+The TANH function returns the hyperbolic tangent of its argument, which is not limited in size (only constrained by the range defined for its data type).
 
-The value of [expr](../General SQL Syntax/expr) can be a numeric type or a character type that can be converted to NUMBER (conversion failure returns an Invalid number error). For other types, the function returns a type not supported.
+The rules of this function are as follows:
 
-When the value of expr is NULL, the function returns NULL.
+- The value of [expr](../General SQL Syntax/expr) can be a numeric type or a character type that can be converted to NUMBER (conversion failure returns an Invalid number error). For other types, the function returns type not supported.
 
-***Example***
+- When expr is NULL, the function returns NULL.
+
+- When expr is Nan, Inf, or -Inf, the function handling rules are affected by the configuration parameter [MATH_FUNC_RETURN_DECIMAL](../../../Reference Manual/Configuration Parameters.md#MFRD):
+
+  - If MATH_FUNC_RETURN_DECIMAL = FALSE (default value), the handling rules are as follows:
+
+    | expr | TANH(expr) |
+    | ---- | -------- |
+    | Nan  | Nan       |
+    | Inf  | 1         |
+    | -Inf | -1        |
+
+  - If MATH_FUNC_RETURN_DECIMAL = TRUE, the handling rules are as follows:
+
+    | expr | TANH(expr) |
+    | ---- | -------- |
+    | Nan, Inf, -Inf | function returns error |
+
+- When expr is other valid values, the return type of the function is also affected by the configuration parameter MATH_FUNC_RETURN_DECIMAL:
+
+  - If MATH_FUNC_RETURN_DECIMAL = TRUE and expr does not contain FLOAT or DOUBLE type, the function returns NUMBER type.
+
+  - Otherwise, the function returns DOUBLE type.
+
+***Example*** 1
 
 ```sql
+SHOW PARAMETER MATH_FUNC_RETURN_DECIMAL
+
+NAME                                           VALUE
+---------------------------------------------- --------------------------------
+MATH_FUNC_RETURN_DECIMAL                    FALSE
+
 SELECT TANH(1) res FROM DUAL;
 RES
 -----------
@@ -25,4 +55,22 @@ SELECT TANH(b'1') res FROM DUAL;
 RES
 -----------
 7.616E-001
+```
+
+***Example*** 2
+
+```sql
+SHOW PARAMETER MATH_FUNC_RETURN_DECIMAL
+
+NAME                                           VALUE
+---------------------------------------------- --------------------------------
+MATH_FUNC_RETURN_DECIMAL                    TRUE
+
+SELECT TANH(1) res FROM DUAL;
+               RES
+------------------
+.76159415595576485
+
+SELECT TANH('Nan') res FROM DUAL;
+YAS-04426 the argument value is out of range
 ```

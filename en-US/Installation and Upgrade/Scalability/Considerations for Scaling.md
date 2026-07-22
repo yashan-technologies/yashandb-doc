@@ -20,7 +20,7 @@ Before performing the scaling operations, please carefully read the relevant pre
 
 - Scaling operations cannot be performed concurrently with the following operations:
     
-    - [Scaling for Standalone (Primary-Standby) Deployment](./Scaling for Standalone Deployment/00Scaling for Standalone Deployment): switchover, tablespace, and other data file addition/deletion/RESIZE operations.
+    - [Scaling for Standalone (Primary-Standby) Deployment](./Scaling for Standalone Deployment/00Scaling for Standalone Deployment): switchover, failover, tablespace, and other data file addition/deletion/RESIZE operations, and primary node role switch (switch-remote-standby) in the standby replication group in Dual Rep-Group Primary-Standby Deployment.
 
     - [Scaling for YAC Deployment](./Scaling for YAC Deployment/00Scaling for YAC Deployment): add_instance_clauses in ALTER DATABASE, cluster switchover, tablespace and other data file addition/deletion/RESIZE, redo file addition/deletion, creation/running of YStream servers, distributed transactions, backup/recovery, and joining other instances to YAC (that is, starting from NOMOUNT phase to MOUNT/OPEN phase) and other operations.
 
@@ -36,6 +36,10 @@ Before performing the scaling operations, please carefully read the relevant pre
         ```
 
 - During the scaling process, do not forcibly restart/stop any nodes in the current database environment using *yasboot*, as this may cause scaling failures and prevent successful execution of node remove --clean or group remove --clean commands.
+
+- In Standalone Primary-Standby Deployment, deleting a standby database that has cascade standbys is **not allowed**. To delete it, you must first delete all cascade standbys of the target standby database.
+
+- In Dual Rep-Group Primary-Standby Deployment, the primary node (i.e., remote standby) in the standby replication group **cannot** be directly deleted. To delete it, first execute the yasboot node switch-remote-standby command to switch another node to the remote standby role, then delete the target node after it is demoted to a cascade standby.
 
 - Before [scaling out/in DN groups](./Scaling for ISC Distributed Cluster Deployment/DN Group Scaling) in ISC Distributed Cluster Deployment, please also note:
 

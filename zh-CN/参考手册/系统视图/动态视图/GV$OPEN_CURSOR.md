@@ -16,3 +16,4 @@
 | GMEM\_USED\_SIZE | BIGINT | statement当前占用全局内存的空间大小（单位：字节） |
 | SQL\_ID | VARCHAR(13) | 唯一标识一条SQL语句的ID值，具体算法通过SQL文本的哈希/加密运算获得 |
 | SQL\_HASH | BIGINT | SQL语句的哈希值，由SQL文本计算得到 |
+| CURSOR\_TYPE | VARCHAR(64) | 游标类型<br>\* OPEN PL/SQL：PL打开的游标<br>\* OPEN：打开的游标<br>\* SESSION CURSOR CACHED：会话缓存游标<br>\* PL/SQL CURSOR CACHED：在PL中使用的会话缓存游标 |

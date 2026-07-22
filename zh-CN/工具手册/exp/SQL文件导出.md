@@ -22,6 +22,7 @@ exp --sql username/password@ip:port [KEYWORD[=value1,value2,...,valueN]]
 - ROWS：只支持导出元数据的SQL，即Value只能为单值N。可省略，效果与ROWS=N一致。
 - LOG_PATH：用于指定导出日志的路径，Value为路径名，可省略，省略则不生成日志文件。
 - LOG_LEVEL：用于指定导出日志的日志级别，Value为[ERROR, WARN, INFO, DEBUG, TRACE]，可省略，省略则默认为INFO。
+- HIDDEN_COLUMN：用于指定是否导出隐藏列，Value为单值Y或N，可省略，省略则默认为Y。
 
 示例
 

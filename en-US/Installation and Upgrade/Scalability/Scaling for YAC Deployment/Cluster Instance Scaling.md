@@ -4,11 +4,9 @@ YashanDB supports online scale-out or scale-in of instance nodes in YAC Deployme
 >
 > - Before performing scaling operations, please carefully read the [Considerations for Scaling](../Considerations for Scaling).
 >
-> - In Primary-Standby Cluster Deployment, instance scale-out/scale-in operations must be performed on the primary cluster, and the corresponding operations will not be synchronized to the standby cluster. If you expect each cluster in the Primary-Standby Cluster Deployment to have the same number of instances, you can first manually perform a switchover after completing instance scale-out/scale-in on the primary cluster, and then scale-out/scale-in instances for the new primary cluster.
->
 > - If scaling operations fail, please refer to [Exception Handling for Scaling](../Exception Handling for Scaling) for resolution.
 
-## scaling out Instance Online
+## Scaling out Instance Online
 
 Each instance will be hosted by a separate server (hereinafter referred to as "new server"). It is recommended that the new server's OS version be consistent with existing server(s).
 
@@ -17,8 +15,6 @@ Each instance will be hosted by a separate server (hereinafter referred to as "n
 2. Log in to the server where an existing instance of the database is located as the installation user. 
 
 3. Check and disable yasom election:
-
-    If it is a one-primary/one-standby environment, disable yasom election before proceeding. If it is a one-primary/multi-standby environment, it does not affect online scale-in whether the leader election is enabled or not.
 
     ```shell
     $ yasboot election config show -c yashandb
@@ -68,34 +64,57 @@ Each instance will be hosted by a separate server (hereinafter referred to as "n
 
 7. On the server where the configuration file was generated, execute the following command to add instance(s).
 
-    ``` shell
+    ```shell
     # If the database has enabled key management before scaling out, --wallet-password Your_keystore_password must be specified
-    
     $ yasboot node add -c yashandb -t yashandb_add.toml
     ```
 
-    A successful task does not necessarily indicate that the scaling is completely successful; there may still be backend tasks completing data synchronization and other operations. You can check if all scaling-related tasks succeeded using the `task list` command.
+    Task completion does not necessarily indicate that the scaling out is completely successful; there may still be backend tasks completing data synchronization and other operations. You can check if all scaling-out related tasks succeeded using the `task list` command.
 
     ```shell
     $ yasboot task list -c yashandb --search type=NodeAdd
     ```
 
-8. (Optional) Backup the database.
+8. (Optional) If the current environment is Primary-Standby Cluster Deployment and instances need to be scaled out for the standby cluster(s), perform the following operations:
+
+    1. ) Execute the following command to generate the configuration file for the standby cluster:
+
+      ```shell
+      $ yasboot config node gen -c yashandb -g 2 \
+      -u yashan -p password --ip ip1,ip2 --port 22 \
+      --install-path /data/yashan/yasdb_home \
+      --data-path /data/yashan/yasdb_data \
+      --log-path /data/yashan/log \
+      --node 2 \
+      --vips vip1,vip2
+      ```
+
+    2. ) On the server where the configuration file was generated, execute the following command to add instances to the standby cluster:
+
+      ```shell
+      $ yasboot node add -c yashandb -t yashandb_add.toml -d
+      ```
+
+    3. ) If there are multiple standby clusters that need to be scaled out, repeat steps 1.) ~ 2.).
+
+9. (Optional) Backup the database.
 
     It is recommended to perform a [backup](../../../Database Administration/Backup and Recovery/00Backup and Recovery) of the database to ensure there is a baseline backup set available for recovery after scaling.
 
-9. Copy the [[host]] content from hosts_add.toml to the end of hosts.toml to avoid using old host information during an upgrade.
+10. Copy the [[host]] content from hosts_add.toml to the end of hosts.toml to avoid using old host information during an upgrade.
 
-10. If any configurations have been temporarily adjusted for successful scaling out (e.g., disabling yasom election), restore the configuration as needed after scaling out is complete (e.g., re-enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election)).
+11. If any configurations have been temporarily adjusted for successful scaling out (e.g., disabling yasom election), restore the configuration as needed after scaling out is complete (e.g., re-enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election)).
 
 ## Scaling in Instance Online
+
+> **Caution**:
+>
+> In YAC with HA Deployment, when deleting an instance from the primary cluster (e.g., `1-1`), the corresponding instances in each standby cluster (e.g., `2-1`, `3-1`) are also deleted synchronously.
 
 1. Log in to the database installation server as the installation user. 
 
 
 2. Check and disable yasom election:
-
-    If it is a one-primary/one-standby environment, disable yasom election before proceeding. If it is a one-primary/multi-standby environment, it does not affect online scale-in whether the leader election is enabled or not.
 
     ```shell
     $ yasboot election config show -c yashandb
@@ -120,7 +139,7 @@ Each instance will be hosted by a separate server (hereinafter referred to as "n
     # The part before the colon in nodeid is the node ID; for example, 1-1:1 corresponds to node ID 1-1
     ```
 
-4. Execute the following command to delete the instance.
+4. Execute the following command to delete the instance. If you need to explicitly specify the database user to perform this operation, you must specify sys as the user.
 
     - Scenario 1: Delete the normal instance(s)
 
@@ -171,18 +190,11 @@ Each instance will be hosted by a separate server (hereinafter referred to as "n
     
     It is recommended to perform a [backup](../../../Database Administration/Backup and Recovery/00Backup and Recovery) of the database to ensure there is a baseline backup set available for recovery after scale-in.
 
-    > **Note**: 
-    >
-    > After scale-in a YAC Deployment, if restoring from a pre-scale-in backup (with more instances than the current cluster), execute the following command after recovery to clean up excess data files:
-    > ```shell
-    > $ yasboot node remove -c yashandb --ce-clean
-    > ```
-
 6. If the --with-host parameter is specified during scale-in (that is, empty servers are removed), update the [[host]] entries in the hosts.toml file after the scale-in operation completes by deleting the information of the corresponding servers. This prevents the upgrade process from using outdated host configuration.
 
 7. If any configurations have been temporarily adjusted for successful scale-in (e.g., disabling yasom election), restore the configuration as needed after scale-in is complete (e.g., re-enable [yasom election](../../../High Availability/Configuring Leader Election/Configuring yasom Election)).
 
-8. (Optional) If the `--with-unconnected-host` parameter is specified during scale-in (i.e., instances that cannot be connected are deleted), you can clean up the environment for the servers that cannot be connected after the scale-in is complete:
+ 8. (Optional) If the `--with-unconnected-host` parameter is specified during scale-in (i.e., instances that cannot be connected are deleted), you can clean up the environment for the servers that cannot be connected after the scale-in is complete:
 
     - Remove leftover paths, including $YASDB_DATA, $YASDB_HOME, log directories, and local tablespace directories.
 

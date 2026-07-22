@@ -165,13 +165,13 @@ FROM (table_reference|join_clause|"(" join_clause ")")
 **[inner\_cross\_join\_clause](#innercrossjoinclause)::=**
 
 ```ebnf
-= ([INNER] JOIN table_reference ON condition)|(CROSS JOIN table_reference).
+= ([INNER] JOIN table_reference (ON condition|USING "(" column_name {"," column_name} ")" ))|(CROSS JOIN table_reference).
 ```
 
 **[outer\_join\_clause](#outerjoinclause)::=**
 
 ```ebnf
-= outer_join_type JOIN table_reference [ON condition].
+= outer_join_type JOIN table_reference [ON condition|USING "(" column_name {"," column_name} ")"].
 ```
 
 **[outer\_join\_type](#outerjointype)::=**
@@ -985,8 +985,13 @@ In ISC Distributed Cluster Deployment, the following rules apply:
 
 Inner join queries are a type of cross-join method. When performing inner join queries on tables A and B, each row of A is compared against every row of B according to the join condition, returning results where both A and B meet the condition. Therefore:
 
-* INNER: The result is the intersection of A and B. The ON condition must be specified afterward.
-* CROSS: The result is the Cartesian product of A and B. The ON condition cannot be specified afterward.
+* INNER: The result is the intersection of A and B. At this time, an ON condition or USING clause must be specified afterward:
+
+  * ON condition: Using the ON clause can specify the join condition, separating the join condition from any search or filter conditions in the WHERE clause.
+
+  * USING clause: Using the USING clause can specify columns with the same name in the left and right tables for equi-join. When specifying column names, unqualified simple column names must be used, and the column name must exist and be unique in both the left and right tables.
+
+* CROSS: The result is the Cartesian product of A and B. The ON condition or USING clause cannot be specified afterward.
 
 ***Example*** for ISC Distributed Cluster Deployment
 
@@ -999,10 +1004,10 @@ ON a.area_no = b.area_no
 WHERE b.branch_no like '01%';
 BRANCH_NAME       AREA_NAME                                                     
 ----------------- --------------------
-Shanghai               EastChina                                                       
-Nanjing               EastChina                                                       
-Fuzhou               EastChina                                                       
-Xiamen               EastChina                                                                  
+Shanghai          EastChina                                                       
+Nanjing           EastChina                                                       
+Fuzhou            EastChina                                                       
+Xiamen            EastChina                                                                  
  
 -- Equivalent to the inner join above
 SELECT b.branch_name, a.area_name
@@ -1010,11 +1015,23 @@ FROM branches b, area a
 WHERE a.area_no=b.area_no AND b.branch_no like '01%';
 BRANCH_NAME       AREA_NAME                                                     
 ----------------- --------------------
-Shanghai               EastChina                                                       
-Nanjing               EastChina                                                       
-Fuzhou               EastChina                                                       
-Xiamen               EastChina                                                       
- 
+Shanghai          EastChina                                                       
+Nanjing           EastChina                                                       
+Fuzhou            EastChina                                                       
+Xiamen            EastChina                                                       
+
+-- Using USING clause for inner join, equivalent to ON a.area_no = b.area_no
+SELECT b.branch_name, a.area_name
+FROM branches b
+JOIN area a USING (area_no)
+WHERE b.branch_no like '01%';
+BRANCH_NAME       AREA_NAME
+----------------- --------------------
+Shanghai          EastChina
+Nanjing           EastChina
+Fuzhou            EastChina
+Xiamen            EastChina
+
 -- CROSS JOIN
 SELECT b.branch_name, a.area_name
 FROM branches b
@@ -1022,26 +1039,26 @@ CROSS JOIN area a
 WHERE b.branch_no like '01%';
 BRANCH_NAME       AREA_NAME                                                     
 ----------------- --------------------
-Shanghai               EastChina                                                       
-Shanghai               WestChina                                                       
-Shanghai               SouthChina                                                       
-Shanghai               NorthChina                                                       
-Shanghai               CentralChina                                                       
-Nanjing               EastChina                                                       
-Nanjing               WestChina                                                       
-Nanjing               SouthChina                                                       
-Nanjing               NorthChina                                                       
-Nanjing               CentralChina                                                       
-Fuzhou               EastChina                                                       
-Fuzhou               WestChina                                                       
-Fuzhou               SouthChina                                                       
-Fuzhou               NorthChina                                                       
-Fuzhou               CentralChina                                                       
-Xiamen               EastChina                                                       
-Xiamen               WestChina                                                       
-Xiamen               SouthChina                                                       
-Xiamen               NorthChina                                                       
-Xiamen               CentralChina           
+Shanghai          EastChina                                                       
+Shanghai          WestChina                                                       
+Shanghai          SouthChina                                                       
+Shanghai          NorthChina                                                       
+Shanghai          CentralChina                                                       
+Nanjing           EastChina                                                       
+Nanjing           WestChina                                                       
+Nanjing           SouthChina                                                       
+Nanjing           NorthChina                                                       
+Nanjing           CentralChina                                                       
+Fuzhou            EastChina                                                       
+Fuzhou            WestChina                                                       
+Fuzhou            SouthChina                                                       
+Fuzhou            NorthChina                                                       
+Fuzhou            CentralChina                                                       
+Xiamen            EastChina                                                       
+Xiamen            WestChina                                                       
+Xiamen            SouthChina                                                       
+Xiamen            NorthChina                                                       
+Xiamen            CentralChina           
 
 -- Distributed view querying                                                 
 select * from (select GROUP_ID,GROUP_NODE_ID,NAME,VALUE,DEFAULT_VALUE,IS_DEPRECATED from GV$SYSTEM_PARAMETER where GROUP_ID=0);
@@ -1119,7 +1136,7 @@ Fuzhou              EastChina
 Nanjing              EastChina           
 Shanghai              EastChina
                     SouthChina    
-Changsha              CentralChina            
+Changsha              CentralChina
 ```
 
 **(+) operator**
@@ -1336,11 +1353,15 @@ Columns are defined for grouping after GROUP BY, with multiple columns separated
 
 - UDTs and built-in UDTs cannot be used as grouping columns.
 
-* Columns or column data appearing in `select_list` must be a subset of the grouping columns or column data. 
+* Columns or column data appearing in `select_list` must be or be equivalent to a subset of the grouping columns or column data. 
 
-    Column is a subset: "SELECT col ,COUNT(*) FROM table GROUP BY col, col2;"
+    - Column is a subset: "SELECT col ,COUNT(*) FROM table GROUP BY col, col2;"
 
-    Column data is a subset: "SELECT LPAD(col), COUNT(*) FROM table GROUP BY col;"
+    - Column data is a subset: "SELECT LPAD(col), COUNT(*) FROM table GROUP BY col;"
+
+    - Column equivalent to a subset: "SELECT col1, col2, COUNT(*) FROM (SELECT col1, col1 as col2 FROM TABLE) GROUP BY col1, col3;"
+
+    - Column data equivalent to a subset: "SELECT LPAD(col1), col2, COUNT(*) FROM (SELECT col1, col1 as col2 FROM TABLE) GROUP BY col1;"
 
 * When functions are involved in grouping columns, the function parameters must match. 
 
@@ -1349,6 +1370,11 @@ Columns are defined for grouping after GROUP BY, with multiple columns separated
 * If DISTINCT or ORDER BY clauses appear simultaneously, the columns in those clauses follow the two rules above.
 * Grouping columns cannot contain or nest `*` (asterisk), SEQUENCE, subqueries, and aggregate functions or similar expressions.
 * When a numerical grouping column appears, unlike ORDER BY, this statement will not interpret numbers as column positions but rather treat them as literals.
+* Whether grouping columns are allowed to use column aliases defined in the select_list: 
+
+    * In yashan mode, grouping columns are not allowed to use aliases.
+
+    * In mysql mode, grouping columns are allowed to use aliases.
 
 ###### HAVING
 
@@ -1357,6 +1383,11 @@ The HAVING clause constrains the results of a SELECT query with GROUP BY, applyi
 * The HAVING clause can be placed before or after the GROUP BY clause.
 * The condition after HAVING is a Boolean expression, with syntax identical to that of the WHERE clause's filter_clause. However, it may only include grouping columns, aggregate functions (which may differ from those in the select_list), literals, and subqueries (columns in the subquery need not be grouping columns). In ISC Distributed Cluster Deployment, subqueries cannot be used.
 * If there is no GROUP BY, using HAVING directly means this constraint applies to the entire query result. In this case, grouping columns cannot appear in the `select_list` and condition.
+* Whether column names in the HAVING clause are allowed to use column aliases defined in the select_list: 
+
+    * In yashan mode, aliases are not allowed.
+
+    * In mysql mode, aliases are allowed.
 
 ***Example*** for Standalone Deployment
 

@@ -1,4 +1,4 @@
-The OWA_UTIL package provides a set of built-in subprograms for performing operations such as retrieving information about the calling PL procedure.
+The OWA_UTIL package provides a set of built-in subprograms for performing operations such as retrieving information about the calling PL/SQL procedure.
 
 ## WHO_CALLED_ME
 

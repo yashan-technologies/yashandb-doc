@@ -18,6 +18,8 @@ In YashanDB, XML processing functions include:
 
 [XMLAGG](XMLAGG)
 
+[XMLELEMENT](XMLELEMENT)
+
 [XMLEXTRACT](XMLEXTRACT)
 
 [XMLPARSE](XMLPARSE)

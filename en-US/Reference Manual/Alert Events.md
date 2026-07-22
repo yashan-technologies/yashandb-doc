@@ -4,7 +4,7 @@ This document will list all alarm event information for YashanDB and provide han
 
 **Alphabetical Index**
 
-[a](#aalarm)		[c](#calarm)		[d](#dalarm)		[i](#ialarm)		[l](#lalarm)		[m](#malarm)		[s](#salarm)		[v](#valarm)
+[a](#aalarm)		[c](#calarm)		[d](#dalarm)		[i](#ialarm)		[l](#lalarm)		[m](#malarm)		[s](#salarm)		[u](#ualarm)		[v](#valarm)
 
 <span id="aalarm" name="aalarm"></span>
 
@@ -241,6 +241,18 @@ Handling Suggestions:
 
 - Check if the network connection between primary and standby is normal.
 - Check if the standby database has exited.
+
+<span id="ualarm" name="ualarm"></span>
+
+### UserLockExhausted
+
+An alarm is reported when a user lock cannot be allocated. The alarm is cleared when the available resources in the lock area reach 30% or above.
+
+This alarm event needs to be cleared.
+
+Handling Suggestions:
+
+- Check if the business concurrency is too high.
 
 <span id="valarm" name="valarm"></span>
 

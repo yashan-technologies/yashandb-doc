@@ -131,13 +131,13 @@ This command is used to configure the self-repair functionality of the current y
 
 After enabling the self-repair functionality, when the database cluster is normal but a yasom exhibits a multi-master phenomenon, it will automatically repair by keeping one master yasom and demoting the remaining yasoms automatically. The demoted yasom will back up its own metadata to $YASDB_HOME/om/{cluster_name}/data/repair/.
 
-It is recommended that all yasom self-repair configurations remain consistent. For specific configuration operations, please refer to [yasom configuration](../Manage Yasom/Managing Primary-Secondary yasom).
+It is recommended that all yasom self-repair configurations remain consistent. For specific configuration operations, please refer to [yasom configuration](../Manage yasom/Managing Primary-Secondary yasom).
 
 If the database cluster information does not meet expectations after self-repair, you can use the yasboot cluster load command to reload the information.
 
 Using self-repair must follow the rules below:
 
-- yasom arbitration (yasboot election) and self-repair are mutually exclusive.
+- *yasom* election and self-repair are mutually exclusive.
 
 - The [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) must be enabled (it is enabled by default when following standard installation steps) to properly use the self-repair functionality.
 
@@ -170,6 +170,47 @@ This command is used to demote yasom itself.
 ```shell
 $  yasboot process yasom demote -c yashandb
 ```
+
+## process yasom config set
+
+This command is used to configure yasom automatic leader election parameters, which take effect immediately after configuration.
+
+| Option | Meaning |
+|-----------------| ---------------------------- |
+| *-c, --cluster* | The cluster name of YashanDB (mandatory parameter) |
+| *-h,--help*        | View help information for the current command |
+| *--heartbeat-interval*        | Heartbeat interval for yasom automatic leader election |
+| *--heartbeat-timeout*        | Heartbeat timeout for yasom automatic leader election |
+| *--heartbeat-db-url*        | YCM backend database connection address (ip:port). For primary-standby deployment, specify multiple addresses: ip1:port1,ip2:port2,ip3:port3 |
+| *--heartbeat-db-user*        | YCM backend database username |
+| *--heartbeat-db-password*        | YCM backend database password. The password will be encrypted and saved |
+
+## process yasom config show
+
+This command is used to query yasom automatic leader election parameters.
+
+| Option | Meaning |
+|-----------------| ---------------------------- |
+| *-c, --cluster* | The cluster name of YashanDB (mandatory parameter) |
+| *-h,--help*        | View help information for the current command |
+
+## process yasom election on
+
+This command is used to enable yasom automatic leader election.
+
+| Option | Meaning |
+|-----------------| ---------------------------- |
+| *-c, --cluster* | The cluster name of YashanDB (mandatory parameter) |
+| *-h,--help*        | View help information for the current command |
+
+## process yasom election off
+
+This command is used to disable yasom automatic leader election.
+
+| Option | Meaning |
+|-----------------| ---------------------------- |
+| *-c, --cluster* | The cluster name of YashanDB (mandatory parameter) |
+| *-h,--help*        | View help information for the current command |
 
 ## process yasagent status
 

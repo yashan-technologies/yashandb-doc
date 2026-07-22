@@ -88,9 +88,9 @@ The standalone cascading standby deployment uses three servers as primary, stand
 | host0002    | 192.168.1.3   | Standby   |
 | host0003    | 192.168.1.4   | Cascading Standby |
 
-### Dual Replication Group Primary/Standby Deployment
+### Dual Rep-Group Primary-Standby Deployment
 
-The dual replication group primary/standby deployment uses six servers as primary group (deploying 1 primary 2 standby) and standby group (first node as standby, other nodes as cascading standby) as an example, establishing a high-availability environment with dual replication groups.
+The dual replication group primary/standby deployment uses six servers as primary group (deploying 1 primary 2 standby) and standby group (primary node as standby, other nodes as cascading standby) as an example, establishing a high-availability environment with dual replication groups.
 
 |Server Name |Server IP |Role |
 | -------- | ----------- |-----|

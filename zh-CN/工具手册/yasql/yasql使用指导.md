@@ -83,6 +83,7 @@ SQL> <yasql_subcommand>
 | [desc](#desc) | 获取数据库对象的描述信息，例如表/视图的字段定义                                     |
 | [set DIRECTEXECUTE](#directexecute) | 设置是否开启SQL语句的一次执行 |
 | [set AUTOCOMMIT](#autocommit) | 设置是否开启自动提交事务 |
+| [set TIME](#time) | 设置是否显示当前系统时间 |
 | [set TIMING](#timing) | 设置是否开启执行耗时统计 |
 | [set FEEDBACK](#feedback) | 设置是否显示反馈信息，例如“ROW_NUM row/rows affected.” |
 | [set SERVEROUTPUT](#serveroutput) | 设置是否打印服务端[DBMS_OUTPUT](../../开发手册/PL参考手册/内置高级包/DBMS_OUTPUT).PUT_LINE设置的缓冲区的信息 |
@@ -219,7 +220,6 @@ SQL> SELECT cno,cname FROM customer;
 ------------ -----------------------------------------------------
            1 customer1                                           
  
-1 row fetched.
 ```
 
 <span id="singlesql" name="singlesql"></span>
@@ -262,7 +262,6 @@ SQL> select 1 from dual;
 ------------
            1
  
-1 row fetched.
  
 SQL> select 2 from dual;
  
@@ -270,7 +269,6 @@ SQL> select 2 from dual;
 ------------
            2
  
-1 row fetched.
 ```
 
 <span id="sqlfile" name="sqlfile"></span>
@@ -524,6 +522,27 @@ show autocommit
 autocommit OFF
 ```
 
+<span id="time" name="time"></span>
+
+### 设置显示执行时间
+
+通过set ti[me] on|off可以设置是否在yasql的命令提示符前显示操作系统当前时间，默认为off，时间显示格式为"HH24:MI:SS"（例如15:30:45）。
+
+示例
+
+```shell
+set time on
+15:30:45 SQL> SELECT open_mode FROM v$database;
+
+OPEN_MODE
+-----------------
+READ_WRITE
+
+15:31:04 SQL> set ti off
+SQL> show time
+time OFF
+```
+
 <span id="timing" name="timing"></span>
 
 ### 设置执行耗时统计
@@ -540,8 +559,6 @@ OPEN_MODE
 -----------------
 READ_WRITE      
  
-1 row fetched.
- 
 Elapsed: 00:00:00.000
 
 set timing off
@@ -550,8 +567,6 @@ SELECT open_mode FROM v$database;
 OPEN_MODE        
 -----------------
 READ_WRITE      
- 
-1 row fetched.
 ```
 
 <span id="feedback" name="feedback"></span>
@@ -575,7 +590,6 @@ DUMMY
 -----
 X
  
-1 row fetched.
  
 set feedback off
 select * from dual;
@@ -765,8 +779,6 @@ new     1: SELECT 'YashanDB' FROM dual
 'YASHANDB'
 ----------
 YashanDB
-
-1 row fetched.
 ```
 
 也可以通过ACC[EPT] variable [CHAR] [PROMPT text|NOPR[OMPT]] [HIDE]语法来为变量赋值。
@@ -812,8 +824,6 @@ new     1: SELECT 'MANAGER' FROM dual
 ---------
 MANAGER
 
-1 row fetched.
-
 SELECT '&DEPARTMENT_ID' FROM dual;
 old     1: SELECT '&DEPARTMENT_ID' FROM dual
 new     1: SELECT '20' FROM dual
@@ -821,8 +831,6 @@ new     1: SELECT '20' FROM dual
 '20'
 -----
 20
-
-1 row fetched.
 ```
 
 <span id="numwidth" name="numwidth"></span>
@@ -850,17 +858,13 @@ SELECT INO,PRICE FROM item;
          INO       PRICE
 ------------ -----------
            1  5.768E+001
- 
-1 row fetched.
- 
+
 set num 20
 SELECT INO,PRICE FROM item;
  
          INO                 PRICE
 ------------ ---------------------
            1       5.76783924E+001
- 
-1 row fetched.
 ```
 
 <span id="heading" name="heading"></span>
@@ -882,15 +886,11 @@ DUMMY
 -----
 X
  
-1 row fetched.
- 
 set heading off
 select * from dual;
  
 X
- 
-1 row fetched.
- 
+
 show heading
 heading OFF
 ```
@@ -939,8 +939,6 @@ DEPARMENT_NO DEPARTMENT_NAME
 008          Purchasing Dep
 002          Finance Dep
 
-4 rows fetched.
-
 col department_name format a10;
 select deparment_no,department_name from department;
 
@@ -951,8 +949,6 @@ DEPARMENT_NO DEPARTMENT_NAME
 008          Purchasing Dep
 002          Finance Dep
 
-4 rows fetched.
-
 col department_name format a6;
 select deparment_no,department_name from department;
 
@@ -962,8 +958,6 @@ DEPARMENT_NO DEPA
 010          销售
 008          采购
 002          财务
-
-4 rows fetched.
 ```
 
 #### 查看列显示属性

@@ -15,5 +15,5 @@ YacResult yacNumberRound(YacNumber* n,
 |  参数名| 说明|
 | -------------- | -------------------- |
 | n (IN/OUT)     | 存放number类型的值。 |
-| precision (IN) | 精度。               |
-| scale (IN)     | 小数位数。           |
+| precision (IN) | 精度，取值范围为[1,38]。 |
+| scale (IN)     | 小数位数，取值范围为[-84,127]。 |

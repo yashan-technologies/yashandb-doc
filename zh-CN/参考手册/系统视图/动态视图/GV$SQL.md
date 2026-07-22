@@ -1,39 +1,39 @@
-本视图显示当前所有的SQL执行统计信息（每个SQL一条）。
+本视图显示当前所有的子游标执行统计信息（每个子游标一条）。
 
 |  字段| 类型| 说明|
-| --- | --- | --- |
+| --- | --- | -- |
 | GROUP_ID | NUMBER | 组ID |
 | GROUP_NODE_ID | NUMBER | 组内节点ID |
 | INST_ID | NUMBER  | 实例ID |
 | SQL\_TEXT | VARCHAR(1000) | SQL文本的前1000个字符 |
 | SQL\_FULLTEXT | CLOB | SQL CLOB形式的全字符 |
 | SQL\_ID | VARCHAR(13) | 唯一标识一条SQL语句的ID值，具体算法通过SQL文本的哈希/加密运算获得 |
-| SHARABLE\_MEM | INTEGER | 在SQL缓存池中占用的共享内存大小（单位：字节） |
-| PERSISTENT\_MEM | INTEGER | 在SQL缓存池中占用的页面内存减去尾部未使用的内存 |
-| RUNTIME\_MEM | INTEGER | 此SQL在执行过程中申请的内存（保留字段） |
+| SHARABLE\_MEM | INTEGER | 子游标占用的共享内存大小（单位：字节） |
+| PERSISTENT\_MEM | INTEGER | 子游标占用的页面内存减去尾部未使用的内存 |
+| RUNTIME\_MEM | INTEGER | 子游标在执行过程中申请的内存（单位：字节）（保留字段） |
 | LOADED\_VERSIONS | INTEGER | 显示上下文堆是否载入 |
 | OPEN\_VERSIONS | INTEGER | 显示子游标是否被锁 |
-| USERS\_OPENING | INTEGER | 任意子游标打开的用户数 |
-| USERS\_EXECUTING | INTEGER | 任意子游标在执行的用户数 |
+| USERS\_OPENING | INTEGER | 子游标正在打开的引用计数 |
+| USERS\_EXECUTING | INTEGER | 任意子游标正在执行的引用计数 |
 | SORTS | BIGINT | 完成的排序数 |
 | FETCHES | BIGINT | SQL语句的fetch数 |
 | EXECUTIONS | BIGINT | 被载入缓存库后的执行次数 |
 | PX\_SERVERS\_EXECUTIONS | BIGINT | 以并行方式执行的总次数（保留字段） |
-| END\_OF\_FETCH\_COUNT | BIGINT | 光标被带到库缓存中后，该光标完全执行的次数 |
+| END\_OF\_FETCH\_COUNT | BIGINT | 子游标被带到库缓存中后，该子游标完全执行的次数 |
 | ROWS\_PROCESSED | BIGINT | SQL语句返回的总行数 |
 | SERIALIZABLE\_ABORTS | BIGINT | 事务未能序列化次数 |
-| LOADS | BIGINT | SQL进入SQL缓存池的次数 |
-| INVALIDATIONS | BIGINT | SQL发生对象数据字典失效的次数 |
+| LOADS | BIGINT | 子游标被加载的次数 |
+| INVALIDATIONS | BIGINT | 子游标失效的次数 |
 | PARSE\_CALLS | BIGINT | 解析调用次数 |
 | DISK\_READS | BIGINT | 读磁盘次数 |
-| DIRECT\_WRITES | BIGINT | 游标直接写的次数（保留字段） |
-| DIRECT\_READS | BIGINT | 游标直接读的次数（保留字段） |
+| DIRECT\_WRITES | BIGINT | 子游标直接写的次数（保留字段） |
+| DIRECT\_READS | BIGINT | 子游标直接读的次数（保留字段） |
 | BUFFER\_GETS | BIGINT | 读缓存区次数 |
 | IO\_INTERCONNECT\_BYTES | BIGINT | 数据库与存储系统之间交换的I/O字节数 |
-| PHYSICAL\_READ\_REQUESTS | BIGINT | SQL发出的物理读取I/O请求数 |
-| PHYSICAL\_READ\_BYTES | BIGINT | SQL读磁盘的字节数 |
-| PHYSICAL\_WRITE\_REQUESTS | BIGINT | SQL发出的物理写入I/O请求数 |
-| PHYSICAL\_WRITE\_BYTES | BIGINT | SQL写入磁盘的字节数 |
+| PHYSICAL\_READ\_REQUESTS | BIGINT | 子游标发出的物理读取I/O请求数 |
+| PHYSICAL\_READ\_BYTES | BIGINT | 子游标读磁盘的字节数 |
+| PHYSICAL\_WRITE\_REQUESTS | BIGINT | 子游标发出的物理写入I/O请求数（SQL执行不会立即写盘，而是由dbwr线程写盘，因此从SQL层面观察不到该统计项的值变更，建议从V$SYSSTAT/V$SESSTAT/V$MYSTAT视图观察） |
+| PHYSICAL\_WRITE\_BYTES | BIGINT | 子游标写入磁盘的字节数（SQL执行不会立即写盘，而是由dbwr线程写盘，因此从SQL层面观察不到该统计项的值变更，建议从V$SYSSTAT/V$SESSTAT/V$MYSTAT视图观察） |
 | IM\_SCANS | BIGINT | 内存列存储段扫描的数量（保留字段） |
 | IM\_SCAN\_BYTES\_UNCOMPRESSED | BIGINT | 内存列存储段扫描的未压缩字节数（保留字段） |
 | IM\_SCAN\_BYTES\_INMEMORY | BIGINT | 内存列存储段扫描的字节数（保留字段） |
@@ -58,20 +58,20 @@
 | MODULE | VARCHAR(64) | 首次解析该SQL语句时正处于执行状态的模块名称，该模块名称通过调用DBMS_APPLICATION_INFO.SET_MODULE进行设置 |
 | MODULE\_HASH | BIGINT | 模块名称的哈希值 |
 | ACTION | VARCHAR(64) | 在首次解析该SQL语句时正处于执行状态的操作名称，该操作名称通过调用DBMS_APPLICATION_INFO.SET_ACTION进行设置 |
-| ACTION\_HASH | BIGINT |    操作名称的哈希值     |
+| ACTION\_HASH | BIGINT |    操作名称的哈希值    |
 | OUTLINE\_CATEGORY | VARCHAR(64) | 如果应用了一个outline，那么该字段为outline的类别，否则为NULL |
-| OUTLINE\_SID | INTEGER | 根据该字段可以确定该计划是使用public outline（该字段为NULL）还是private outline（该字段为相应的session sid） |
+| OUTLINE\_SID | INTEGER | 根据该字段可以确定该计划是使用public outline（该字段为NULL）或private outline（该字段为相应的session sid） |
 | CHILD\_ADDRESS | RAW(8) | 子游标地址 |
 | SQLTYPE | INTEGER | 保留字段 |
 | LITERAL\_HASH\_VALUE | BIGINT | 保留字段 |
 | FIRST\_LOAD\_TIME | DATE | SQL第一次进入SQL缓存池的时间 |
 | LAST\_LOAD\_TIME | DATE | 查询计划加载到库高速缓存的时间 |
-| LAST\_ACTIVE\_TIME | DATE | 上一次访问该SQL的时间 |
-| IS\_OBSOLETE | VARCHAR(1) | 当子游标的数量太多时，指出游标是否被废弃（Y/N） |
+| LAST\_ACTIVE\_TIME | DATE | 上一次访问该子游标的时间 |
+| IS\_OBSOLETE | VARCHAR(1) | 当子游标的数量太多时，指出子游标是否被废弃（Y/N） |
 | IS\_BIND\_SENSITIVE | VARCHAR(1) | 表示SQL语句是否适用于有界计算 |
 | BIND\_DATA | RAW(2000) | 保留字段 |
-| LOCKED\_TOTAL | BIGINT | 子光标被锁定的总次数（保留字段） |
-| PINNED\_TOTAL | BIGINT | 子光标固定的总次数 |
+| LOCKED\_TOTAL | BIGINT | 子游标被锁定的总次数（保留字段） |
+| PINNED\_TOTAL | BIGINT | 子游标固定的总次数 |
 | IS\_REOPTIMIZABLE | VARCHAR(1) | SQL在执行时实际行数和CBO估算的行数差别很大，需要在下一次执行时进行重新解析 |
 | CHILD\_NUMBER | INTEGER | 子游标编号 |
 | RESTART\_STATEMENTS | BIGINT | 语句重启次数 |

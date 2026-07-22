@@ -1,4 +1,4 @@
-YashanDB V23.4 adds MySQL 5.7 syntax compatibility for business systems migrating from MySQL 5.7 to YashanDB in standalone mode.
+YashanDB v23.4 adds MySQL 5.7 syntax compatibility for business systems migrating from MySQL 5.7 to YashanDB in standalone mode.
 
 ## Product Architecture
 

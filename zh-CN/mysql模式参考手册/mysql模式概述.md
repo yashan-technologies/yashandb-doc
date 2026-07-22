@@ -1,4 +1,4 @@
-YashanDB V23.4单机形态增加了MySQL5.7的语法兼容，支持业务系统从MySQL5.7迁移到YashanDB。
+YashanDB v23.4单机形态增加了MySQL5.7的语法兼容，支持业务系统从MySQL5.7迁移到YashanDB。
 
 ## 产品架构
 

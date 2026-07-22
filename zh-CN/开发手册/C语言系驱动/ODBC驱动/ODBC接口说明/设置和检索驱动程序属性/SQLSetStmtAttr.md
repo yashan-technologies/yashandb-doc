@@ -25,11 +25,11 @@ Attribute参数的支持情况：
 
 |  Attribute| 说明| 支持情况|
 | ------------------------------ | ------------------------------------------------------------ | -------- |
-| SQL_ATTR_PARAM_BIND_TYPE       | 返回SQL_BIND_BY_COLUMN                                       | 支持     |
+| SQL_ATTR_PARAM_BIND_TYPE       | 支持按行绑定+按列绑定                                        | 支持     |
 | SQL_ATTR_PARAMSET_SIZE         | 单次绑定参数行数（默认为1）                                  | 支持     |
 | SQL_ATTR_ROW_ARRAY_SIZE        | 单次取数据行数（默认为1）                                    | 支持     |
 | SQL_ROWSET_SIZE                | 同上                                                         | 支持     |
-| SQL_ATTR_ROW_BIND_TYPE         | 返回SQL_BIND_BY_COLUMN                                       | 支持     |
+| SQL_ATTR_ROW_BIND_TYPE         | 支持按行绑定+按列绑定                                        | 支持     |
 | SQL_ATTR_ROWS_FETCHED_PTR      | 单次取数据实际取到的行数的指针                               | 支持     |
 | SQL_ATTR_ROW_STATUS_PTR        | 调用SQLFetch或SQLFetchScroll后包含行状态值的SQLUSMALLINT值数组 | 支持     |
 | SQL_ATTR_APP_PARAM_DESC        |                                                              | 不支持   |

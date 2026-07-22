@@ -108,6 +108,6 @@ When issues arise during scaling, the reasons can typically be identified by che
 >
 > The primary/standby logs not matching is also a scenario that needs repair, but the status of the standby database will show REDO MISMATCH. For details, please refer to [Manual Switching of Primary/Standby](../../High Availability/Primary-Standby Manual Switching).
 
-### Cascade Standby Cannot Connect to Upper-Level Standby Database
+### Cascade Standby Cannot Connect to Parent Standby Database
 
 This may be due to incorrect link parameter settings, or the parameters need to be applied after restarting the instance.

@@ -2,7 +2,7 @@
 
 YashanDB支持在如下部署模式下启用yasom仲裁，且仅在yasom和备节点的yasagent进程在线时生效，具体配置操作请查阅[yasom仲裁选主](../../../高可用/自动选主配置/yasom仲裁选主.md)。
 
-- 单机一主一备部署
+- 单机主备部署（非级联备）
 
 - 主备集群部署
 
@@ -118,15 +118,18 @@ $ yasboot election status -c yashandb
 |  参数名| 默认值| 取值范围/格式| 含义|
 | ----------------------- | ------ | ---------- | --------------------------- |
 | FailoverThreshold       | 9      | [2, 1000]  | 备节点心跳超时时间，到达该时间后，yasom将执行failover切换流程 |
-| FailoverTarget          | - 主：所有备（非级联备）<br />- 备：主 | 格式为group&#124;node n:(x,y,z…) | 指定备升主的目标候选组/节点及其优先级顺序<br />- group：用于标识后续配置的数值编号是组ID，适用于共享集群部署。可通过cluster status命令查看，nodeId短横线前的数值为组ID<br />- node：用于标识后续配置的数值编号是节点ID，适用于单机部署、存算一体分布式集群部署。可通过cluster status命令查看，nodeId短横线前为节点ID<br />- `n:(x,y,z…)`：使用相应ID值指定具体的目标组/节点及其优先级顺序，优先级遵循配置时的先后顺序。若括号内置空`n:()`则表示将n从所有组/节点的FailoverTarget默认值中移除<br />例如，`node 1:(2,3)`表示节点1的故障转移候选为节点2和节点3，且第一优先级为节点2 |
-| FailoverAutoReinstate   | false  | true/false | 是否启用自动脑裂修复。<br/>启用后，如果备节点发生脑裂，处于NEED REPAIR状态，yasom将尝试自动修复 |
+| FailoverTarget          | - 主：所有备（非级联备）<br /><br />- 备：主 | 格式为：group&#124;node n:(x,y,z…) | 指定故障切换（即备升主）的目标及其优先级顺序<br />- group：用于标识后续配置的数值编号是组ID，适用于共享集群部署。可通过yasboot cluster status命令查看，nodeId短横线前的数值为组ID<br />- node：用于标识后续配置的数值编号是节点ID，适用于单机部署、存算一体分布式集群部署。可通过yasboot cluster status命令查看，nodeId短横线前为节点ID<br />- `n:(x,y,z…)`：使用相应ID值指定Failover目标及其优先级顺序（遵循圆括号中的先后顺序）。若括号内置空`n:()`则表示n没有Failover目标，也不会作为其他节点的Failover目标，即n不参与仲裁选主<br />- 在单机部署中，`node n:(x,y,z,…)`还可以将x、y、z等其中之一配置为动态候选者，格式为`ANY[a,b,…]`（例如`node n:(ANY[a,b,…],y,z,…)`），表示特定节点集`a,b,…`中的首个可用节点作为候选者，在该配置值中最多支持1个动态候选者（即ANY仅允许出现1次）<br />示例1：`group 1:(2,3)`表示集群1的故障切换候选者为集群2和集群3，且第一优先级为集群2<br />示例2：`node 2:(1, ANY[3,4])`表示节点2的故障切换候选者为节点1以及节点3或节点4中的首个可用节点，且第一优先级为节点1 |
+| FailoverAutoReinstate   | false  | true/false | 是否启用自动脑裂修复，仅单机部署生效。<br/>启用后，如果备节点发生脑裂，处于NEED REPAIR状态，yasom将尝试自动修复 |
 | ZeroDataLossMode        | true   | true/false | 是否启用零丢失模式。<br>启用后，将设置主备为最大保护模式，当主节点宕机时，备节点可自动failover；当备节点异常时，主节点将由yasom降级为最大可用模式，并禁止自动failover，直到备节点恢复同步后，yasom重新将主节点升级为最大保护模式后，可以自动failover |
 
 > **Caution**: 
 >
+> - 所有参数只能在yasom仲裁启动前进行修改。
+> - FailoverTarget可以给多个节点设置，是节点级别的参数。ANY[a,b,..]指定的目标中，只会有一个会作为同步备，可减少性能影响。
 > - FailoverThreshold太小，可能会因为网络抖动而发生不必要的切换，请根据网络状态设置合理的超时时间。
 > - FailoverAutoReinstate启用后，会自动修复备节点脑裂问题，会使备节点与主节点有分歧的部分数据丢失，请**谨慎使用**。
 > - ZeroDataLossMode启用后，优先使用最大保护模式。在最大保护模式下，主节点宕机，备节点自动failover后，不会丢失数据。当备节点异常后，主节点会降级为最大可用模式，此时备节点有丢失数据的风险，所以自动failover将禁用，直到主节点再次恢复最大保护模式。因此零丢失模式的切换条件更严格，但是能保证数据不丢失。
+> - 如果备库在执行Failover期间发生故障，只能重新拉起该备库继续升主，无法自动选择其他备库升主。
 
 
 
@@ -140,6 +143,27 @@ $ yasboot election config set -k FailoverTarget  -v "group 1:(2,3)"  -c yashandb
   
 # 在单机部署、存算一体分布式集群部署中，需用节点ID配置FailoverTarget参数
 $ yasboot election config set -k FailoverTarget  -v "node 1:(2,3)"  -c yashandb
+```
+
+在单机部署中，借助FailoverTarget参数的动态候选者（ANY[a,b,…]）机制，能够更灵活地实现个性化配置。例如，在一主三备两中心的部署场景中，可以设定优先选择同中心的节点升为主库，而异地则仅选取任意一个可用节点作为候选者。
+
+![](./image/2centers-FailoverTarget.png)
+
+```shell
+$ yasboot election config set -k FailoverTarget  -v "node 1:(2,ANY[3,4])"  -c yashandb
+$ yasboot election target show -c yashandb
+group 1
++----------------------------------+
+| node id | target node id | seted |
++----------------------------------+
+| 1       | 2, ANY[3,4]    | true  |
++---------+----------------+-------+
+| 2       | 1, ANY[3,4]    | true  |
++---------+----------------+-------+
+| 3       | 4, ANY[1,2]    | true  |
++---------+----------------+-------+
+| 4       | 3, ANY[1,2]    | true  |
++---------+----------------+-------+
 ```
 
 ## election config show

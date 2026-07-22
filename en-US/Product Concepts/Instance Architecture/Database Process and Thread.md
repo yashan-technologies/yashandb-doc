@@ -138,6 +138,14 @@ After the YashanDB instance starts, it creates the YASDB process to handle reque
 
    The SCHD_TIMER thread is YashanDB's high-precision timer thread used to register timeout events and awaken corresponding waiting threads after timed out. There is exactly one of these threads, with a lifecycle consistent with the database instance.
 
+- Manageability Monitor Light Backgroud Thread (MMNL)
+
+   The MMNL background thread periodically calls the ASH collection interface to collect ASH data, with the interval determined by the _ASH_SAMPLE_INTERVAL configuration item. 
+
+- M000 Backgroud Thread (M000)
+
+   The M000 thread is a subordinate thread of the MMON thread, used for the persistence of ASH memory data.
+
 ### Optional Background Threads
 
 **Backup-Related Threads**
@@ -316,7 +324,7 @@ In the YAC Deployment, the main processes include:
 
 - YCS Client Disk Heartbeat Thread (YCSC_DISK_HB)
 
-   The YCSC_DISK_HB thread is primarily responsible for reading and writing disk heartbeats for the YCS client, handling exceptions and protecting in-flight I/O. This thread starts after a successful handshake between YASDB and YCS and exits when the YASDB process stops.
+   The YCSC_DISK_HB thread is primarily responsible for reading and writing disk heartbeats for the YCS client, handling exceptions and protecting in-transit I/O. This thread starts after a successful handshake between YASDB and YCS and exits when the YASDB process stops.
 
 - YCS Disk Heartbeat Monitoring Thread (YCS_DISK_HB_MON)
 
@@ -368,7 +376,7 @@ In the YAC Deployment, the main processes include:
 
 - YCS Client Disk Heartbeat Thread (YCSC_DHB_PROC)
 
-   The YCSC_DHB_PROC thread is mainly responsible for reading and writing disk heartbeats, handling exceptions and protecting in-flight I/O. This thread starts after a successful handshake between YCS and YASDB and exits when they disconnect or are kicked out of the cluster.
+   The YCSC_DHB_PROC thread is mainly responsible for reading and writing disk heartbeats, handling exceptions and protecting in-transit I/O. This thread starts after a successful handshake between YCS and YASDB and exits when they disconnect or are kicked out of the cluster.
 
 #### YFS Service Related Threads
 
@@ -450,7 +458,7 @@ When the YashanDB product is installed via *yasboot*, it will start the yasom pr
 
     The YashanDB operational service process that receives commands from *yasboot* for instruction issuance and control, managing the yasagent process.
 
-    Yasom is an independent process that supports primary/standby (primary/secondary), allowing only one primary yasom process worldwide and N (N ≥ 0, default is 0) standby yasom processes. Each server in the same database environment can only run one yasom process. The primary yasom process starts after product installation, and operations can be started and stopped through *yasboot* related commands.
+    yasom is an independent process that supports primary/standby (primary/secondary), allowing only one primary yasom process worldwide and N (N ≥ 0, default is 0) standby yasom processes. Each server in the same database environment can only run one yasom process. The primary yasom process starts after product installation, and operations can be started and stopped through *yasboot* related commands.
 
     The main functions of the primary yasom process are complete, but standby yasom processes cannot use functionalities like database deployment, management, uninstallation, standby database scaling, server scaling, upgrades, rollback, arbitration, jobs, inspections, etc. 
 

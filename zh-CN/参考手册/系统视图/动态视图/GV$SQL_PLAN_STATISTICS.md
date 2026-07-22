@@ -1,4 +1,4 @@
-本视图显示子游标的详细执行计划信息，需要配置参数statistics\_level=all才能使用。保留视图，仅作兼容，无实际数据。
+本视图显示子游标的详细执行计划信息，需要配置参数statistics\_level=all才能使用。
 
 |  字段| 类型| 说明|
 | --- | --- | --- |
@@ -19,12 +19,12 @@
 | OUTPUT\_ROWS | BIGINT | 行源生成的行数，在过去的执行中累积 |
 | LAST\_CR\_BUFFER\_GETS | BIGINT | 上次执行期间从缓冲区读取的一致性块的数量 |
 | CR\_BUFFER\_GETS | BIGINT | 从缓冲区读取的一致性块的数量，在过去的执行中累积 |
-| LAST\_CU\_BUFFER\_GETS | BIGINT | 上次执行期间从缓冲区读取的当前模式块的数量。在当前模式下为 INSERT、UPDATE 和 DELETE 等语句检索缓冲区 |
-| CU\_BUFFER\_GETS | BIGINT | 从缓冲区读取的当前模式块的数量，在过去的执行中累积。在当前模式下为 INSERT、UPDATE 和 DELETE 等语句检索缓冲区 |
+| LAST\_CU\_BUFFER\_GETS | BIGINT | 上次执行期间从缓冲区读取的当前模式块的数量。在当前模式下为INSERT、UPDATE和DELETE等语句检索缓冲区 |
+| CU\_BUFFER\_GETS | BIGINT | 从缓冲区读取的当前模式块的数量，在过去的执行中累积。在当前模式下为INSERT、UPDATE和DELETE等语句检索缓冲区 |
 | LAST\_DISK\_READS | BIGINT | 操作执行的物理磁盘读取次数，在上次执行期间 |
 | DISK\_READS | BIGINT | 操作执行的物理磁盘读取数，在过去的执行中累积 |
-| LAST\_DISK\_WRITES | BIGINT | 操作执行的物理磁盘写入次数，在上次执行期间 |
-| DISK\_WRITES | BIGINT | 操作执行的物理磁盘写入次数，在过去的执行中累积 |
+| LAST\_DISK\_WRITES | BIGINT | 操作执行的物理磁盘写入次数，在上次执行期间（SQL执行不会立即写盘，而是由dbwr线程写盘，因此从SQL层面观察不到该统计项的值变更，建议从V$SYSSTAT/V$SESSTAT/V$MYSTAT视图观察） |
+| DISK\_WRITES | BIGINT | 操作执行的物理磁盘写入次数，在过去的执行中累积（SQL执行不会立即写盘，而是由dbwr线程写盘，因此从SQL层面观察不到该统计项的值变更，建议从V$SYSSTAT/V$SESSTAT/V$MYSTAT视图观察） |
 | LAST\_ELAPSED\_TIME | BIGINT | 与此操作对应的经过时间（单位：毫秒），在上次执行期间 |
 | ELAPSED\_TIME | BIGINT | 与此操作相对应的经过时间（单位：毫秒），在过去的执行中累积 |
 | BLOCK\_RECEIVED | BIGINT | 集群下从其他节点获取的最新页面的次数 |

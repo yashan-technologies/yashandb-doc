@@ -81,6 +81,7 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _ENABLE_INTERNAL_ERROR_COREDUMP              | Indicates whether to allow the process to core dump when a fatal internal error occurs in the database under the release version. |
 | _ENABLE_REDO_TRAFFIC_CONTROL                 | Start redo flushing flow control to prevent redo lags and improve the stability of database performance. |
 | _BATCH_COMMIT_DELAY                          | When transactions are submitted in batch, this parameter controls the delay time for batch submission.  |
+| _READ_INCOMMIT                              | Controls whether the transaction is visible during the redo flush process. When set to TRUE, an optimization mode is enabled: the transaction releases locks immediately after commit, and redo flush is performed asynchronously. When set to FALSE, the original behavior is maintained, waiting for redo flush to complete before releasing locks.<br/>The optimization mode can improve performance when concurrently modifying the same row, but in extreme cases it may lead to loss of committed data. **Not recommended for production environments**. |
 | _LATEST_RESET_ID                             | Used during yasom election.                                                                          |
 | CGROUP_ROOT_DIR                              | The installation directory of cgroup.                 |
 | _SCOL_MANAGER_CAPACITY                       | The capacity of the LSC SCOL file synchronization manager.                                           |
@@ -200,3 +201,8 @@ Hidden parameters are testing features, **to be used under the guidance of the o
 | _TASK_QUEUE_TIMEOUT                          | When shared thread session mode is enabled, the timeout time for judging whether the task queue is in a stuck state, in milliseconds. |
 | _OPTIMIZER_ADAPTIVE_CURSOR_SHARING | Controls whether different parameter value ranges affect plan generation; default is `FALSE`. |
 | _HASH_CACHE_THRESHOLD                      | The maximum cache size for the hash table optimized for batch execution of deterministic UDFs. Default value: 4096. The actual maximum cache size depends on the data distribution and ranges between [parameter_value, parameter_value + 1024]. |
+| XACT_QUEUE_ENABLE                            | Controls whether to enter the wait queue when concurrent transactions produce row lock waits. |
+| USER_LOCK_POOL_SIZE                         | The size of the global user lock resource pool.                                          |
+| _ASH_ENABLE                                  | Controls whether to enable ASH sampling and flushing. |
+| _ASH_SAMPLING_INTERVAL                       | ASH sampling time interval in milliseconds. |
+| _ASH_SIZE                                    | ASH buffer size. |

@@ -106,7 +106,7 @@ SELECT group_id,group_node_id,leader_group_id,leader_group_node_id,term,lfn,lfn_
 
 Standby database list and status view that contains dest_id Standby database number, connection status, status of Standby database, received_lfn Standby database receiving point, and applied_lfn Standby database apply point, etc. For detailed field descriptions, please refer to [GV$ARCHIVE_DEST_STATUS](../Reference Manual/System Views/Dynamic Performance Views/GV$ARCHIVE_DEST_STATUS)/[V$ARCHIVE_DEST_STATUS](../Reference Manual/System Views/Dynamic Performance Views/V$ARCHIVE_DEST_STATUS).
 
-In Standalone Deployment, this type of view can also be queried on the upper level standby database of cascade standbys to obtain information about its subordinate cascade standby list.
+In Standalone Deployment, this type of view can also be queried on the parent standby database of a cascade standby to obtain information about its downstream cascade standby list.
 
 ***Example*** for Standalone/YAC/Distributed Cluster Deployment
 

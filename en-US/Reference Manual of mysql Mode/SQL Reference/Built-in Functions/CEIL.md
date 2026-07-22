@@ -12,7 +12,7 @@ The mapping relationship between parameter types and return types is as follows:
 | INT       | INT |
 | BOOL      | INT |
 | BIT       | BIGINT |
-| NUMBER    | BIGINT |
+| NUMBER    | NUMBER |
 | BIGINT    | NUMBER |
 | TINYINT UNSIGNED | BIGINT UNSIGNED   |
 | SMALLINT UNSIGNED        |  BIGINT UNSIGNED      |

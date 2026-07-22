@@ -36,17 +36,17 @@ Cascade standby, which refers to the standby database of a standby database, is 
 
 A standby database can connect to up to 32 cascade standbys, and cascade standbys can further connect to additional cascade standbys, with no limit on the number of layers; however, circular connections are not allowed.
 
-When the upper standby database is promoted to a primary database, the cascade standby is converted to a regular standby database; when the primary database becomes a standby database, its standby database becomes a cascade standby.
+When the parent standby database is promoted to a primary database, the cascade standby is converted to a regular standby database; when the primary database becomes a standby database, its standby database becomes a cascade standby.
 
 There are no cascade standbys in YAC/Distributed Cluster Deployment and ISC Distributed Cluster Deployment.
 
 ![cascade_standby](./image/cascade_standby.png)
 
-### Dual Replication Group Primary/Standby Deployment
+### Dual Rep-Group Primary-Standby Deployment
 
 In the dual replication group primary/standby deployment of Standalone Deployment, there are primary replication groups and standby replication groups, each of which can be deployed in different regions/data centers, thus forming a remote disaster recovery architecture.
 
-The primary replication group can further establish node-level primary/standby relationships, while in the standby replication group, the first node is by default a standby database, and the remaining nodes are all cascade standbys.
+The primary replication group can further establish node-level primary/standby relationships, while in the standby replication group, the primary node is by default a standby database, and the remaining nodes are all cascade standbys.
 
 Only nodes in the primary replication group participate in the leader election or yasom election processes, and an appropriate leader election mechanism should be selected based on the number of nodes in the primary replication group.
 
@@ -68,4 +68,4 @@ Based on different deployment forms, YashanDB implements various mechanisms for 
 
 - Leader election: In a standalone one-primary/multi-standby (non-cascade standby) or distributed cluster node group one-primary/multi-standby deployment, when the primary database node encounters an issue and cannot serve external requests, the system uses the election algorithm from the Raft consistency algorithm to elect one node among multiple standby database nodes to be promoted to the primary database, while the remaining nodes continue as standby databases. The old primary database is demoted to a standby database.
 
-- Yasom election: In primary-standby HA deployment, when the primary database encounters an issue and cannot serve external requests, the system arbitrates through yasom to promote the standby database to be the primary database, and demotes the original primary database to standby database.
+- *yasom* election: In primary-standby HA deployment, when the primary database encounters an issue and cannot serve external requests, the system arbitrates through yasom to promote the standby database to be the primary database, and demotes the original primary database to standby database.

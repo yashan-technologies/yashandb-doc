@@ -166,9 +166,7 @@ $ ./bin/yasboot package se gen --cluster yashandb --recommend-param \
     The following lists some parameter items that may need adjustment. For complete configuration file content descriptions, please refer to the configuration file template introduction. Please select parameter items to adjust values according to the actual situation. 
 
     :::tabs
-    == hosts.toml
-
-​
+    == hosts.toml 
 
 |Parameter Item |Adjustment Description                          |
 | ------------------------- | ------------------------------------------------------------ |
@@ -414,9 +412,7 @@ $ ./bin/yasboot package se gen --cluster yashandb \
 | hostid and LISTEN_ADDR under [om]  | yasom service host identifier, IP address and listening port<br>Please check to ensure the listening port number is consistent with the actually opened port number, and can be modified to the actual value |
 | All LISTEN_ADDR under [host.yasagent]     | yasagent service IP address and listening port<br>Please check to ensure the listening port number is consistent with the actually opened port number, and can be modified to the actual value            |
 
-    == yashandb.toml
-
-​
+    == yashandb.toml 
 
 |Parameter Item                  |Adjustment Description                          |
 | ------------------------------------------ | ------------------------------------------------------------ |
@@ -428,9 +424,7 @@ $ ./bin/yasboot package se gen --cluster yashandb \
 | Parameters under [group.config]            | These parameters are all critical [database creation parameters](../../../Tools Guide/yasboot/Database Creation Parameters). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.config]       | These parameters are all [database configuration parameters](../../../Reference Manual/Configuration Parameters) for the instance deployed on this node. Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.mysql_config] | These parameters are all [system variables](../../../Reference Manual of mysql Mode/System Variables/List of System Variables In mysql Mode) under mysql mode (ignore in yashan mode). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
-| REPLICATION_ADDR                           | This parameter defines the address and port of the primary-standby replication link.<br>The port number defaults to the port number of LISTEN_ADDR + 1. Please ensure it is consistent with the actually opened port number, and can be modified to the actual value.<br>In multi-segment network scenarios, the address part of this parameter must be left empty, for example ":1689". |
-
-​
+| REPLICATION_ADDR                           | This parameter defines the address and port of the primary-standby replication link.<br>The port number defaults to the port number of LISTEN_ADDR + 1. Please ensure it is consistent with the actually opened port number, and can be modified to the actual value.<br>In multi-segment network scenarios, the address part of this parameter must be left empty, for example ":1689". | 
 
     :::
 
@@ -579,7 +573,7 @@ $ yasboot monit start --cluster yashandb
 
 ### Step 7 (Optional): Enable *yasom* Election
 
-In a one primary, one standby deployment form, if you need to enable leader election, please refer to the operational instructions described in the [Configuring yasom Election for One-Primary and One-Standby](../../../High Availability/Configuring Leader Election/Configuring yasom Election) document for configuration.
+If you need to enable leader election, please refer to the operational instructions described in the [Configuring yasom Election for One-Primary and One-Standby](../../../High Availability/Configuring Leader Election/Configuring yasom Election) document for configuration.
 
 ## One-Primary and Multi-Standby Deployment
 
@@ -689,9 +683,7 @@ $ ./bin/yasboot package se gen --cluster yashandb --recommend-param \
 | Parameters under [group.config]            | These parameters are all critical [database creation parameters](../../../Tools Guide/yasboot/Database Creation Parameters). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.config]       | These parameters are all [database configuration parameters](../../../Reference Manual/Configuration Parameters) for the instance deployed on this node. Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.mysql_config] | These parameters are all [system variables](../../../Reference Manual of mysql Mode/System Variables/List of System Variables In mysql Mode) under mysql mode (ignore in yashan mode). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
-| REPLICATION_ADDR                           | This parameter defines the address and port of the primary-standby replication link.<br>The port number defaults to the port number of LISTEN_ADDR + 1. Please ensure it is consistent with the actually opened port number, and can be modified to the actual value.<br>In multi-segment network scenarios, the address part of this parameter must be left empty, for example ":1689". |
-
-​
+| REPLICATION_ADDR                           | This parameter defines the address and port of the primary-standby replication link.<br>The port number defaults to the port number of LISTEN_ADDR + 1. Please ensure it is consistent with the actually opened port number, and can be modified to the actual value.<br>In multi-segment network scenarios, the address part of this parameter must be left empty, for example ":1689". | 
 
 > **Note**:
 >
@@ -844,8 +836,6 @@ $ yasboot monit start --cluster yashandb
 >
 > In subsequent usage, after the server reboots, the daemon processes will need to be manually started. The daemon will automatically bring up related database processes to start the database. To simplify operations, you may configure the daemon to start automatically on boot, indirectly achieving automatic database startup; for specific operations, please refer to [Configuring Boot Autostart](../Initial Environment after Installation/Configuring Boot Autostart).
 
-
-
 ## Cascade Standby Deployment
 
 When deploying a primary-standby form with cascade standby, the cascade standby and the standby database it connects to form a new layer of cascade standby relationship, but both are read-only databases.
@@ -876,7 +866,7 @@ Before proceeding to the next step, the command in this step can be run repeated
 
     Please note that the values following the --ip option should be entered in the order of primary, standby, and cascade standby. Multiple IP addresses are entered one by one, separated by commas. For consecutive IP addresses, range format can be used for input, for example, 192.168.1.[2-4].
 
-    In addition, the value of the --node option will be used as the number of primaries plus standbys, the value of the --cascade-node option will be used as the number of cascade standbys, and the value of the --cascade-parent option is used to locate the parent standby database of the cascade standby. This value represents the index starting from 0 of the IP addresses entered in the --ip option.
+    In addition, the value of the --node option will be used as the number of primary plus standbys, the value of the --cascade-node option will be used as the number of cascade standbys, and the value of the --cascade-parent option is used to locate the parent standby database of the cascade standby. This value represents the index starting from 0 for the IP address entered in the --ip option.
 
     The following command uses one primary, one standby, and one cascade standby as an example. Please adjust the parameters according to the actual situation.
 
@@ -966,9 +956,7 @@ $ ./bin/yasboot package se gen --cluster yashandb \
 | Parameters under [group.node.config]       | These parameters are all [database configuration parameters](../../../Reference Manual/Configuration Parameters) for the instance deployed on this node. Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.mysql_config] | These parameters are all [system variables](../../../Reference Manual of mysql Mode/System Variables/List of System Variables In mysql Mode) under mysql mode (ignore in yashan mode). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | REPLICATION_ADDR                           | This parameter defines the address and port of the primary-standby replication link.<br>The port number defaults to the port number of LISTEN_ADDR + 1. Please ensure it is consistent with the actually opened port number, and can be modified to the actual value.<br>In multi-segment network scenarios, the address part of this parameter must be left empty, for example ":1689". |
-| Parameters under [[host]]                  | When --replica-cidr is not specified, this type of parameter will not be generated in the configuration file.<br>After specifying the private IP address for each node, this type of parameter can be manually added, or adjustments can be made to the already generated parameters. |
-
-​
+| Parameters under [[host]]                  | When --replica-cidr is not specified, this type of parameter will not be generated in the configuration file.<br>After specifying the private IP address for each node, this type of parameter can be manually added, or adjustments can be made to the already generated parameters. | 
 
     :::
 
@@ -1119,6 +1107,8 @@ $ yasboot monit start --cluster yashandb
 
 
 
+<span id="Dual_Repli_Group" name="Dual_Repli_Group"></span>
+
 ## Dual Repli-Group Primary-Standby Deployment
 
 Dual repli-group primary-standby deployment divides the database cluster into a primary replication group and a standby replication group, with each group's corresponding servers installed in different regions/data centers.The primary replication group should provide 3 or more nodes, deployed in a one-primary and multi-standby form; the standby replication group should provide 2 or more nodes, deployed in a topology of one standby database with cascade standbys.
@@ -1236,9 +1226,7 @@ $ ./bin/yasboot package se gen --cluster yashandb \
 | Parameters under [group.node.config]       | These parameters are all [database configuration parameters](../../../Reference Manual/Configuration Parameters) for the instance deployed on this node. Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | Parameters under [group.node.mysql_config] | These parameters are all [system variables](../../../Reference Manual of mysql Mode/System Variables/List of System Variables In mysql Mode) under mysql mode (ignore in yashan mode). Parameters not listed in the file adopt default values. For production environments, please be sure to adjust according to actual conditions. |
 | REPLICATION_ADDR                           | This parameter defines the address and port of the primary-standby replication link.<br>The port number defaults to the port number of LISTEN_ADDR + 1. Please ensure it is consistent with the actually opened port number, and can be modified to the actual value.<br>In multi-segment network scenarios, the address part of this parameter must be left empty, for example ":1689". |
-| Parameters under [[host]]                  | When --replica-cidr is not specified, this type of parameter will not be generated in the configuration file.<br>After specifying the private IP address for each node, this type of parameter can be manually added, or adjustments can be made to the already generated parameters. |
-
-​
+| Parameters under [[host]]                  | When --replica-cidr is not specified, this type of parameter will not be generated in the configuration file.<br>After specifying the private IP address for each node, this type of parameter can be manually added, or adjustments can be made to the already generated parameters. | 
 
 > **Note**:
 > 

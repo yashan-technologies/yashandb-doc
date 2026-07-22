@@ -58,7 +58,7 @@ $ yasboot cluster status -b group -c yashandb -d
 | database_status<br />（或pdb_status ） | 当前数据库节点的状态（在容器数据库中字段名为pdb_status）<br />* normal：正常状态<br />* need repair：备库状态异常，需要重新构建（BUILD DATABASE）<br/>\* redo mismatch：备库有部分日志和主库不匹配，需要检查和修复<br/>\* abnormal：异常状态，不能执行写操作 |
 | database_role | 当前数据库节点的角色<br />* primary：主库<br />* standby：备库 |
 | listen_address | 当前数据库节点的监听地址 |
-| source_node | 当前数据库节点的主节点nodeid<br />主库的该字段无意义 |
+| source_node | 当前数据库节点的上级节点（备节点的主节点或级联备的父级备库）的nodeid<br />主库的该字段无意义 |
 | data_path | 当前数据库节点的DATA目录，即$YASDB_DATA |
 
 

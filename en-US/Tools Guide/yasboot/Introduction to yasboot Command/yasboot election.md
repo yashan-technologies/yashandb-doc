@@ -2,7 +2,7 @@ Election occurs in a primary-standby HA deployment scenario. When the primary no
 
 YashanDB supports enabling yasom arbitration in the following deployment modes, and it only takes effect when both yasom and the standby node's yasagent process are online. For specific configuration operations, please refer to [*yasom* Election](../../../High Availability/Configuring Leader Election/Configuring yasom Election).
 
-- Standalone One-Primary/One-Standby Deployment
+- Standalone Primary-Standby Deployment (non-cascade standby)
 
 - Primary-Standby YAC Deployment
 
@@ -12,7 +12,7 @@ YashanDB supports enabling yasom arbitration in the following deployment modes, 
 >
 > - The [OS authentication](../../../Product Security/Identity Identification and Authentication/OS Authentication/00OS Authentication) must be enabled (default enabled during standard installation) for proper use of yasom election functionality.
 >
-> - Yasom arbitration and yasom self-repair are mutually exclusive. When the yasboot process is set to yasom repair on, yasom arbitration cannot be used.
+> - *yasom* election and yasom self-repair are mutually exclusive. When the yasboot process is set to yasom repair on, yasom arbitration cannot be used.
 
 ## election enable on
 
@@ -118,15 +118,18 @@ The parameters related to arbitration - based master selection are shown in the 
 |Parameter Name |Default Value |Value Range/Format |Description |
 | ----------------------- | ------ | ---------- | --------------------------- |
 | FailoverThreshold          | 9             | [2, 1000]     | The heartbeat timeout for the standby node. After reaching this time, yasom will execute the failover process. |
-| FailoverTarget          | - Primary: All standbys (excluding cascaded standbys)<br />- Standby: The primary | Format: group&#124;node n(x,y,z…) | Specify the target candidate group/node for standby-to-primary promotion and their priority order<br />\- group: Used to indicate that the numerical number in the subsequent configuration is the group ID, applicable to YAC Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in the nodeId is the group ID<br />\- node: Used to indicate that the numerical number in the subsequent configuration is the node ID, applicable to Standalone Deployment or ISC Distributed Cluster Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in the nodeId is the node ID<br />\- `n:(x,y,z…)`: Use the corresponding ID values to specify the specific target group/node and their priority order. The priority follows the order of configuration. If the parentheses are left empty `n:()`, it means that `n` will be removed from the default values of FailoverTarget for all groups/nodes.<br />For example, `node 1:(2,3)` means that the failover candidates for node 1 are node 2 and node 3, with node 2 having the first priority |
-| FailoverAutoReinstate      | false         | true/false    | Whether to enable automatic split-brain recovery. <br/> If enabled, if the standby node experiences a split-brain and is in the NEED REPAIR state, yasom will attempt to automatically repair it. |
+| FailoverTarget          | - Primary: All standbys (excluding cascaded standbys)<br /><br />- Standby: The primary | Format: group&#124;node n:(x,y,z…) | Specifies the target for failover (i.e., standby-to-primary promotion) and its priority order<br />- group: Used to identify that the numerical value in the subsequent configuration is the group ID, applicable to YAC Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in nodeId is the group ID<br />- node: Used to identify that the numerical value in the subsequent configuration is the node ID, applicable to Standalone Deployment or ISC Distributed Cluster Deployment. It can be viewed through the `yasboot cluster status` command. The value before the hyphen in nodeId is the node ID<br />- `n:(x,y,z…)`: Uses the corresponding ID values to specify FailoverTarget and its priority order (following the sequence in the parentheses). If the parentheses are left empty `n:()`, it means that n has no FailoverTarget and will not serve as a FailoverTarget for other nodes, i.e., n does not participate in election<br />- In Standalone Deployment, `node n:(x,y,z,…)` can also configure one of x, y, z as a dynamic candidate, in the format `ANY[a,b,…]` (for example, `node n:(ANY[a,b,…],y,z,…)`), which means the first available node in the specific node set `a,b,…` is used as a candidate. A maximum of 1 dynamic candidate is supported in this configuration value (i.e., ANY is allowed to appear only once)<br />Example 1: `group 1:(2,3)` means the failover candidates for cluster 1 are clusters 2 and 3, with cluster 2 having the first priority<br />Example 2: `node 2:(1, ANY[3,4])` means the failover candidates for node 2 are node 1 and the first available node among nodes 3 or 4, with node 1 having the first priority |
+| FailoverAutoReinstate      | false         | true/false    | Whether to enable automatic split-brain recovery. <br/> If enabled, if the standby node experiences a split-brain and is in the NEED REPAIR state, yasom will attempt to automatically repair it. <br/> <br/>**Only effective in Standalone Deployment.** |
 | ZeroDataLossMode           | true          | true/false    | Whether to enable zero loss mode. <br> If enabled, primary/standby will be set to maximize protection mode. When the primary node fails, the standby node can automatically failover; when the standby node is abnormal, the primary node will be downgraded by yasom to maximize availability mode, and automatic failover will be prohibited until the standby node synchronizes again, at which point yasom will upgrade the primary node back to maximize protection mode, allowing automatic failover. |
 
 > **Caution**: 
 >
+> - All parameters can only be modified before yasom arbitration starts.
+> - FailoverTarget can be set for multiple nodes and is a node-level parameter. In the targets specified by ANY[a,b,..], only one will serve as the sync standby, which can reduce performance impact.
 > - A small FailoverThreshold may lead to unnecessary switches due to network jitter. Please set a reasonable timeout based on network conditions.
 > - Enabling FailoverAutoReinstate will automatically repair the split-brain issue of the standby node, which may lead to some data loss where the standby node and primary node have discrepancies. Please **use with caution**.
 > - Enabling ZeroDataLossMode prioritizes the use of maximize protection mode. In maximize protection mode, if the primary node fails, the standby node will automatically failover without data loss. When the standby node is abnormal, the primary node will be downgraded to maximize availability mode, at which point the standby node may risk data loss, therefore automatic failover will be disabled until the primary node again recovers maximize protection mode. Therefore, the conditional switch to zero loss mode is stricter but ensures no data is lost.
+> - If a standby database fails during Failover, it can only be restarted to continue promotion; automatic selection of another standby database for promotion is not supported.
 
 
 
@@ -140,6 +143,27 @@ $ yasboot election config set -k FailoverTarget  -v "group 1:(2,3)"  -c yashandb
   
 # In Standalone Deployment or ISC Distributed Cluster Deployment, the FailoverTarget parameter needs to be configured with the node IDs
 $ yasboot election config set -k FailoverTarget  -v "node 1:(2,3)"  -c yashandb
+```
+
+In Standalone Deployment, the dynamic candidate (ANY[a,b,…]) mechanism of the FailoverTarget parameter allows for more flexible personalized configuration. For example, in a one-primary/three-standby two-center deployment scenario, you can set to prioritize nodes in the same center to be promoted as the primary, while at the remote site, only any available node can be selected as a candidate.
+
+![](./image/2centers-FailoverTarget.png)
+
+```shell
+$ yasboot election config set -k FailoverTarget  -v "node 1:(2,ANY[3,4])"  -c yashandb
+$ yasboot election target show -c yashandb
+group 1
++----------------------------------+
+| node id | target node id | seted |
++----------------------------------+
+| 1       | 2, ANY[3,4]    | true  |
++---------+----------------+-------+
+| 2       | 1, ANY[3,4]    | true  |
++---------+----------------+-------+
+| 3       | 4, ANY[1,2]    | true  |
++---------+----------------+-------+
+| 4       | 3, ANY[1,2]    | true  |
++---------+----------------+-------+
 ```
 
 ## election config show

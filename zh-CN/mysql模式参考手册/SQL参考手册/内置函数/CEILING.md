@@ -12,7 +12,7 @@ CEILING函数对[expr](../通用SQL语法/expr)向上取整得到返回结果，
 | INT       | INT |
 | BOOL      | INT |
 | BIT       | BIGINT |
-| NUMBER    | BIGINT |
+| NUMBER    | NUMBER |
 | BIGINT    | NUMBER |
 | TINYINT UNSIGNED | BIGINT UNSIGNED   |
 | SMALLINT UNSIGNED        |  BIGINT UNSIGNED      |

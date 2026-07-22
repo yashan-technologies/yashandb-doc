@@ -2,7 +2,7 @@
 
 BUILD DATABASE is used to create a standby database on the standby database in a primary/standby high availability deployment environment. For detailed operational descriptions of the primary/standby high availability architecture, please refer to [High Availability](../../../High Availability/Overview of YashanDB High Availability).
 
-In the presence of a cascade standby environment, the upper-level standby database of the cascade standby database corresponds to the primary database mentioned below, while the cascade standby database corresponds to the standby database mentioned below, having the same syntax, functionality, and constraints as the primary-standby database.
+In environments with cascade standbys, the parent standby database of a cascade standby database corresponds to the primary database described below, and the cascade standby database corresponds to the standby database described below. They have the same syntax, functions, and constraints as primary/standby databases.
 
 The BUILD command on the primary database can only be executed by the SYS superuser or users with SYSDBA or SYSBACKUP privileges. Before executing this statement, the current node's protection mode must be checked using the V$DATABASE view. If the PROTECTION_MODE field is set to MAXIMIZE PROTECTION mode, it is necessary to [switch](ALTER DATABASE.md#set_standby_clause) to another mode before initiating the BUILD. After BUILD completion, you can switch back to maximize protection mode as needed.
 

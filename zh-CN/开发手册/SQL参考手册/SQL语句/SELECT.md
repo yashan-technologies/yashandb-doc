@@ -165,13 +165,13 @@ FROM (table_reference|join_clause|"(" join_clause ")")
 **[inner\_cross\_join\_clause](#innercrossjoinclause)::=**
 
 ```ebnf
-= ([INNER] JOIN table_reference ON condition)|(CROSS JOIN table_reference).
+= ([INNER] JOIN table_reference (ON condition|USING "(" column_name {"," column_name} ")" ))|(CROSS JOIN table_reference).
 ```
 
 **[outer\_join\_clause](#outerjoinclause)::=**
 
 ```ebnf
-= outer_join_type JOIN table_reference [ON condition].
+= outer_join_type JOIN table_reference [ON condition|USING "(" column_name {"," column_name} ")"].
 ```
 
 **[outer\_join\_type](#outerjointype)::=**
@@ -985,8 +985,13 @@ PRODUCT_NO PRODUCT_NAME        PRICE
 
 内连接查询是一种交叉连接查询方式，对A和B进行内连接查询时，将A的每一行与B的每一行按照连接条件进行比较，返回的是A、B均满足条件的结果。其中：
 
-*   INNER：产生的结果是AB的交集。此时必须在后面指定ON条件。
-*   CROSS：产生的结果是AB的笛卡尔积。此时不可以在后面指定ON条件。
+* INNER：产生的结果是AB的交集。此时必须在后面指定ON条件或USING子句：
+
+  * ON条件：使用ON子句可以指定连接条件，将连接条件与WHERE子句中的任何搜索或过滤条件分开指定。
+
+  * USING子句：使用USING子句可以指定左右表中名称相同的列进行等值连接。在指定列名时，必须使用无限定符的简单列名，且该列名必须在左表和右表中均存在且唯一。
+
+* CROSS：产生的结果是AB的笛卡尔积。此时不可以在后面指定ON条件或USING子句。
 
 示例（存算一体分布式集群部署）
 
@@ -999,10 +1004,10 @@ ON a.area_no = b.area_no
 WHERE b.branch_no like '01%';
 BRANCH_NAME       AREA_NAME                                                     
 ----------------- --------------------
-Shanghai               EastChina                                                       
-Nanjing               EastChina                                                       
-Fuzhou               EastChina                                                       
-Xiamen               EastChina                                                                  
+Shanghai          EastChina                                                       
+Nanjing           EastChina                                                       
+Fuzhou            EastChina                                                       
+Xiamen            EastChina                                                                  
  
 -- 等同于上面的内连接
 SELECT b.branch_name, a.area_name
@@ -1010,11 +1015,23 @@ FROM branches b, area a
 WHERE a.area_no=b.area_no AND b.branch_no like '01%';
 BRANCH_NAME       AREA_NAME                                                     
 ----------------- --------------------
-Shanghai               EastChina                                                       
-Nanjing               EastChina                                                       
-Fuzhou               EastChina                                                       
-Xiamen               EastChina                                                       
- 
+Shanghai          EastChina                                                       
+Nanjing           EastChina                                                       
+Fuzhou            EastChina                                                       
+Xiamen            EastChina                                                       
+
+-- 使用USING子句进行内连接，等同于ON a.area_no = b.area_no
+SELECT b.branch_name, a.area_name
+FROM branches b
+JOIN area a USING (area_no)
+WHERE b.branch_no like '01%';
+BRANCH_NAME       AREA_NAME
+----------------- --------------------
+Shanghai          EastChina
+Nanjing           EastChina
+Fuzhou            EastChina
+Xiamen            EastChina
+
 -- CROSS JOIN
 SELECT b.branch_name, a.area_name
 FROM branches b
@@ -1022,26 +1039,26 @@ CROSS JOIN area a
 WHERE b.branch_no like '01%';
 BRANCH_NAME       AREA_NAME                                                     
 ----------------- --------------------
-Shanghai               EastChina                                                       
-Shanghai               WestChina                                                       
-Shanghai               SouthChina                                                       
-Shanghai               NorthChina                                                       
-Shanghai               CentralChina                                                       
-Nanjing               EastChina                                                       
-Nanjing               WestChina                                                       
-Nanjing               SouthChina                                                       
-Nanjing               NorthChina                                                       
-Nanjing               CentralChina                                                       
-Fuzhou               EastChina                                                       
-Fuzhou               WestChina                                                       
-Fuzhou               SouthChina                                                       
-Fuzhou               NorthChina                                                       
-Fuzhou               CentralChina                                                       
-Xiamen               EastChina                                                       
-Xiamen               WestChina                                                       
-Xiamen               SouthChina                                                       
-Xiamen               NorthChina                                                       
-Xiamen               CentralChina           
+Shanghai          EastChina                                                       
+Shanghai          WestChina                                                       
+Shanghai          SouthChina                                                       
+Shanghai          NorthChina                                                       
+Shanghai          CentralChina                                                       
+Nanjing           EastChina                                                       
+Nanjing           WestChina                                                       
+Nanjing           SouthChina                                                       
+Nanjing           NorthChina                                                       
+Nanjing           CentralChina                                                       
+Fuzhou            EastChina                                                       
+Fuzhou            WestChina                                                       
+Fuzhou            SouthChina                                                       
+Fuzhou            NorthChina                                                       
+Fuzhou            CentralChina                                                       
+Xiamen            EastChina                                                       
+Xiamen            WestChina                                                       
+Xiamen            SouthChina                                                       
+Xiamen            NorthChina                                                       
+Xiamen            CentralChina           
 
 -- 分布式视图查询                                                
 select * from (select GROUP_ID,GROUP_NODE_ID,NAME,VALUE,DEFAULT_VALUE,IS_DEPRECATED from GV$SYSTEM_PARAMETER where GROUP_ID=0);
@@ -1119,7 +1136,7 @@ Fuzhou              EastChina
 Nanjing              EastChina           
 Shanghai              EastChina
                     SouthChina    
-Changsha              CentralChina            
+Changsha              CentralChina
 ```
 
 **(+) operator**
@@ -1336,11 +1353,15 @@ ORDER SIBLINGS BY id DESC;
 
 - UDT、内置的UDT均不能作为分组列。
 
-*   在select\_list中出现的查询列或列数据，必须为分组列或列数据的子集。
+*   在select\_list中出现的查询列或列数据，须为或等价为分组列或列数据的子集。
 
-    列是子集："SELECT col ,COUNT(\*) FROM table GROUP BY col, col2；"
+    - 列是子集："SELECT col ,COUNT(\*) FROM table GROUP BY col, col2；"
 
-    列数据是子集："SELECT LPAD(col), COUNT(\*) FROM table GROUP BY col；"
+    - 列数据是子集："SELECT LPAD(col), COUNT(\*) FROM table GROUP BY col；"
+
+    - 列等价为子集："SELECT col1, col2 ,COUNT(\*) FROM (SELECT col1, col1 as col2 FROM TABLE) GROUP BY col1, col3；"
+
+    - 列数据等价为子集："SELECT LPAD(col1), col2 ,COUNT(\*) FROM (SELECT col1, col1 as col2 FROM TABLE) GROUP BY col1；"
 
 *   查询列与分组列里出现函数时，函数的参数必须一致。
 
@@ -1349,6 +1370,11 @@ ORDER SIBLINGS BY id DESC;
 *   如果同时出现了DISTINCT或ORDER BY子语句，则在它们中出现的列遵循上两条规则。
 *   分组列不能包含或嵌套\*（星号），SEQUENCE，子查询及聚集函数等表达式。
 *   当分组列为数字时，与ORDER BY不同的是，本语句不会将数字释义成列的位置，而是作为字面量处理。
+*   分组列是否允许使用select_list中定义的列别名：
+
+    * yashan模式中，分组列不允许使用别名。
+
+    * mysql模式中，分组列允许使用别名。
 
 ###### HAVING
 
@@ -1357,6 +1383,11 @@ HAVING子句约束SELECT查询语句中GROUP BY的结果，该约束应用于查
 * HAVING子句可以放在GROUP BY子句的前面或后面。
 * HAVING后的condition是一个布尔表达式，语法同WHERE子句中的filter\_clause，但是它只能包含分组列、聚集函数（可以与select\_list中的聚集函数不一致）、字面量和子查询（子查询中的列不需要为分组列）。其中存算一体分布式集群部署中不可以使用子查询。
 *   如果没有GROUP BY，直接使用HAVING子句，表示该约束作用于整个查询结果，此时select\_list和condition中不能出现分组列。
+*   HAVING子句中的列名是否允许使用select_list中定义的列别名：
+
+    * yashan模式中，不允许使用别名。
+
+    * mysql模式中，允许使用别名。
 
 示例（单机部署）
 

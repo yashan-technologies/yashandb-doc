@@ -171,6 +171,39 @@ $ yasboot process yasom repair off -c yashandb
 $  yasboot process yasom demote -c yashandb
 ```
 
+## process yasom config set
+本命令用于配置yasom自选主参数，配置后立即生效。
+|  选项| 含义|
+|-----------------| ---------------------------- |
+| *-c, --cluster* | YashanDB的集群名（必传参数）        |
+| *-h,--help*        | 查看当前命令的帮助信息 |
+| *--heartbeat-interval*        | yasom自选主的心跳间隔时间 |
+| *--heartbeat-timeout*        | yasom自选主的心跳超时时间 |
+| *--heartbeat-db-url*        | YCM后台数据库连接地址 (ip:port),如果是主备部署，填写多个 ip1:port1,ip2:port2,ip3:port3 |
+| *--heartbeat-db-user*        | YCM后台数据库用户名 |
+| *--heartbeat-db-password*        | YCM后台数据库密码，密码将加密保存|
+
+## process yasom config show
+本命令用于查询yasom自选主参数。
+|  选项| 含义|
+|-----------------| ---------------------------- |
+| *-c, --cluster* | YashanDB的集群名（必传参数）        |
+| *-h,--help*        | 查看当前命令的帮助信息 |
+
+## process yasom election on
+本命令用于开启yasom自选主。
+|  选项| 含义|
+|-----------------| ---------------------------- |
+| *-c, --cluster* | YashanDB的集群名（必传参数）        |
+| *-h,--help*        | 查看当前命令的帮助信息 |
+
+## process yasom election off
+本命令用于关闭yasom自选主。
+|  选项| 含义|
+|-----------------| ---------------------------- |
+| *-c, --cluster* | YashanDB的集群名（必传参数）        |
+| *-h,--help*        | 查看当前命令的帮助信息 |
+
 ## process yasagent status
 
 本命令用于查看yasagent的运行状态。

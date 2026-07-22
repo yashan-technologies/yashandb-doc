@@ -25,9 +25,8 @@ The column headings in the table below represent the original types, while the r
 | **TIME**              | ✓                    | ✓                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
 | **TIMESTAMP**         | ✓                    | ✓                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
 | **BINARY(SIZE)**<br/>**VARBINARY(SIZE)**      | ✓                    | ✓                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
-| **TINYTEXT**<br/>**MEDIUMTEXT**<br/>**TEXT**<br/>**LONGTEXT**              | ✓                    | ✓                     | ✓                    | ✓           | X                   | X                      | X                    | X                   |
-| **TINYBLOB**<br/>**MEDIUMBLOB**<br/>**BLOB**<br/>**LONGBLOB**           | ✓                    | ✓                     | ✓                    | ✓           | X                    | X                      | X                    | X                   |
-
+| **TINYTEXT**<br/>**MEDIUMTEXT**<br/>**TEXT**<br/>**LONGTEXT**              | ✓                    | ✓                     | ✓                    | ✓           | ✓                   | ✓                      | ✓                    | ✓                   |
+| **TINYBLOB**<br/>**MEDIUMBLOB**<br/>**BLOB**<br/>**LONGBLOB**           | ✓                    | ✓                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
 (2)
 
 |Data Type |**FLOAT** |**DOUBLE** |**DECIMAL** |**CHAR(SIZE)** |**VARCHAR(SIZE)** |**DATE** |**TIME** |**TIMESTAMP** |
@@ -49,8 +48,8 @@ The column headings in the table below represent the original types, while the r
 | **TIME**              | ✓                    | ✓                     | ✓                     | ✓               | ✓                    | ✓                      | --                    | ✓                   |
 | **TIMESTAMP**         | ✓                    | ✓                     | ✓                     | ✓               | ✓                    | ✓                      | ✓                    | --                   |
 | **BINARY(SIZE)**<br/>**VARBINARY(SIZE)** | ✓                    | ✓                     | ✓                     | ✓               | ✓                    | ✓                      | ✓                    | ✓                   |
-| **TINYTEXT**<br/>**MEDIUMTEXT**<br/>**TEXT**<br/>**LONGTEXT** | X                    | X                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
-| **TINYBLOB**<br/>**MEDIUMBLOB**<br/>**BLOB**<br/>**LONGBLOB** | X                    | X                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
+| **TINYTEXT**<br/>**MEDIUMTEXT**<br/>**TEXT**<br/>**LONGTEXT** | ✓                    | ✓                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
+| **TINYBLOB**<br/>**MEDIUMBLOB**<br/>**BLOB**<br/>**LONGBLOB** | ✓                    | ✓                     | ✓                    | ✓           | ✓                    | ✓                      | ✓                    | ✓                   |
 
 (3)
 

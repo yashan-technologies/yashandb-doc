@@ -48,14 +48,9 @@ The YashanDB JDBC driver supports the following functionalities for the Statemen
 | void        | cancel()                                               |
 | boolean     | getMoreResults()                                       |
 | boolean     | getMoreResults(int current)                            |
-
-Unsupported functionalities:
-
-|Return Type |Method |
-|------------|----------------------------------------|
-| void       | setFetchDirection(int direction)       |
-| int        | getFetchDirection()                    |
-| void       | setCursorName(String name)             |
-| void       | setEscapeProcessing(boolean enable)    |
-| SQLWarning | getWarnings()                          |
-| void       | clearWarnings()                        |
+| void        | setFetchDirection(int direction)                       |
+| int         | getFetchDirection()                                    |
+| void        | setCursorName(String name)                             |
+| void        | setEscapeProcessing(boolean enable)                    |
+| SQLWarning  | getWarnings()                                          |
+| void        | clearWarnings()                                        |

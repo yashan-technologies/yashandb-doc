@@ -35,15 +35,15 @@ Support for Attribute parameters:
 | SQL_ATTR_ROW_ARRAY_SIZE        | Number of data rows fetched at once (default is 1) | Supported       |
 | SQL_ROWSET_SIZE                | Number of data rows fetched at once (default is 1) | Supported       |
 | SQL_ATTR_ROWS_FETCHED_PTR      | Pointer to the actual number of rows fetched | Supported       |
+| SQL_ATTR_PARAM_BIND_TYPE       | Support Row-Wise Binding and Column-Wise Binding           | Supported   |
+| SQL_ATTR_ROW_BIND_TYPE         | Support Row-Wise Binding and Column-Wise Binding           | Supported   |
 | SQL_ATTR_AUTO_IPD              | Returns SQL_FALSE                    | Not Supported   |
 | SQL_ATTR_CURSOR_SCROLLABLE     | Returns SQL_NONSCROLLABLE            | Not Supported   |
 | SQL_ATTR_PARAM_BIND_OFFSET_PTR  |                                       | Not Supported   |
-| SQL_ATTR_PARAM_BIND_TYPE       | Returns SQL_BIND_BY_COLUMN           | Not Supported   |
 | SQL_ATTR_PARAM_OPERATION_PTR   |                                       | Not Supported   |
 | SQL_ATTR_PARAM_STATUS_PTR      |                                       | Not Supported   |
 | SQL_ATTR_PARAMS_PROCESSED_PTR  |                                       | Not Supported   |
 | SQL_ATTR_ROW_BIND_OFFSET_PTR   |                                       | Not Supported   |
-| SQL_ATTR_ROW_BIND_TYPE         | Returns SQL_BIND_BY_COLUMN           | Not Supported   |
 | SQL_ATTR_ROW_NUMBER            | Returns 0                            | Not Supported   |
 | SQL_ATTR_ROW_OPERATION_PTR     |                                       | Not Supported   |
 | SQL_ATTR_ROW_STATUS_PTR        |                                       | Not Supported   |

@@ -30,6 +30,7 @@
 | CREATED | DATE | 建库时间 |
 | RESETLOGS_CHANGE# | BIGINT | open resetlogs时的系统修改序列号（SCN） |
 | FLASHBACK\_ON | VARCHAR(8) | 是否开启全库闪回功能<br/>*  YES：开启<br/>*  NO：关闭 |
+| HAS_GEK  | VARCHAR(8) | 是否有全局密钥<br/>*  YES：是<br/>*  NO：否  |
 
 
 

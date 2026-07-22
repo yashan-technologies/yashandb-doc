@@ -2,6 +2,14 @@ Release Notes will document key information for each version of YashanDB, includ
 
 The YashanDB v23.4 version is as follows:
 
+- [23.4.14](23.4.14)
+
+- [23.4.13](23.4.13)
+
+- [23.4.12](23.4.12)
+
+- [23.4.11](23.4.11)
+
 - [23.4.10](23.4.10)
 
 - [23.4.9](23.4.9)

@@ -40,7 +40,7 @@ Once the primary/standby leader election is enabled, the database has the follow
 
 ## yasom Election
 
-In Standalone One-Primary/One-Standby Deployment, Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby), *yasom* Election can be enabled. When *yasom* detects a failure in the primary database, it triggers arbitration switch to promote the standby database, continuing to provide services. The former primary is demoted to standby by *yasom*.
+In Standalone Primary-Standby Deployment (without cascade standby), Primary-Standby YAC Deployment, or ISC Distributed Cluster Deployment (where nodes within the DN group are configured as one-primary/one-standby), *yasom* Election can be enabled. When *yasom* detects a failure in the primary database, it triggers arbitration switch to promote the standby database, continuing to provide services. The former primary is demoted to standby by *yasom*.
 
 ### Arbitration Modes
 
@@ -48,15 +48,15 @@ The arbitration modes are divided into zero data loss mode and normal mode:
 
 - Zero Loss Mode
 
-  Prioritizing primary/standby maximizes protection, ensuring that when the primary database fails, the standby database switch to leader does not result in data loss. If the standby database fails, *yasom* will demote the primary database to maximize availability mode to ensure business remains uninterrupted. After the standby database recovers, if the primary database fails before data synchronization, *yasom* will not perform arbitration switch since the standby database data is incomplete. Once the data between the standby database and primary database is synchronized again, yasom will promote the primary database to maximize protection mode.
-  
+  Primary/standby prioritizes maximize protection, ensuring that when the primary database fails, the standby database promotes to primary without any data loss. If the standby database fails, *yasom* will remove the failed standby from the primary's sync standby list to ensure business continuity. If all sync standbys fail, the primary database will demote to maximize availability mode. After the standby database recovers, if the primary database fails before data synchronization is complete, *yasom* will not perform arbitration switch since the standby database data is incomplete. Once the data between the standby database and primary database is synchronized again, *yasom* will promote the primary database to maximize protection mode.
+
 - Normal Mode
   
   It prioritizes availability; as long as there is a surviving standby database, a switch can occur in the event of primary database failure, but it does not guarantee no data loss.
 
 ### Heartbeat
 
-*yasom* determines the database status through the connection heartbeat between the primary and standby nodes and the connection status between Yasom and the primary node. If the primary-standby heartbeat times out and *yasom* also loses connection with the primary database, the primary database is judged to be abnormal, thereby triggering the *yasom* Election process.
+*yasom* determines the database status through the connection heartbeat between the primary and standby nodes and the connection status between yasom and the primary node. If the primary-standby heartbeat times out and *yasom* also loses connection with the primary database, the primary database is judged to be abnormal, thereby triggering the *yasom* Election process.
 
 ### Node Priority
 

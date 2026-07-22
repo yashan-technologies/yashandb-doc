@@ -64,6 +64,12 @@ Trigger Condition: Occurs when executing cross-server queries in YAC/Distributed
 
 <span id="bwait" name="bwait"></span>
 
+### background idle wait
+
+Description: Background thread idle wait.
+
+Trigger Condition: Triggered when background threads are not processing tasks.
+
 ### btree cache invalid
 
 Description: A YAC/Distributed Cluster waiting event for concurrent index buffer invalidation.
@@ -567,6 +573,12 @@ Trigger Condition: Waiting occurs when the data transformation thread begins exe
 Description: Waiting for redo cache space allocation.
 
 Trigger Condition: Waiting occurs when a session attempts to write redo to the redo cache and finds insufficient space.
+
+### log file flush
+
+Description: Waiting for redo log assembly and flush.
+
+Trigger condition: Waiting when private redo data is assembled into a redo log and batch-written to disk, usually occurring during transaction commit or when the log buffer is full.
 
 ### log file parallel write
 
