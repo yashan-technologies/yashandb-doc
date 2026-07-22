@@ -1,0 +1,13 @@
+本视图显示所有LSC表的存储相关统计信息，存在分区时，按照分区划分并展示每个slice下每一列的信息。
+
+|  字段| 类型| 说明|
+|-------------------------|-----------|-----------------------------------|
+| BO                      | BIGINT    | 父表ID                              |
+| OBJ                     | BIGINT    | 本表ID（分区ID）                        |
+| DATAOBJ                 | BIGINT    | 本表的数据对象ID                         |
+| SLICE\_ID               | BIGINT    | slice逻辑ID                         |
+| COLUMN\_ID              | SMALLINT  | 列ID                               |
+| COLUMN\_FILE\_SIZE      | BIGINT    | slice中该列的文件大小（包括数据文件和元数据文件）       |
+| COLUMN\_DATA\_SIZE      | BIGINT    | slice中该列经过编码压缩后的最终数据大小（不包括元数据大小）  |
+| COLUMN\_ENCODED\_SIZE   | BIGINT    | slice中该列在编码后，压缩前的数据大小（不包括元数据大小）   |
+| COLUMN\_ORIGINAL\_SIZE  | BIGINT    | slice中该列对应的原始写入数据大小               |

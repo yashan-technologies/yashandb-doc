@@ -1,1 +1,0 @@
-YashanDB supports two SQL syntax modes, yashan and mysql, starting from version V23.4. This section describes a quick experience of database functionality in the native yashan mode scenario.

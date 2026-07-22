@@ -1,0 +1,1 @@
+In YAC Deployment, users can scale cluster instances as needed in a running environment, which means adding or deleting instances to a specific cluster (including YCS instances and database instances).

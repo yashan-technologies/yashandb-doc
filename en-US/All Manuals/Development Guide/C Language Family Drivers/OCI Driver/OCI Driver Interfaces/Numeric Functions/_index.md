@@ -1,3 +1,0 @@
-initno:1
-
-filename:OCINumberFromInt,OCINumberFromReal,OCINumberFromText,OCINumberToInt,OCINumberToReal,OCINumberToText

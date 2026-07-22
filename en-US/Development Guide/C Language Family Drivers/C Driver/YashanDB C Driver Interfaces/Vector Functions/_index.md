@@ -1,0 +1,3 @@
+initno:1
+
+filename:yacDescAlloc2,yacDescFree2,yacVectorFromArray,yacVectorFromText,yacVectorGetDimension,yacVectorGetFormat,yacVectorToArray,yacVectorToText

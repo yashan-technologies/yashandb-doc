@@ -1,5 +1,0 @@
-The JDBC driver, in addition to providing basic functions for connecting to and operating databases, also has the following two advanced functionalities:
-
-- [Transparent Application Failover](Transparent Application Failover) (TAF, Transparent Application Failover) functionality, which effectively reduces the interruption of end-user applications caused by database connection failures due to instance or network faults.
-- Based on the JDBC driver [Using GIS Data Type](Using GIS Data Type), it can effectively reduce the difficulty for users to operate ST_GEOMETRY type data.
-- [Using Data Sharding With In Memory Database](Using Data Sharding With In Memory Database), Each YashanDB is optimized for sharding the database tables and the stored procedures that access those tables across partitions on one or more host machines to create the distributed database. Because both the data and the work is partitioned, multiple queries can be run in parallel without the global lock to achieve the maximum performance.

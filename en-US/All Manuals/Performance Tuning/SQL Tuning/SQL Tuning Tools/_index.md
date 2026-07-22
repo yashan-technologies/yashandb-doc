@@ -1,3 +1,0 @@
-initno:-
-
-filename:Hint,Outline

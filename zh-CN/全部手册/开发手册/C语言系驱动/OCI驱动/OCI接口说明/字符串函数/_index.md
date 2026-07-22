@@ -1,5 +1,0 @@
-initno:1
-
-filename:OCIStringAllocSize,OCIStringAssignText,OCIStringPtr,OCIStringResize,OCIStringSize
-
-enName:OCIStringAllocSize,OCIStringAssignText,OCIStringPtr,OCIStringResize,OCIStringSize
