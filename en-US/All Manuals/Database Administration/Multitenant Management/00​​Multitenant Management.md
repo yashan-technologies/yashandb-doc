@@ -1,3 +1,0 @@
-In YashanDB's multi-tenant architecture, enterprises can efficiently manage multiple independent business systems within a single database, achieving optimal resource allocation and effective cost control.
-
-This chapter focuses on providing guidance for tenant management operations, detailing how to build and manage multi-tenant environments. From CDB creation to daily operations such as PDB add/delete/modify/query, as well as global configuration management and global data access.

@@ -1,0 +1,15 @@
+本视图显示checkpoint的相关信息。
+
+|  字段| 类型| 说明|
+| --- | --- | --- |
+| GROUP_ID | NUMBER | 组ID |
+| GROUP_NODE_ID | NUMBER | 组内节点ID |
+| INST\_ID | NUMBER  | 实例ID |
+| TOTAL\_NUM | BIGINT | 总的checkpoint次数 |
+| SCHEDULE\_NUM | BIGINT | 条件触发的checkpoint次数 |
+| LAST\_EXECUTED | DATE | 上次执行checkpoint的时间 |
+| CURRENT_STATUS |  VARCHAR(16) | 当前的状态<br>\* FULL：全量<br>\* INCREMENTAL：增量<br>\* IDLE：空闲 |
+| DIRTY\_QUEUE\_LENGTH | BIGINT | checkpoint脏块队列的长度 |
+| DIRTY\_QUEUE\_FIRST |  VARCHAR(32) | checkpoint脏块队列的队首block |
+| DIRTY\_QUEUE\_LAST |  VARCHAR(32) | checkpoint脏块队列的队尾block |
+| TRUNC\_POINT |  VARCHAR(32) | checkpoint脏块队列日志截断点 |

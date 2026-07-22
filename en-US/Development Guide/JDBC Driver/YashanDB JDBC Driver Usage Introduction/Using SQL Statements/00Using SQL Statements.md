@@ -1,0 +1,1 @@
+After creating a connection from the application to the database, various SQL statements can be used to operate on server-side data, and return values can be obtained and queried as needed. 

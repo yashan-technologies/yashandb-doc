@@ -1,0 +1,22 @@
+This view displays the statistics content on the dictionary cache columns.
+
+|Field |Type |Description |
+| --- | --- | --- |
+| OBJ#          | BIGINT   | The ID of the table object or partition object where the column is located.                                                                                                                           |
+| COL#          | INTEGER  | Column ID.                                                                                                                                                                                              |
+| BUCKET_COUNT  | BIGINT   | The number of buckets in the histogram.                                                                                                                                                                 |
+| ROW_COUNT     | INTEGER  | The number of rows in the histogram.                                                                                                                                                                    |
+| NULL_COUNT    | BIGINT   | The number of null rows in the column.                                                                                                                                                                   |
+| MINIMUM       | BIGINT   | The minimum value of the bucket count.                                                                                                                                                                   |
+| MAXIMUM       | BIGINT   | The maximum value of the bucket count.                                                                                                                                                                   |
+| DIST_COUNT    | BIGINT   | The distinct count of the column.                                                                                                                                                                        |
+| LOWVAL        | RAW(1000)| The minimum value of the column.                                                                                                                                                                         |
+| HIGHVAL       | RAW(1000)| The maximum value of the column.                                                                                                                                                                         |
+| DENSITY       | FLOAT    | The density of the column.                                                                                                                                                                               |
+| AVG_LENGTH    | INTEGER  | The average length of the column.                                                                                                                                                                        |
+| MAX_LENGTH    | INTEGER  | The maximum length of the column.                                                                                                                                                                        |
+| FLAGS         | INTEGER  | Properties of the statistics.<br>*   0X01: Indicates whether the statistics are directly specified by the user.<br>*   0X02: Indicates whether the statistics of the partition index are derived from full statistics or estimated from the partition.<br>*   0X04: Indicates whether the statistics have been collected.<br>*   0X100: Indicates whether the statistics are locked. |
+| TYPE          | INTEGER  | Histogram type.                                                                                                                                                                                          |
+| ANALYZE_TIME  | DATE     | The time when the statistics were last collected.                                                                                                                                                       |
+| SAMPLE_SIZE   | BIGINT   | The number of rows sampled for the statistics.                                                                                                                                                           |
+| BLOCK_COUNT    | BIGINT   | The number of data blocks for the column.                                                                                                                                                                |

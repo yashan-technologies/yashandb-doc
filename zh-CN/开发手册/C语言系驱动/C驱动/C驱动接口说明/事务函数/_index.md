@@ -1,0 +1,5 @@
+initno:1
+
+filename:yacCommit,yacRollback,yacXaStart,yacXaPrepare,yacXaRollback,yacXaForget
+
+enName:yacCommit,yacRollback,yacXaStart,yacXaPrepare,yacXaRollback,yacXaForget

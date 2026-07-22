@@ -1,0 +1,74 @@
+YashanDB supports online scaling out of DN nodes in Distributed Cluster Deployment through the [yasboot](../../../Tools Guide/yasboot/00yasboot) tool, and the scaling out does not affect the usage of the entire cluster.
+
+> **Note**: 
+>
+> - Each DN node will be hosted by a separate server (hereinafter referred to as "new server"). It is recommended that the new server's OS version be consistent with existing server(s).
+>
+> - The scaling operation will add DN data disks instead of system disks, so you only need to mount data disks on the new server in the preparation for installation.
+
+The following is a guide to the operation steps:
+
+1. Prepare the new servers required for scaling out, and refer to [Pre-installation Preparation](../../../Installation and Upgrade/Installation and Deployment/Pre-Installation Preparation/00Pre-Installation Preparation) to check and ensure that all environmental requirements of the new server system have been met.
+
+2. Log in to the server where an existing node of the database is located as the installation user.
+
+3. Execute the [yasboot config node gen](../../../Tools Guide/yasboot/Introduction to yasboot Command/yasboot config) command to generate the configuration file for adding DN node(s).
+
+   ```shell
+   $ yasboot config node gen -c yashandb \
+   -u yashan -p password \
+   --dn-ip ip1,ip2 \
+   --data /dev/nvme0n2
+   ```
+
+    After successful execution, two configuration files will be generated: [yashandb_add.toml](../../../Tools Guide/yasboot/Configuration Files/Database Scale-out Configuration File) and [hosts_add.toml](../../../Tools Guide/yasboot/Configuration Files/Server Scale-out Configuration File). 
+
+   The parameter `yfs_force_create` is needed to be set to `true`  for ensuring that YFS can create disk groups compulsorily.
+
+   ```shell
+   $ vi yashandb_add.toml
+   ...
+   [[group.diskgroup]]
+       au_size = "1M"
+       disk_size = ""
+       name = "DG0"
+       redundancy = "EXTERNAL"
+       yfs_force_create = true
+   ...
+   ```
+
+4. Execute the following command to remotely connect to the new server(s) and install YashanDB on them.
+
+    ```shell
+    $ yasboot host add -c yashandb -t hosts_add.toml
+    ```
+
+5. Complete the following configurations on the new server(s) as required.
+    
+    - If the database has enabled the [Resource Management](../../../Database Administration/Resource Management/00Resource Management) function before scaling out, the [yasboot host cgroup](../../../Tools Guide/yasboot/Introduction to yasboot Command/yasboot host) command needs to be executed on the new servers to create the cgroup directory.
+
+        ```shell
+        $ yasboot host cgroup create -c yashandb --sudo-username root --sudo-password ****** --host-id host004
+        ```
+
+    - If all other servers have been configured for auto-start before the scaling out, the new server must also be [configured for auto-start](../../Installation and Deployment/Initial Environment after Installation/Configuring Boot Autostart).
+
+6. On the server where the configuration file was generated, execute the following command to add DN node(s).
+
+    ``` shell
+    # If the database has enabled key management before scaling out, --wallet-password Your_keystore_password must be specified
+
+    $ yasboot node add -c yashandb -t yashandb_add.toml
+    ```
+
+    A successful task does not necessarily indicate that the scaling is completely successful; there may still be backend tasks completing data synchronization and other operations. You can check if all scaling-related tasks succeeded using the `task list` command.
+
+    ```shell
+    $ yasboot task list -c yashandb --search type=NodeAdd
+    ```
+
+8. (Optional) Backup the database.
+
+    It is recommended to perform a [backup](../../../Database Administration/Backup and Recovery/00Backup and Recovery) of the database to ensure there is a baseline backup set available for recovery after scaling.
+
+9. Copy the [[host]] content from hosts_add.toml to the end of hosts.toml to avoid using old host information during an upgrade.

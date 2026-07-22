@@ -1,3 +1,0 @@
-initno:1
-
-filename:yacLobCreateTemporary,yacLobDescAlloc,yacLobDescFree,yacLobRead,yacLobWrite
